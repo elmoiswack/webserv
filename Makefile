@@ -1,6 +1,8 @@
 NAME	:=	webserv
 
 SRC	:=	main.cpp \
+		Parser.cpp \
+		Server.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs
@@ -23,7 +25,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 
 clean:
 	rm -f $(OBJS)
-
+	
 fclean:
 	rm -f $(NAME) $(OBJS)
 
