@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 	{
 		Parser pars(argv[1]);
 		Server serv(pars);
-		serv.StartServer();
+		serv.SetUpServer();
 
 	}
 	catch(const std::exception& e)
