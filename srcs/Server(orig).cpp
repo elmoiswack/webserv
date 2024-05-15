@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-#include "../includes/utils_rares.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -58,8 +57,6 @@ void Server::StartServer()
 
 	std::cout << "connection accepted!" << std::endl;
 
-	std::string html_file_content = readFile("../var/www/index.html");
-	// std::string response = ""
 	// keeps it running
 	while (true)
     {
@@ -75,7 +72,9 @@ void Server::StartServer()
 	    "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: 13\r\n"
-        "\r\n";
+        "\r\n"
+        "<html></html>";
+
         // Send the blank HTML page response again for new connections
         write(newsock, response, strlen(response));
         close(newsock);
