@@ -55,15 +55,36 @@ void Server::StartServer()
 		exit(EXIT_FAILURE);			
 	}
 
-    // char buffer[1024] = { 0 }; 
-    // recv(newsock, buffer, sizeof(buffer), 0); 
-    // std::cout << "Message from client: " << buffer << std::endl; 
-	while (true)
-	{
+	std::cout << "connection accepted!" << std::endl;
 
-	}
+	// keeps it running
+	while (true)
+    {
+        newsock = accept(this->_websock, NULL, NULL);
+        if (newsock == -1)
+        {
+            std::cout << "ERROR ACCEPT" << std::endl;
+            exit(EXIT_FAILURE);			
+        }
+
+		// blank HTML page
+		const char *response =
+	    "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/html\r\n"
+        "Content-Length: 13\r\n"
+        "\r\n"
+        "<html></html>";
+
+        // Send the blank HTML page response again for new connections
+        write(newsock, response, strlen(response));
+        close(newsock);
+    }
 }	
 
+
+// char buffer[1024] = { 0 }; 
+// recv(newsock, buffer, sizeof(buffer), 0); 
+// std::cout << "Message from client: " << buffer << std::endl; 
 // void Server::StartClient(int fd)
 // {
 

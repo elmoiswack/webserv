@@ -23,11 +23,16 @@ $(NAME): $(OBJS)
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJDIR):
+	@mkdir $@
+
 clean:
 	rm -f $(OBJS)
+	rm -rf $(OBJDIR)
 	
 fclean:
 	rm -f $(NAME) $(OBJS)
+	rm -rf $(OBJDIR)
 
 re: fclean all
 
