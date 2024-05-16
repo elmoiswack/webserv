@@ -38,7 +38,19 @@ void Server::AddSocket(int fd, bool is_client)
 
 void Server::RmvSocket(int index)
 {
-	
+	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
+	for (int i = 0; i != index; i++)
+	{
+		it++;
+	}
+	close(this->_sockvec[index].fd);
+	this->_sockvec.erase(it);
+	std::vector<std::string>::iterator jt = this->_whatsockvec.begin();
+	for (int j = 0; j != index; j++)
+	{
+		jt++;
+	}
+	this->_whatsockvec.erase(jt);
 }
 
 //https://localhost:8080/ our address
@@ -55,7 +67,7 @@ void Server::SetUpServer()
 	memset(&infoaddr, '\0', sizeof(infoaddr));
 	infoaddr.sin_family = AF_INET;
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
-	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
+	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));
 	if (bind(this->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR BIND" << std::endl;
@@ -66,6 +78,11 @@ void Server::SetUpServer()
 	{
 		std::cout << "ERROR LISTEN" << std::endl;
 		exit(EXIT_FAILURE);		
+	}
+	if (fcntl(this->_sockvec[0].fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << "ERROR FCNTL" << std::endl;
+		exit(EXIT_FAILURE);	
 	}
 	this->_server_running = true;
 	this->RunPoll();
