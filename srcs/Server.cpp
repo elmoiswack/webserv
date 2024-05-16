@@ -11,7 +11,7 @@ Server::Server(Parser &in)
 	this->_ip = in.GetIp();
 	this->_port = in.GetPort();
 	this->_server_name = in.GetServName();
-	this->_sock_elem = 0;
+	this->_ammount_sock = 0;
 }
 
 Server::~Server()
@@ -22,14 +22,23 @@ Server::~Server()
 	this->_sockvec.clear();
 }
 
-void Server::AddSocket(int fd)
+void Server::AddSocket(int fd, bool is_client)
 {
 	pollfd temp;
 	temp.fd = fd;
 	temp.events = POLLIN | POLLOUT;
 	temp.revents = 0;
 	this->_sockvec.push_back(temp);
-	this->_sock_elem += 1;
+	if (is_client == true)
+		this->_whatsockvec.push_back("client");
+	else
+		this->_whatsockvec.push_back("server");
+	this->_ammount_sock += 1;
+}
+
+void Server::RmvSocket(int index)
+{
+	
 }
 
 //https://localhost:8080/ our address
@@ -41,7 +50,7 @@ void Server::SetUpServer()
 		std::cout << "ERROR" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	this->AddSocket(websock);
+	this->AddSocket(websock, false);
 	struct sockaddr_in infoaddr;
 	memset(&infoaddr, '\0', sizeof(infoaddr));
 	infoaddr.sin_family = AF_INET;
@@ -60,13 +69,14 @@ void Server::SetUpServer()
 	}
 	this->_server_running = true;
 	this->RunPoll();
+	this->CloseAllFds();
 }	
 
 void Server::PollEvents()
 {
-	for (pollfd &bruh : this->_sockvec)
+	for (pollfd &tmp : this->_sockvec)
 	{
-		if (bruh.revents == POLLIN)
+		if (tmp.revents == POLLIN)
 		{
 			int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
        		if (newsock == -1)
@@ -74,10 +84,10 @@ void Server::PollEvents()
            		std::cout << "ERROR ACCEPT" << std::endl;
            		exit(EXIT_FAILURE);
        		}
-			this->AddSocket(newsock);
+			this->AddSocket(newsock, true);
 			logger("Connection is accepted!");
 		}
-		if (bruh.revents == POLLOUT)
+		if (tmp.revents == POLLOUT)
 		{
 			std::string response =
 			"HTTP/1.1 200 OK\r\n"
@@ -87,7 +97,7 @@ void Server::PollEvents()
 			"<html>"
 			"HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
 			"</html>";
-			write(bruh.fd, response.c_str(), response.size());
+			write(tmp.fd, response.c_str(), response.size());
 		}
 	}	
 }
@@ -104,6 +114,14 @@ void Server::RunPoll()
 		}
 		this->PollEvents();
 	}	
+}
+
+void Server::CloseAllFds()
+{
+	for (int i = 0;  i != this->_ammount_sock; i++)
+	{
+		close(this->_sockvec[i].fd);
+	}
 }
 
 void logger(std::string input)

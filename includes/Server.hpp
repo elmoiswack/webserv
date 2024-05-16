@@ -11,8 +11,9 @@ private:
 	std::string _port;
 	std::string _server_name;
 	bool		_server_running;
+	int			_ammount_sock;
 	std::vector<struct pollfd> _sockvec;
-	int					_sock_elem;
+	std::vector<std::string> _whatsockvec;
 public:
 	Server(Parser &in);
 	~Server();
@@ -20,8 +21,9 @@ public:
 	void SetUpServer();
 	void RunPoll();
 	void PollEvents();
-	void AddSocket(int fd);
+	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
+	void CloseAllFds();
 };
 
 void logger(std::string input);
