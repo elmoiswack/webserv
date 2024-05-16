@@ -49,35 +49,29 @@ void Server::StartServer()
 		std::cout << "ERROR LISTEN" << std::endl;
 		exit(EXIT_FAILURE);		
 	}
-	long newsock = accept(this->_websock, NULL, NULL);
-	if (newsock == -1)
-	{
-		std::cout << "ERROR ACCEPT" << std::endl;
-		exit(EXIT_FAILURE);			
-	}
 
-	std::cout << "connection accepted!" << std::endl;
-
-	std::string html_file_content = readFile("../var/www/index.html");
-	// std::string response = ""
 	// keeps it running
+	long newsock;
 	while (true)
     {
-        newsock = accept(this->_websock, NULL, NULL);
+       	newsock = accept(this->_websock, NULL, NULL);
         if (newsock == -1)
         {
             std::cout << "ERROR ACCEPT" << std::endl;
             exit(EXIT_FAILURE);			
         }
-
-		// blank HTML page
-		const char *response =
-	    "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: 13\r\n"
-        "\r\n";
+		std::cout << "connection accepted!\n";
+		// HTML page
+		std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
+		// std::cout << html_file << "\n";
+		std::string response =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
+		"\r\n"
+		+ html_file;
         // Send the blank HTML page response again for new connections
-        write(newsock, response, strlen(response));
+        write(newsock, response.c_str(), response.size());
         close(newsock);
     }
 }	

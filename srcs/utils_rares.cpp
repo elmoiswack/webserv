@@ -6,7 +6,7 @@
 /*   By: raanghel <raanghel@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/05/15 18:17:10 by raanghel      #+#    #+#                 */
-/*   Updated: 2024/05/15 18:49:48 by raanghel      ########   odam.nl         */
+/*   Updated: 2024/05/16 12:53:13 by coxer         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 std::string readFile(const std::string &path)
 {
-	std::ifstream file(path);
+	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
 		std::cout << "Failed to read file!\n";
