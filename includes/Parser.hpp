@@ -21,7 +21,7 @@ public:
 
 	// void StartParser(std::string inputfile);
 	void StartParser(std::string inputfile);
-	void CheckConfigData(std::string inputfile);
+	void CheckConfigData(std::vector<std::string>& tokens);
 	void OpenConfigFile(std::string inputfile);
 	void TokenizeString(std::string &inputfile);
 	void ProcessConfigData(std::string &ConfigString);

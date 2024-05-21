@@ -20,5 +20,4 @@ int main(int argc, char *argv[])
 	{
 		std::cerr << "ERROR: " << e.what() << std::endl;
 	}
-	
 }

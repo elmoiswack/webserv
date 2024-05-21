@@ -37,7 +37,7 @@ void Server::StartServer()
 	memset(&infoaddr, '\0', sizeof(infoaddr));
 	infoaddr.sin_family = AF_INET;
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
-	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
+	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));
 	if (bind(this->_websock, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR BIND" << std::endl;
@@ -48,25 +48,19 @@ void Server::StartServer()
 		std::cout << "ERROR LISTEN" << std::endl;
 		exit(EXIT_FAILURE);		
 	}
-	long newsock = accept(this->_websock, NULL, NULL);
-	if (newsock == -1)
-	{
-		std::cout << "ERROR ACCEPT" << std::endl;
-		exit(EXIT_FAILURE);			
-	}
-
-	std::cout << "connection accepted!" << std::endl;
-
+    std::cout << "Socket is set up and listening on " << this->_ip << ":" << this->_port << std::endl;
+    std::cout << "Socket file descriptor: " << this->_websock << std::endl;
 	// keeps it running
 	while (true)
     {
-        newsock = accept(this->_websock, NULL, NULL);
+		std::cout << "Waiting for a connection..." << std::endl;
+        int newsock = accept(this->_websock, NULL, NULL);
         if (newsock == -1)
         {
             std::cout << "ERROR ACCEPT" << std::endl;
             exit(EXIT_FAILURE);			
         }
-
+ 		// std::cout << "Connection accepted on socket " << newsock << std::endl;
 		// blank HTML page
 		const char *response =
 	    "HTTP/1.1 200 OK\r\n"
