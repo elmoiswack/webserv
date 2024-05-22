@@ -94,18 +94,14 @@ void Server::RunPoll()
 {
 	while (this->_server_running == true)
 	{
-		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
-		for (int index = 0; index != ret; index++)
-		{
-			if (this->_whatsockvec[index] == "client")
-				this->_sockvec[index].events = POLLOUT;
-		}
+		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);ß
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		this->PollEvents(ret);
+		if (ret > 0)
+			this->PollEvents(ret);
 	}	
 }
 
@@ -117,9 +113,9 @@ void Server::PollEvents(int pollammount)
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		if (temp.revents == POLLIN)
+		if (temp.revents & POLLIN)
 			this->EventsPollin(temp.fd, index);
-		if (temp.revents == POLLOUT)
+		if (temp.revents & POLLOUT)
 		{
 			logger("POLLOUT");
 			std::string response =
@@ -132,6 +128,15 @@ void Server::PollEvents(int pollammount)
 			"</html>";
 			write(temp.fd, response.c_str(), response.size());
 			logger("HTMLpage is sent to fd!");
+		}
+		if (temp.revents & POLLHUP)
+		{
+			logger("Connection hung up!");
+			close(temp.fd);
+		}
+		if (temp.revents & POLLERR)
+		{
+			logger("Fuck error poll");
 		}
 	}	
 }
@@ -154,8 +159,9 @@ void Server::EventsPollin(int fd, int index)
 	}
 	else
 	{
+		std::cout << fd << std::endl;
 		logger("Ready to recieve...");
-		char buf[256];
+		char buf[1024];
 		int nbytes = recv(fd, buf, sizeof(buf), 0);
 		if (nbytes == 0)
 		{
