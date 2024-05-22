@@ -20,7 +20,9 @@ public:
 
 	void SetUpServer();
 	void RunPoll();
-	void PollEvents();
+	void PollEvents(int pollammount);
+	void EventsPollin(int fd, int index);
+	void EventsPollout(int fd);
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
 	void CloseAllFds();

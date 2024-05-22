@@ -20,6 +20,7 @@ Server::~Server()
 	this->_port.clear();
 	this->_server_name.clear();
 	this->_sockvec.clear();
+	this->_whatsockvec.clear();
 }
 
 void Server::AddSocket(int fd, bool is_client)
@@ -70,7 +71,7 @@ void Server::SetUpServer()
 	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));
 	if (bind(this->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
-		std::cout << "ERROR BIND" << std::endl;
+		std::cout << "ERROR bruh" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	logger("Server is running!");
@@ -87,25 +88,40 @@ void Server::SetUpServer()
 	this->_server_running = true;
 	this->RunPoll();
 	this->CloseAllFds();
-}	
+}
 
-void Server::PollEvents()
+void Server::RunPoll()
 {
-	for (pollfd &tmp : this->_sockvec)
+	while (this->_server_running == true)
 	{
-		if (tmp.revents == POLLIN)
+		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
+		for (int index = 0; index != ret; index++)
 		{
-			int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
-       		if (newsock == -1)
-       		{
-           		std::cout << "ERROR ACCEPT" << std::endl;
-           		exit(EXIT_FAILURE);
-       		}
-			this->AddSocket(newsock, true);
-			logger("Connection is accepted!");
+			if (this->_whatsockvec[index] == "client")
+				this->_sockvec[index].events = POLLOUT;
 		}
-		if (tmp.revents == POLLOUT)
+		if (ret < 0)
 		{
+			std::cout << "ERROR POLL" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		this->PollEvents(ret);
+	}	
+}
+
+void Server::PollEvents(int pollammount)
+{
+	for (int index = 0; index != pollammount; index++)
+	{
+		pollfd temp;
+		temp.fd = this->_sockvec[index].fd;
+		temp.events = this->_sockvec[index].events;
+		temp.revents = this->_sockvec[index].revents;
+		if (temp.revents == POLLIN)
+			this->EventsPollin(temp.fd, index);
+		if (temp.revents == POLLOUT)
+		{
+			logger("POLLOUT");
 			std::string response =
 			"HTTP/1.1 200 OK\r\n"
 			"Content-Type: text/html\r\n"
@@ -114,23 +130,59 @@ void Server::PollEvents()
 			"<html>"
 			"HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
 			"</html>";
-			write(tmp.fd, response.c_str(), response.size());
+			write(temp.fd, response.c_str(), response.size());
+			logger("HTMLpage is sent to fd!");
 		}
 	}	
 }
 
-void Server::RunPoll()
+void Server::EventsPollin(int fd, int index)
 {
-	while (this->_server_running == true)
+	logger("POLLIN");
+	logger("action pending...");
+	if (index == 0)
 	{
-		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
-		if (ret < 0)
+		logger("attempting connection");
+		int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
+		if (newsock == -1)
 		{
-			std::cout << "ERROR POLL" << std::endl;
+			std::cout << "ERROR ACCEPT" << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		this->PollEvents();
-	}	
+		this->AddSocket(newsock, true);
+		logger("Connection is accepted!");
+	}
+	else
+	{
+		logger("Ready to recieve...");
+		char buf[256];
+		int nbytes = recv(fd, buf, sizeof(buf), 0);
+		if (nbytes == 0)
+		{
+			logger("Connection closed!");
+			close(fd);
+			RmvSocket(index);
+		}
+		else if (nbytes < 0)
+		{
+			std::cout << "ERROR RECV" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		logger("message recieved!");
+		for (int j = 0; j < this->_ammount_sock; j++)
+		{
+			int destfd = this->_sockvec[j].fd;
+			if (j != 0 && j != index)
+			{
+				if (send(destfd, buf, nbytes, 0) == -1)
+				{
+					std::cout << "ERROR SEND" << std::endl;
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
+		logger("message send!");
+	}
 }
 
 void Server::CloseAllFds()
