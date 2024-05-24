@@ -8,7 +8,7 @@ class Server
 {
 private:
 	std::string _ip;
-	std::string _port;
+	std::vector<std::string> _ports;
 	std::string _server_name;
 	bool		_server_running;
 	int			_ammount_sock;
@@ -19,6 +19,9 @@ public:
 	~Server();
 
 	void SetUpServer();
+	void InitSocket();
+	void BindSockets();
+	void ListenSockets();
 	void RunPoll();
 	void PollEvents(int pollammount);
 	void EventsPollin(int fd, int index);
