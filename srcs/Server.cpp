@@ -152,7 +152,7 @@ void Server::PollEvents(int pollammount)
 		}
 		if (temp.revents == POLLOUT)
 		{
-			this->EventsPollout();
+			this->EventsPollout(temp.fd);
 		}
 		if (temp.revents == POLLHUP)
 		{
@@ -168,7 +168,7 @@ void Server::PollEvents(int pollammount)
 	}	
 }
 
-void Server::EventsPollout()
+void Server::EventsPollout(int fd)
 {
 	logger("POLLOUT");
 	std::string response =
@@ -179,9 +179,9 @@ void Server::EventsPollout()
 	"<html>"
 	"HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
 	"</html>";
-	write(temp.fd, response.c_str(), response.size());
+	write(fd, response.c_str(), response.size());
 	logger("HTMLpage is sent to fd!");
-	close(temp.fd);
+	close(fd);
 }
 
 void Server::EventsPollin(int fd, int index)
