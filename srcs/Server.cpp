@@ -9,7 +9,7 @@
 Server::Server(Parser &in)
 {
 	this->_ip = in.GetIp();
-	this->_port = in.GetPort();
+	this->_ports.push_back(in.GetPort());
 	this->_server_name = in.GetServName();
 	this->_ammount_sock = 0;
 }
@@ -17,10 +17,10 @@ Server::Server(Parser &in)
 Server::~Server()
 {
 	this->_ip.clear();
-	this->_port.clear();
 	this->_server_name.clear();
 	this->_sockvec.clear();
 	this->_whatsockvec.clear();
+	this->_ports.clear();
 }
 
 void Server::AddSocket(int fd, bool is_client)
@@ -54,38 +54,70 @@ void Server::RmvSocket(int index)
 	this->_whatsockvec.erase(jt);
 }
 
+void Server::InitSocket()
+{
+	std::vector<std::string>::iterator it;
+	for (it = this->_ports.begin(); it != this->_ports.end(); it++)
+	{
+		int websock = socket(AF_INET, SOCK_STREAM, 0);
+		if (websock < 0)
+		{
+			std::cout << "ERROR SOCKET" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		if (fcntl(websock, F_SETFL, O_NONBLOCK) == -1)
+		{
+			std::cout << "ERROR FCNTL" << std::endl;
+			exit(EXIT_FAILURE);	
+		}
+		this->AddSocket(websock, false);
+	}
+}
+
+void Server::BindSockets()
+{
+	std::vector<std::string>::iterator it;
+	struct sockaddr_in infoaddr;
+	memset(&infoaddr, '\0', sizeof(infoaddr));
+	int index = 0;
+	for (it = this->_ports.begin(); it != this->_ports.end(); it++)
+	{
+		std::string tmp = *it;
+		infoaddr.sin_family = AF_INET;
+		infoaddr.sin_addr.s_addr = INADDR_ANY;
+		infoaddr.sin_port = htons(std::atoi(tmp.c_str()));
+		if (bind(this->_sockvec[index].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
+		{
+			std::cout << "ERROR bruh" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		index++;
+	}
+}
+
+void Server::ListenSockets()
+{
+	std::vector<std::string>::iterator it;
+	int index = 0;
+	for (it = this->_ports.begin(); it != this->_ports.end(); it++)
+	{
+		if (listen(this->_sockvec[index].fd, 5) == -1)
+		{
+			std::cout << "ERROR LISTEN" << std::endl;
+			exit(EXIT_FAILURE);		
+		}
+		index++;
+	}	
+}
 //https://localhost:8080/ our address
 void Server::SetUpServer()
 {
-	int websock = socket(AF_INET, SOCK_STREAM, 0);
-	if (websock < 0)
-	{
-		std::cout << "ERROR" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	this->AddSocket(websock, false);
-	struct sockaddr_in infoaddr;
-	memset(&infoaddr, '\0', sizeof(infoaddr));
-	infoaddr.sin_family = AF_INET;
-	infoaddr.sin_addr.s_addr = INADDR_ANY;
-	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));
-	if (bind(this->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
-	{
-		std::cout << "ERROR bruh" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+	this->_ports.push_back("8081");
+	this->InitSocket();
+	this->BindSockets();
 	logger("Server is running!");
-	if (listen(this->_sockvec[0].fd, 5) == -1)
-	{
-		std::cout << "ERROR LISTEN" << std::endl;
-		exit(EXIT_FAILURE);		
-	}
-	if (fcntl(this->_sockvec[0].fd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		std::cout << "ERROR FCNTL" << std::endl;
-		exit(EXIT_FAILURE);	
-	}
 	this->_server_running = true;
+	this->ListenSockets();
 	this->RunPoll();
 	this->CloseAllFds();
 }
@@ -120,19 +152,7 @@ void Server::PollEvents(int pollammount)
 		}
 		if (temp.revents == POLLOUT)
 		{
-			logger("POLLOUT");
-			std::string response =
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: 25\r\n"
-			"\r\n"
-			"<html>"
-			"HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
-			"</html>";
-			write(temp.fd, response.c_str(), response.size());
-			logger("HTMLpage is sent to fd!");
-			close(temp.fd);
-			this->RmvSocket(index);
+			this->EventsPollout();
 		}
 		if (temp.revents == POLLHUP)
 		{
@@ -148,15 +168,30 @@ void Server::PollEvents(int pollammount)
 	}	
 }
 
+void Server::EventsPollout()
+{
+	logger("POLLOUT");
+	std::string response =
+	"HTTP/1.1 200 OK\r\n"
+	"Content-Type: text/html\r\n"
+	"Content-Length: 25\r\n"
+	"\r\n"
+	"<html>"
+	"HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+	"</html>";
+	write(temp.fd, response.c_str(), response.size());
+	logger("HTMLpage is sent to fd!");
+	close(temp.fd);
+}
+
 void Server::EventsPollin(int fd, int index)
 {
 	logger("POLLIN");
 	logger("action pending...");
-	std::cout << fd << std::endl;
-	if (index == 0)
+	if ((unsigned long)index < this->_ports.size())
 	{
 		logger("attempting connection...");
-		int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
+		int newsock = accept(this->_sockvec[index].fd, NULL, NULL);
 		if (newsock == -1)
 		{
 			std::cout << "ERROR ACCEPT" << std::endl;
