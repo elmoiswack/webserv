@@ -94,7 +94,7 @@ void Server::RunPoll()
 {
 	while (this->_server_running == true)
 	{
-		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);ß
+		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
@@ -114,7 +114,21 @@ void Server::PollEvents(int pollammount)
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
 		if (temp.revents & POLLIN)
-			this->EventsPollin(temp.fd, index);
+		{
+		//	this->EventsPollin(temp.fd, index);
+			if (index == 0)
+			{
+				logger("attempting connection");
+				int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
+				if (newsock == -1)
+				{
+					std::cout << "ERROR ACCEPT" << std::endl;
+					exit(EXIT_FAILURE);
+				}
+				this->AddSocket(newsock, true);
+				logger("Connection is accepted!");
+			}
+		}
 		if (temp.revents & POLLOUT)
 		{
 			logger("POLLOUT");
@@ -141,55 +155,55 @@ void Server::PollEvents(int pollammount)
 	}	
 }
 
-void Server::EventsPollin(int fd, int index)
-{
-	logger("POLLIN");
-	logger("action pending...");
-	if (index == 0)
-	{
-		logger("attempting connection");
-		int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
-		if (newsock == -1)
-		{
-			std::cout << "ERROR ACCEPT" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		this->AddSocket(newsock, true);
-		logger("Connection is accepted!");
-	}
-	else
-	{
-		std::cout << fd << std::endl;
-		logger("Ready to recieve...");
-		char buf[1024];
-		int nbytes = recv(fd, buf, sizeof(buf), 0);
-		if (nbytes == 0)
-		{
-			logger("Connection closed!");
-			close(fd);
-			RmvSocket(index);
-		}
-		else if (nbytes < 0)
-		{
-			std::cout << "ERROR RECV" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		logger("message recieved!");
-		for (int j = 0; j < this->_ammount_sock; j++)
-		{
-			int destfd = this->_sockvec[j].fd;
-			if (j != 0 && j != index)
-			{
-				if (send(destfd, buf, nbytes, 0) == -1)
-				{
-					std::cout << "ERROR SEND" << std::endl;
-					exit(EXIT_FAILURE);
-				}
-			}
-		}
-		logger("message send!");
-	}
-}
+//void Server::EventsPollin(int fd, int index)
+//{
+//	logger("POLLIN");
+//	logger("action pending...");
+//	std::cout << fd << std::endl;
+//	if (index == 0)
+//	{
+//		logger("attempting connection");
+//		int newsock = accept(this->_sockvec[0].fd, NULL, NULL);
+//		if (newsock == -1)
+//		{
+//			std::cout << "ERROR ACCEPT" << std::endl;
+//			exit(EXIT_FAILURE);
+//		}
+//		this->AddSocket(newsock, true);
+//		logger("Connection is accepted!");
+//	}
+//	//else
+//	//{
+//	//	logger("Ready to recieve...");
+//	//	char buf[1024];
+//	//	int nbytes = recv(fd, buf, sizeof(buf), 0);
+//	//	if (nbytes == 0)
+//	//	{
+//	//		logger("Connection closed!");
+//	//		close(fd);
+//	//		RmvSocket(index);
+//	//	}
+//	//	else if (nbytes < 0)
+//	//	{
+//	//		std::cout << "ERROR RECV" << std::endl;
+//	//		exit(EXIT_FAILURE);
+//	//	}
+//	//	logger("message recieved!");
+//	//	for (int j = 0; j < this->_ammount_sock; j++)
+//	//	{
+//	//		int destfd = this->_sockvec[j].fd;
+//	//		if (j != 0 && j != index)
+//	//		{
+//	//			if (send(destfd, buf, nbytes, 0) == -1)
+//	//			{
+//	//				std::cout << "ERROR SEND" << std::endl;
+//	//				exit(EXIT_FAILURE);
+//	//			}
+//	//		}
+//	//	}
+//	//	logger("message send!");
+//	//}
+//}
 
 void Server::CloseAllFds()
 {
@@ -203,29 +217,3 @@ void logger(std::string input)
 {
 	std::cout << input << std::endl;
 }
-
-// char buffer[1024] = { 0 }; 
-// recv(newsock, buffer, sizeof(buffer), 0); 
-// std::cout << "Message from client: " << buffer << std::endl; 
-// void Server::StartClient(int fd)
-// {
-
-// 	struct sockaddr_in infoaddr;
-// 	memset(&infoaddr, '\0', sizeof(infoaddr));
-// 	infoaddr.sin_family = AF_INET;
-// 	infoaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-// 	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
-// 	if (connect(fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
-// 	{
-// 		std::cout << "ERROR CONNECT" << std::endl;
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	fcntl(fd, F_SETFL, O_NONBLOCK);
-// 	std::string lmao = "hello world";
-// 	int bret = send(fd, lmao.c_str(), lmao.size(), 0);
-// 	if (bret == -1)
-// 	{
-// 		std::cout << "ERROR SEND" << std::endl;
-// 		exit(EXIT_FAILURE);			
-// 	}
-// }
