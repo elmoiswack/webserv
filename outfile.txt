@@ -1,0 +1,33 @@
+Server is running!
+POLLIN
+action pending...
+attempting connection
+Connection is accepted!
+POLLIN
+action pending...
+attempting connection
+Connection is accepted!
+POLLIN
+action pending...
+Ready to recieve...
+message recieved!
+message send!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
+HTMLpage is sent to fd!
+POLLOUT
