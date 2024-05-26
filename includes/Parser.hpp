@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PARSER_HPP
+#define PARSER_HPP
 
 #include <iostream>
 #include <vector>
@@ -6,6 +7,10 @@
 #include <sstream>
 #include <string>
 #include <regex>
+
+#include "../includes/Server.hpp"
+
+class Server;
 
 class Parser
 {
@@ -15,6 +20,8 @@ private:
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
+
+	std::vector<Server>				serverblocks;
 public:
 	Parser(std::string inputfile);
 	~Parser();
@@ -25,11 +32,17 @@ public:
 	void OpenConfigFile(std::string inputfile);
 	void TokenizeString(std::string &inputfile);
 	void ProcessConfigData(std::string &ConfigString);
-	std::vector<std::string> Tokenizing(const std::string &ProcessedString);
+	std::vector<std::string> Tokenizing(std::string &ProcessedString);
+
+	void   ValidateServerBlock(std::vector<std::string>& tokens, size_t i);
+	void	ParseServer(std::vector<std::string>& tokens);
 
 	std::string GetPort();
 	std::string GetIp();
 	std::string GetServName();
+	std::string GetClientMax();
+	std::string GetRoot();
+
 
 	template <typename T>
 	int SkipWhitespaces(T input, int index)
@@ -55,3 +68,5 @@ public:
 		const char* what() const throw();
 	};
 };
+
+#endif
