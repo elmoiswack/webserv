@@ -23,19 +23,15 @@ private:
 
 	std::vector<Server>				serverblocks;
 public:
-	Parser(std::string inputfile);
+	Parser(std::string inputfile, Parser& parser);
 	~Parser();
 
-	// void StartParser(std::string inputfile);
-	void StartParser(std::string inputfile);
-	void CheckConfigData(std::vector<std::string>& tokens);
-	void OpenConfigFile(std::string inputfile);
-	void TokenizeString(std::string &inputfile);
-	void ProcessConfigData(std::string &ConfigString);
+	void 					 OpenConfigFile(std::string inputfile, Parser& parser);
 	std::vector<std::string> Tokenizing(std::string &ProcessedString);
+	void 					 ProcessConfigData(std::string &ConfigString);
+	void					 ParseServer(std::vector<std::string>& tokens, Parser& parser);
 
-	void   ValidateServerBlock(std::vector<std::string>& tokens, size_t i);
-	void	ParseServer(std::vector<std::string>& tokens);
+	void AddServerBlock(const Server& server_block);
 
 	std::string GetPort();
 	std::string GetIp();

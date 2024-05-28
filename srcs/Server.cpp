@@ -1,18 +1,13 @@
 #include "../includes/Server.hpp"
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
+#include "../includes/Parser.hpp"
 
 Server::Server(Parser &in)
 {
 	this->_ip = in.GetIp();
 	this->_port = in.GetPort();
 	this->_server_name = in.GetServName();
+	this->_client_max = in.GetClientMax();
+	this->_root = in.GetRoot();
 }
 
 Server::~Server()
@@ -20,6 +15,8 @@ Server::~Server()
 	this->_ip.clear();
 	this->_port.clear();
 	this->_server_name.clear();
+	this->_client_max.clear();
+	this->_root.clear();
 	close(this->_websock);
 }
 

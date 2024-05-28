@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	}
 	try
 	{
-		Parser pars(argv[1]);
+		Parser pars(argv[1], pars);
 		Server serv(pars);
 		serv.StartServer();
 

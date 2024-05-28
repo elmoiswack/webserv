@@ -2,6 +2,14 @@
 #define SERVER_HPP
 
 #include <list>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
 #include "../includes/Parser.hpp"
 
@@ -18,18 +26,19 @@ private:
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
-
 public:
-	Server(Parser &in);
+	Server(Parser &parser);
 	~Server();
 
 	void StartServer();
 
-	void   ValidateListen(std::vector<std::string>& tokens, size_t i);
-	void   ValidatePort(std::vector<std::string>& tokens, size_t i);
-	void   ValidateServerName(std::vector<std::string>& tokens, size_t i);
-	void   ValidateClientMaxBodySize(std::vector<std::string>& tokens, size_t i);
-	void   ValidateRoot(std::vector<std::string>& tokens, size_t i);
+	void   ValidateServerBlock(std::vector<std::string>& tokens, Parser& parser);
+
+	void   ValidateListen(std::vector<std::string>& tokens);
+	void   ValidatePort(std::vector<std::string>& tokens);
+	void   ValidateServerName(std::vector<std::string>& tokens);
+	void   ValidateClientMaxBodySize(std::vector<std::string>& tokens);
+	void   ValidateRoot(std::vector<std::string>& tokens);
 };
 
 #endif
