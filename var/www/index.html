@@ -10,9 +10,23 @@
     <h1>HTTP Server</h1>
 	<h2>You can:</h2>
 	<ul>
-		<li> <input type="text" name = "e"</li>
-		<li>Upload files:</li>
-		<li>Enter your:</li>
+		<li><p>ENTER NAME:
+			<form action="/cgi-bin/submit_name.cgi" method="get" class="full-name">
+				<label for="first-name">First Name:</label>
+				<input type="text" id="first-name" name="first-name" required>
+				<br>
+				<label for="last-name">Last Name:</label>
+				<input type="text" id="last-name" name="last-name" required>
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</p></li>
+		<li><p>UPLOAD FILE:
+			<form action="/cgi-bin/upload_file.cgi" method="=post" enctype="multipart/form-data">
+				<input type="file" id="file" name="file">
+				<input type="submit" value="Upload">
+			</form>
+		</p></li>
 		<li><a href="imaginary.html"> Test non-existing html page </a> </li>
 		<li><a href="/status_codes/404.html"> 404 Not Found </a> </li>
 		<li><a href="/status_codes/307.html"> 307 Temporary Redirect </a> </li>
