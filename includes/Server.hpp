@@ -14,5 +14,7 @@ public:
 	~Server();
 
 	void StartServer();
+	bool isCgi(const std::string &url);
+	std::string extractCgiPath(const std::string &url);
 	//void StartClient(int fd);
 };

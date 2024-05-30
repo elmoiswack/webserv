@@ -52,17 +52,33 @@ void Server::StartServer()
 
 	// keeps it running
 	long newsock;
+
 	while (true)
     {
-       	newsock = accept(this->_websock, NULL, NULL);
+		struct sockaddr_in client_addr;
+  		int client_addr_len = sizeof(client_addr);
+
+       	newsock = accept(this->_websock, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
         if (newsock == -1)
         {
             std::cout << "ERROR ACCEPT" << std::endl;
             exit(EXIT_FAILURE);			
         }
-		std::cout << "connection accepted!\n";
+		 
+		char buffer[1024] = { 0 }; 
+		recv(newsock, buffer, sizeof(buffer), 0); 
+		std::cout << "Message from client: " << buffer << std::endl;
+
+		if (isCgi(std::string(buffer)))
+		{
+			std::cout << "!!!!!!NEED TO RUN CGI SCRIPT\n";
+			std::cout << "\nPATH: " << extractCgiPath(std::string(buffer)) << "\n";
+		}
+		
+		//std::cout << "connection accepted!\n";
 		// HTML page
-		std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
+		// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
+		std::string html_file = readFile("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www/index.html");
 		// std::cout << html_file << "\n";
 		std::string response =
 		"HTTP/1.1 200 OK\r\n"
@@ -72,9 +88,35 @@ void Server::StartServer()
 		+ html_file;
         // Send the blank HTML page response again for new connections
         write(newsock, response.c_str(), response.size());
+
+		
         close(newsock);
+		std::cout << "\n=============================\n";
     }
 }	
+
+
+bool Server::isCgi(const std::string &url)
+{
+	std::string extension;
+
+	size_t i = url.find(".");
+	while (url[i] != ' ')
+		extension.push_back(url[i++]);
+	if (extension != ".cgi")
+		return (false);
+	return (true);
+}
+
+
+std::string Server::extractCgiPath(const std::string &url)
+{
+	std::string path;
+	size_t i = url.find("/");
+	while (url[i] != ' ')
+		path.push_back(url[i++]);
+	return (path);
+}
 
 
 // char buffer[1024] = { 0 }; 

@@ -11,7 +11,7 @@
 	<h2>You can:</h2>
 	<ul>
 		<li><p>ENTER NAME:
-			<form action="/cgi-bin/submit_name.cgi" method="get" class="full-name">
+			<form action="/cgi-bin/submit_name.cgi" method="post" class="full-name">
 				<label for="first-name">First Name:</label>
 				<input type="text" id="first-name" name="first-name" required>
 				<br>
@@ -22,7 +22,7 @@
 			</form>
 		</p></li>
 		<li><p>UPLOAD FILE:
-			<form action="/cgi-bin/upload_file.cgi" method="=post" enctype="multipart/form-data">
+			<form action="/cgi-bin/upload_file.cgi" method="post" enctype="multipart/form-data">
 				<input type="file" id="file" name="file">
 				<input type="submit" value="Upload">
 			</form>
