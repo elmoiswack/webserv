@@ -1,5 +1,6 @@
 #include "../includes/Server.hpp"
 #include "../includes/utils_rares.hpp"
+#include "../includes/cgi.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -67,12 +68,13 @@ void Server::StartServer()
 		 
 		char buffer[1024] = { 0 }; 
 		recv(newsock, buffer, sizeof(buffer), 0); 
-		std::cout << "Message from client: " << buffer << std::endl;
+		// std::cout << "Message from client: " << buffer << std::endl;
 
 		if (isCgi(std::string(buffer)))
 		{
 			std::cout << "!!!!!!NEED TO RUN CGI SCRIPT\n";
 			std::cout << "\nPATH: " << extractCgiPath(std::string(buffer)) << "\n";
+			runCgi(extractCgiPath(std::string(buffer)));
 		}
 		
 		//std::cout << "connection accepted!\n";
@@ -91,32 +93,9 @@ void Server::StartServer()
 
 		
         close(newsock);
-		std::cout << "\n=============================\n";
+		// std::cout << "\n=============================\n";
     }
 }	
-
-
-bool Server::isCgi(const std::string &url)
-{
-	std::string extension;
-
-	size_t i = url.find("."); 
-	while (url[i] != ' ')
-		extension.push_back(url[i++]);
-	if (extension != ".cgi")
-		return (false);
-	return (true);
-}
-
-
-std::string Server::extractCgiPath(const std::string &url)
-{
-	std::string path;
-	size_t i = url.find("/");
-	while (url[i] != ' ')
-		path.push_back(url[i++]);
-	return (path);
-}
 
 
 // char buffer[1024] = { 0 }; 
