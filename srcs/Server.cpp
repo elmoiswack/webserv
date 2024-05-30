@@ -100,7 +100,7 @@ bool Server::isCgi(const std::string &url)
 {
 	std::string extension;
 
-	size_t i = url.find(".");
+	size_t i = url.find("."); 
 	while (url[i] != ' ')
 		extension.push_back(url[i++]);
 	if (extension != ".cgi")
