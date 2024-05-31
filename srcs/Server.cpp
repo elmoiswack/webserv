@@ -77,8 +77,8 @@ void Server::StartServer()
 			runCgi(extractCgiPath(std::string(buffer)));
 		}
 		
-		//std::cout << "connection accepted!\n";
-		// HTML page
+
+		// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
 		// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
 		std::string html_file = readFile("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www/index.html");
 		// std::cout << html_file << "\n";

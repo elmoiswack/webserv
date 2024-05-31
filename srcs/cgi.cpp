@@ -16,6 +16,7 @@ bool isCgi(const std::string &url)
 std::string extractCgiPath(const std::string &url)
 {
 	std::string path;
+	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
 	path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
 	size_t i = url.find("/");
 	while (url[i] != ' ')
