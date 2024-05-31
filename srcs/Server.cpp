@@ -148,41 +148,33 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		if (temp.revents == POLLIN)
+		if (temp.revents & POLLIN)
 		{
-			this->EventsPollin(temp.fd, index);
+			if (this->_whatsockvec[index] == "SERVER")
+			{
+				this->AcceptClient(index);
+			}
+			else
+			{
+				this->EventsPollin(temp.fd, index);
+			}
 		}
-		if (temp.revents == POLLOUT)
+		if (temp.revents & POLLOUT)
 		{
 			this->EventsPollout(temp.fd, index);
 		}
-		if (temp.revents == POLLHUP)
+		if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
-		if (temp.revents == POLLERR)
+		if (temp.revents & POLLERR)
 		{
 			logger("Fuck error poll");
 			exit(EXIT_FAILURE);
 		}
 	}	
-}
-
-void Server::EventsPollin(int fd, int index)
-{
-	logger("POLLIN");
-	logger("action pending...");
-	if (this->_whatsockvec[index] == "SERVER")
-	{
-		this->AcceptClient(index);
-	}
-	else if (this->_whatsockvec[index] == "CLIENT")
-	{
-		this->RecieveMessage(fd, index);
-
-	}
 }
 
 void Server::AcceptClient(int index)
@@ -201,71 +193,6 @@ void Server::AcceptClient(int index)
 	}
 	this->AddSocket(newsock, true);
 	logger("Connection is accepted!");
-}
-
-void Server::RecieveMessage(int fd, int index)
-{
-	logger("NOT WORKING");
-	logger("Ready to recieve...");
-	if (index != 0)
-		index = 0;
-
-	char buff[1024];
-	int nbytes = read(fd, buff, sizeof(buff));
-	if (nbytes == -1)
-	{
-		std::cout << "ERROR read" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	std::string temp(buff);
-	this->_response + temp;
-	logger("message recieved!");
-}
-
-#include<fstream>
-#include<string>
-#include <sstream>
-
-std::string Server::HtmlToString(std::string path)
-{
-	std::ifstream file(path, std::ios::binary);
-	if (!file.good())
-	{
-		std::cout << "Failed to read file!\n";
-		std::exit(EXIT_FAILURE);
-	}
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	return (buffer.str());
-}
-
-std::string Server::GetResponse()
-{
-	return ("empty");
-}
-
-void Server::EventsPollout(int fd, int index)
-{
-	logger("POLLOUT");
-	if (this->_whatsockvec[index] == "CLIENT")
-	{
-		logger("sending response to client");
-		if (this->_htmlstartsend == false)
-		{
-			this->_response = this->HtmlToString("./blankpage.html");
-			this->_htmlstartsend = true;
-		}
-		else
-		{
-			this->_response = this->GetResponse();
-		}
-		logger(this->_response);
-		write(fd, this->_response.c_str(), this->_response.size());
-		logger("HTMLpage is sent to fd!");
-		close(fd);
-		logger("fd is closed");
-		this->_response.clear();
-	}
 }
 
 void Server::CloseAllFds()
