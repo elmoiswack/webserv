@@ -14,6 +14,8 @@ private:
 	int			_ammount_sock;
 	std::vector<struct pollfd> _sockvec;
 	std::vector<std::string> _whatsockvec;
+	std::string _response;
+	bool 		_htmlstartsend;
 public:
 	Server(Parser &in);
 	~Server();
@@ -22,10 +24,19 @@ public:
 	void InitSocket();
 	void BindSockets();
 	void ListenSockets();
+
 	void RunPoll();
-	void PollEvents(int pollammount);
+
+	void PollEvents();
 	void EventsPollin(int fd, int index);
-	void EventsPollout(int fd);
+	void EventsPollout(int fd, int index);
+	
+	void AcceptClient(int index);
+	void RecieveMessage(int fd, int index);
+
+	std::string HtmlToString(std::string path);
+	std::string GetResponse();
+
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
 	void CloseAllFds();
