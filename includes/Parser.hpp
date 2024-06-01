@@ -22,9 +22,12 @@ private:
 	std::string _root;
 
 	std::vector<Server>				serverblocks;
+
 public:
 	Parser(std::string inputfile, Parser& parser);
 	~Parser();
+
+	const std::vector<Server>& GetServerBlocks() const;
 
 	void 					 OpenConfigFile(std::string inputfile, Parser& parser);
 	std::vector<std::string> Tokenizing(std::string &ProcessedString);
@@ -32,13 +35,6 @@ public:
 	void					 ParseServer(std::vector<std::string>& tokens, Parser& parser);
 
 	void AddServerBlock(const Server& server_block);
-
-	std::string GetPort();
-	std::string GetIp();
-	std::string GetServName();
-	std::string GetClientMax();
-	std::string GetRoot();
-
 
 	template <typename T>
 	int SkipWhitespaces(T input, int index)

@@ -1,39 +1,6 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
 
-/* ValidateServerBlock:
--  validates the server block tokens and assigns values to the member
-   variables in Server */
-void Server::ValidateServerBlock(std::vector<std::string>& tokens, Parser& parser)
-{
-	// instance of Server is created will be used to store parsed data
-	Server Server_Block(*this);
-
-	// remove server and {
-	tokens.erase( tokens.begin(), tokens.begin() + 2 );
-	while (!tokens.empty() && tokens[0] != "}")
-    {
-        if (tokens[0] == "listen")
-            Server_Block.ValidateListen(tokens);
-        else if (tokens[0] == "port")
-            Server_Block.ValidatePort(tokens);
-        else if (tokens[0] == "server_name")
-            Server_Block.ValidateServerName(tokens);
-        else if (tokens[0] == "client_max_body_size")
-            Server_Block.ValidateClientMaxBodySize(tokens);
-        else if (tokens[0] == "root")
-            Server_Block.ValidateRoot(tokens);
-        else
-            throw Parser::InvalidLineConfException("Invalid token in server block: " + tokens[0]);
-    }
-    if (tokens.empty() || tokens[0] != "}")
-        throw Parser::InvalidLineConfException("Unmatched '{' in server block");
-	 std::cout << "passed!" << std::endl;
-	tokens.erase(tokens.begin(), tokens.begin() + 1);
-	parser.AddServerBlock(Server_Block);
-	
-}
-
 void Server::ValidateListen(std::vector<std::string>& tokens)
 {
     // ensure there's a token after 'listen'
@@ -64,7 +31,7 @@ void Server::ValidateListen(std::vector<std::string>& tokens)
 	tokens.erase(tokens.begin(), tokens.begin() + 1);
 
     // add the IP to the list
-    this->_ip = (tokens[1]);
+    this->_ip = (tokens[0]);
 
     // erase the processed tokens
     tokens.erase(tokens.begin(), tokens.begin() + 2);
@@ -72,7 +39,6 @@ void Server::ValidateListen(std::vector<std::string>& tokens)
 
 void Server::ValidatePort(std::vector<std::string>& tokens)
 {
-
     // ensure there's a token after 'port'
     if (tokens.size() < 3 || tokens[1] == ";")
         throw Parser::InvalidLineConfException("Port token is missing!");
@@ -87,7 +53,6 @@ void Server::ValidatePort(std::vector<std::string>& tokens)
     for (size_t i = 0; i < port.size(); ++i)
     {
 		char c = port[i];
-		std::cout << "port c: " << c << std::endl;
         if (!isdigit(c))
             throw std::runtime_error("Invalid character in Port Token");
     }
@@ -159,7 +124,6 @@ void Server::ValidateClientMaxBodySize(std::vector<std::string>& tokens)
 
     // erase the processed tokens
     tokens.erase(tokens.begin(), tokens.begin() + 3);
-	std::cout << "after client body max tokens[0]: " << tokens[0] << std::endl;
 }
 
 void Server::ValidateRoot(std::vector<std::string>& tokens)
@@ -177,5 +141,29 @@ void Server::ValidateRoot(std::vector<std::string>& tokens)
 
     // erase the processed tokens
     tokens.erase(tokens.begin(), tokens.begin() + 3);
-	std::cout << "after root tokens[0]: " << tokens[0] << std::endl;
+}
+
+std::string Server::GetIp() const
+{
+	return (this->_ip);
+}
+
+std::string Server::GetPort() const
+{
+	return (this->_port);
+}
+
+std::string Server::GetServName() const
+{
+	return (this->_server_name);
+}
+
+std::string Server::GetClientMax() const
+{
+	return (this->_client_max);
+}
+
+std::string Server::GetRoot() const
+{
+	return (this->_root);
 }

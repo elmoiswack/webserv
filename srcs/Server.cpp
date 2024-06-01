@@ -1,13 +1,10 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
 
-Server::Server(Parser &in)
+Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
+               const std::string& client_max, const std::string& root)
+    : _port(port), _ip(ip), _server_name(server_name), _client_max(client_max), _root(root), _websock(-1)
 {
-	this->_ip = in.GetIp();
-	this->_port = in.GetPort();
-	this->_server_name = in.GetServName();
-	this->_client_max = in.GetClientMax();
-	this->_root = in.GetRoot();
 }
 
 Server::~Server()

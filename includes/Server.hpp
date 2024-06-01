@@ -19,20 +19,26 @@ class Server
 {
 private:
 
-	int		_websock;
-
 	std::string _port;
 	std::string _ip;
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
+
+	int		_websock;
+
 public:
-	Server(Parser &parser);
+    Server(const std::string& ip, const std::string& port, const std::string& server_name,
+           const std::string& client_max, const std::string& root);
 	~Server();
+	
+	std::string GetPort() const;
+    std::string GetIp() const;
+    std::string GetServName() const;
+    std::string GetClientMax() const;
+    std::string GetRoot() const;
 
 	void StartServer();
-
-	void   ValidateServerBlock(std::vector<std::string>& tokens, Parser& parser);
 
 	void   ValidateListen(std::vector<std::string>& tokens);
 	void   ValidatePort(std::vector<std::string>& tokens);

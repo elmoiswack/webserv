@@ -1,19 +1,13 @@
 #include "../includes/Parser.hpp"
 
-// initalise Parser and call OpenConfigFile to read and process config file
-Parser::Parser(std::string inputfile, Parser& parser)
-{
+Parser::Parser(std::string inputfile, Parser& parser) :
+	serverblocks()
+	{
 	OpenConfigFile(inputfile, parser);
 }
 
-// destructor that clears the private member strings
 Parser::~Parser()
 {
-	this->_ip.clear();
-	this->_port.clear();
-	this->_server_name.clear();
-	this->_client_max.clear();
-	this->_root.clear();
 }
 
 /* OpenConfigFile:
@@ -51,11 +45,8 @@ void Parser::OpenConfigFile(std::string inputfile, Parser& parser)
 -  splits the processed string into tokens based on whitespace and stores each token in a vector */
 std::vector<std::string> Parser::Tokenizing(std::string &ProcessedString)
 {
-	// empty vector of strings to store the tokens from input string
 	std::vector<std::string> tokens;
-	// use stream extraction operator to read from string as if it was a stream (file or standard input)
-    std::istringstream stream(ProcessedString);
-	// empty string to store each token temporarily
+	std::istringstream stream(ProcessedString);
     std::string token;
 
 	// >> operator reads non whitespace characters from stream and stores them in token variable
@@ -97,11 +88,8 @@ void Parser::ProcessConfigData(std::string &configString)
     configString = std::regex_replace(configString, std::regex(" +"), " ");
 }
 
-/* ParseServer:
--  validates and parses the server block configuration */
 void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
 {
-    // Ensure the configuration starts with "server {"
     if (tokens[0] != "server" || tokens[1] != "{")
         throw InvalidLineConfException("Configuration must start with 'server {'");
 
@@ -109,48 +97,51 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
     {
         if (tokens[0] == "server")
         {
-            // check if there is a '{' after 'server'
             if (tokens.size() < 2 || tokens[1] != "{")
                 throw InvalidLineConfException("Expected '{' after 'server'");
-            
-			// temp Server object to call ValidateServerBlock (can perhaps be done better?)
-			Server temp_server(*this);
-			// validate the server block tokens and assigns value to variables
-            temp_server.ValidateServerBlock(tokens, parser);
+
+            tokens.erase(tokens.begin(), tokens.begin() + 2);
+
+            Server temp_server("", "", "", "", "");
+
+            while (!tokens.empty() && tokens[0] != "}")
+            {
+				if (tokens[0] == "location")
+					temp_server.ParseLocation(tokens);
+                if (tokens[0] == "listen")
+                    temp_server.ValidateListen(tokens);
+                else if (tokens[0] == "port")
+                    temp_server.ValidatePort(tokens);
+                else if (tokens[0] == "server_name")
+                    temp_server.ValidateServerName(tokens);
+                else if (tokens[0] == "client_max_body_size")
+                    temp_server.ValidateClientMaxBodySize(tokens);
+                else if (tokens[0] == "root")
+                    temp_server.ValidateRoot(tokens);
+                else
+                    throw InvalidLineConfException("Unexpected token: " + tokens[0]);
+            }
+
+            if (tokens.empty() || tokens[0] != "}")
+                throw InvalidLineConfException("Unmatched '{' in server block");
+
+            tokens.erase(tokens.begin());
+
+            parser.AddServerBlock(temp_server);
         }
         else
             throw InvalidLineConfException("Unexpected token: " + tokens[0]);
     }
 }
 
-std::string Parser::GetIp()
+const std::vector<Server>& Parser::GetServerBlocks() const
 {
-	return (this->_ip);
+    return serverblocks;
 }
 
-std::string Parser::GetPort()
+void Parser::AddServerBlock(const Server& servers)
 {
-	return (this->_port);
-}
-
-std::string Parser::GetServName()
-{
-	return (this->_server_name);
-}
-
-std::string Parser::GetClientMax()
-{
-	return (this->_client_max);
-}
-
-std::string Parser::GetRoot()
-{
-	return (this->_root);
-}
-
-void Parser::AddServerBlock(const Server& server_block)
-{
-    serverblocks.push_back(server_block);
+    this->serverblocks.push_back(servers);
 }
 
 Parser::InvalidLineConfException::InvalidLineConfException(std::string input)
