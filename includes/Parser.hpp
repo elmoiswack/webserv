@@ -21,7 +21,9 @@ private:
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
+	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
+	std::string _index;
 
 	std::vector<Server>				serverblocks;
 

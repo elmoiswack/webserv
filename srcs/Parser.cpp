@@ -103,7 +103,7 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
             tokens.erase(tokens.begin(), tokens.begin() + 2);
 
             std::unordered_map<int, std::string> emptyErrorPage;
-            Server temp_server("", "", "", "", "", emptyErrorPage);
+            Server temp_server("", "", "", "", "", emptyErrorPage, "");
 
             while (!tokens.empty() && tokens[0] != "}")
             {
@@ -115,12 +115,14 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
                     temp_server.ValidatePort(tokens);
                 else if (tokens[0] == "server_name")
                     temp_server.ValidateServerName(tokens);
-				else if (tokens[0] == "error_page")
-                    temp_server.ValidateErrorPage(tokens);
                 else if (tokens[0] == "client_max_body_size")
                     temp_server.ValidateClientMaxBodySize(tokens);
+				else if (tokens[0] == "index")
+                    temp_server.ValidateServerIndex(tokens);
                 else if (tokens[0] == "root")
                     temp_server.ValidateRoot(tokens);
+				else if (tokens[0] == "error_page")
+                    temp_server.ValidateErrorPage(tokens);
                 else
                     throw InvalidLineConfException("Unexpected token: " + tokens[0]);
             }

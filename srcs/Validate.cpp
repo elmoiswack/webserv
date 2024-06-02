@@ -88,7 +88,6 @@ void Server::ValidateClientMaxBodySize(std::vector<std::string>& tokens)
         throw Parser::InvalidLineConfException("Client Max Body Size token is missing!");
 
     std::string value = tokens[1];
-	std::cout << "value: " << value << std::endl;
     // ensure there's a semicolon after the size
     if (tokens[2] != ";")
         throw Parser::InvalidLineConfException("Invalid Client Max Body Size Token");
@@ -204,6 +203,21 @@ void Server::ValidateErrorPage(std::vector<std::string>& tokens)
     std::cout << "Finished ValidateErrorPage" << std::endl;
 }
 
+void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
+{
+    if ( tokens.size() == 1) 
+        throw Parser::InvalidLineConfException("The Index is Missing!'");
+
+	// erase index token
+    tokens.erase( tokens.begin());
+	if (tokens[0] == ";" || tokens[1] != ";")
+		throw Parser::InvalidLineConfException("The Index or ; is Missing!");
+	
+	this->_serverindex = tokens[0];
+
+    // erase index and ;
+     tokens.erase(tokens.begin(), tokens.begin() + 2);
+}
 
 std::string Server::GetIp() const
 {
@@ -233,4 +247,9 @@ std::string Server::GetRoot() const
 std::unordered_map<int, std::string> Server::GetErrorPage() const
 {
 	return (this->_error_page);
+}
+
+std::string Server::GetServerIndex() const
+{
+	return (this->_serverindex);
 }

@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
             std::cout << "Server Name: " << server.GetServName() << std::endl;
             std::cout << "Client Max Body Size: " << server.GetClientMax() << std::endl;
             std::cout << "Root: " << server.GetRoot() << std::endl;
+			std::cout << "Server Index: " << server.GetServerIndex() << std::endl;
 
             std::unordered_map<int, std::string> errorPageMap = server.GetErrorPage();
             std::cout << "Error Pages:" << std::endl;

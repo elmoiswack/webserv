@@ -26,13 +26,15 @@ private:
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
+	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
+	std::string _index;
 
 	int		_websock;
 
 public:
     Server(const std::string& ip, const std::string& port, const std::string& server_name,
-           const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page);
+           const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex);
     ~Server();
 	
 	std::string GetPort() const;
@@ -41,6 +43,7 @@ public:
     std::string GetClientMax() const;
     std::string GetRoot() const;
 	std::unordered_map<int, std::string> GetErrorPage() const;
+	std::string GetServerIndex() const;
 
 	void StartServer();
 
@@ -50,6 +53,7 @@ public:
 	void   ValidateClientMaxBodySize(std::vector<std::string>& tokens);
 	void   ValidateRoot(std::vector<std::string>& tokens);
 	void   ValidateErrorPage(std::vector<std::string>& tokens);
+	void   ValidateServerIndex(std::vector<std::string> &tokens);
 };
 
 #endif
