@@ -1,4 +1,6 @@
 #include "../includes/Parser.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Location.hpp"
 
 Parser::Parser(std::string inputfile, Parser& parser) :
 	serverblocks()
@@ -34,9 +36,9 @@ void Parser::OpenConfigFile(std::string inputfile, Parser& parser)
         throw(std::runtime_error("ERROR: Tokens are empty!"));
 
     // print tokens (for demonstration)
-    for (const auto& token : tokens) {
-        std::cout << "token: " << token << std::endl;
-    }
+    // for (const auto& token : tokens) {
+    //     std::cout << "token: " << token << std::endl;
+    // }
 	// parse the server block
 	ParseServer(tokens, parser);
 }
@@ -107,9 +109,9 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
 
             while (!tokens.empty() && tokens[0] != "}")
             {
-				// if (tokens[0] == "location")
-				// 	temp_server.ParseLocation(tokens);
-                if (tokens[0] == "listen")
+				if (tokens[0] == "location")
+					temp_server.ParseLocationBlock(tokens);
+                else if (tokens[0] == "listen")
                     temp_server.ValidateListen(tokens);
                 else if (tokens[0] == "port")
                     temp_server.ValidatePort(tokens);
@@ -137,6 +139,59 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
         else
             throw InvalidLineConfException("Unexpected token: " + tokens[0]);
     }
+}
+
+void Server::ParseLocationBlock(std::vector<std::string>& tokens)
+{
+    Location newLocation;
+
+    // Remove "location" from the vector
+    tokens.erase(tokens.begin());
+
+    // Parse the URL in the location block
+    if (tokens.size() == 1 || tokens[0] == "}")
+        throw std::runtime_error("Invalid Location block in config file");
+	
+    newLocation.ValidateLocationURL(tokens);
+
+    // Remove the opening bracket from the vector
+    if (tokens[0] != "{")
+        throw std::runtime_error("Expected '{' after Location URL");
+    tokens.erase(tokens.begin());
+
+    // Loop through the tokens vector and parse the Location block
+    while (tokens[0] != "}")
+    {
+        if (tokens.size() == 1)
+            throw std::runtime_error("Invalid Location block in config file");
+
+        // Parse the instruction
+        if (tokens[0] == "allow_methods")
+            newLocation.ValidateAllowMethods(tokens);
+        else if (tokens[0] == "autoindex")
+            newLocation.ValidateAutoIndex(tokens);
+        else if (tokens[0] == "index")
+            newLocation.ValidateIndex(tokens);
+        else if (tokens[0] == "return")
+            newLocation.ValidateReturn(tokens);
+        else if (tokens[0] == "alias")
+            newLocation.ValidateAlias(tokens);
+        else if (tokens[0] == "root")
+            newLocation.ValidateLocRoot(tokens);
+        else if (tokens[0] == "cgi_path")
+            newLocation.Validate_CGIpath(tokens);
+        else
+            throw std::runtime_error("Invalid instruction in Location block");
+    }
+
+    // Remove the closing bracket from the tokens vector
+    tokens.erase(tokens.begin());
+
+    // Add the location block to the server block
+    this->_locations.push_back(newLocation);
+
+    // Print debug information
+    std::cout << "Added location: URL = " << (newLocation.GetURL().empty() ? "" : newLocation.GetURL()[0]) << std::endl;
 }
 
 const std::vector<Server>& Parser::GetServerBlocks() const

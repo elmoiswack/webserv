@@ -48,7 +48,6 @@ void Server::ValidatePort(std::vector<std::string>& tokens)
         throw Parser::InvalidLineConfException("Invalid Port Token");
 
 	std::string port = tokens[1];
-	std::cout << "port: " << port[0] << std::endl;
     // check that the port contains only digits
     for (size_t i = 0; i < port.size(); ++i)
     {
@@ -144,8 +143,6 @@ void Server::ValidateRoot(std::vector<std::string>& tokens)
 
 void Server::ValidateErrorPage(std::vector<std::string>& tokens)
 {
-    std::cout << "Starting ValidateErrorPage" << std::endl;
-
     // Check if there are enough tokens to process
     if (tokens.size() < 3)
         throw Parser::InvalidLineConfException("Invalid Error Page Token: Not enough tokens");
@@ -181,8 +178,6 @@ void Server::ValidateErrorPage(std::vector<std::string>& tokens)
     {
         try
         {
-            std::cout << "Processing token: " << token << std::endl;
-
             size_t i = 0;
             int error_code = std::stoi(token, &i, 10);
             if (i != token.size())
@@ -200,7 +195,6 @@ void Server::ValidateErrorPage(std::vector<std::string>& tokens)
             throw std::runtime_error("Invalid error code in config file");
         }
     }
-    std::cout << "Finished ValidateErrorPage" << std::endl;
 }
 
 void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
@@ -252,4 +246,8 @@ std::unordered_map<int, std::string> Server::GetErrorPage() const
 std::string Server::GetServerIndex() const
 {
 	return (this->_serverindex);
+}
+
+std::vector<Location> Server::GetLocations() const {
+    return (_locations);
 }

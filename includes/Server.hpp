@@ -14,8 +14,11 @@
 
 
 #include "../includes/Parser.hpp"
+#include "../includes/Location.hpp"
 
 class Parser;
+
+class Location;
 
 class Server
 {
@@ -29,6 +32,8 @@ private:
 	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
 	std::string _index;
+
+	std::vector<Location> _locations;
 
 	int		_websock;
 
@@ -54,6 +59,17 @@ public:
 	void   ValidateRoot(std::vector<std::string>& tokens);
 	void   ValidateErrorPage(std::vector<std::string>& tokens);
 	void   ValidateServerIndex(std::vector<std::string> &tokens);
+
+	void ParseLocationBlock(std::vector<std::string>& tokens);
+
+	// void Server::ParseLocationBlock(std::vector<std::string>& tokens)
+	// {
+	// 	Location location;
+	// 	location.ParseLocationBlock(tokens);
+	// 	_locations.push_back(location);
+	// }
+
+	std::vector<Location> GetLocations() const;
 };
 
 #endif

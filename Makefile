@@ -4,6 +4,7 @@ SRC	:=	main.cpp \
 		Parser.cpp \
 		Server.cpp \
 		Validate.cpp \
+		Location.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs

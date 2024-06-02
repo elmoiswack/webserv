@@ -4,22 +4,17 @@
 #include <list>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
+#include <vector>
 
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
 
 
-typedef enum ALLOWMETHODS {
-	GET = 1,
+typedef enum e_allowmethods {
+	GET,
 	POST,
 	DELETE,
-};
+} t_allowmethods;
 
 class Parser;
 
@@ -34,15 +29,17 @@ class Location {
 	std::string				 index;
 	std::string				 returnredirect;
 	std::vector<std::string> cgi_path;
+	std::string				 alias;
+	std::string				 locroot;
 
-
+	std::vector<Location>	 locations_info;
 
 	public:
 
 	Location();
 	~Location();
 
-	void ParseLocationBlock(std::vector<std::string>& tokens, Parser& parser);
+	// void ParseLocationBlock(std::vector<std::string>& tokens);
 
 	void ValidateLocationURL(std::vector<std::string> &tokens);
 	void ValidateAutoIndex(std::vector<std::string> &tokens);
@@ -52,8 +49,9 @@ class Location {
 	void ValidateAlias(std::vector<std::string> &tokens);
 	void Validate_CGIpath(std::vector<std::string> &tokens);
 	void Validate_CGIexit(std::vector<std::string> &tokens);
+	void ValidateLocRoot(std::vector<std::string>& tokens);
 
-	bool					 GetURL(void) const;
+std::vector<std::string>					 GetURL(void) const;
 	bool 					 GetAutoIndex(void) const;
 	bool 					 GetAllowMethods(void) const;
 	std::string 			 GetIndex(void) const;
@@ -61,7 +59,7 @@ class Location {
 	std::string 			 GetAlias(void) const;
 	std::vector<std::string> GetCGIPath(void) const;
 
-
+	std::string GetLocRoot(void) const;
 
 };
 
