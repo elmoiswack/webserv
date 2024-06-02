@@ -33,6 +33,8 @@ class Location {
 	int						 allow_methods;
 	std::string				 index;
 	std::string				 returnredirect;
+	std::vector<std::string> cgi_path;
+
 
 
 	public:
@@ -48,13 +50,16 @@ class Location {
 	void ValidateIndex(std::vector<std::string> &tokens);
 	void ValidateReturn(std::vector<std::string> &tokens);
 	void ValidateAlias(std::vector<std::string> &tokens);
-	void ValidateCGIPath(std::vector<std::string> &tokens);
+	void Validate_CGIpath(std::vector<std::string> &tokens);
+	void Validate_CGIexit(std::vector<std::string> &tokens);
 
-	bool		GetURL(void) const;
-	bool 		GetAutoIndex(void) const;
-	bool 		GetAllowMethods(void) const;
-	std::string GetIndex( void ) const;
-	std::string GetReturnRedirect( void ) const;
+	bool					 GetURL(void) const;
+	bool 					 GetAutoIndex(void) const;
+	bool 					 GetAllowMethods(void) const;
+	std::string 			 GetIndex(void) const;
+	std::string 			 GetReturnRedirect(void) const;
+	std::string 			 GetAlias(void) const;
+	std::vector<std::string> GetCGIPath(void) const;
 
 
 

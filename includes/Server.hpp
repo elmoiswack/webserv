@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <unordered_map>
+
 
 #include "../includes/Parser.hpp"
 
@@ -24,19 +26,21 @@ private:
 	std::string _server_name;
 	std::string _client_max;
 	std::string _root;
+	std::unordered_map<int, std::string> _error_page;
 
 	int		_websock;
 
 public:
     Server(const std::string& ip, const std::string& port, const std::string& server_name,
-           const std::string& client_max, const std::string& root);
-	~Server();
+           const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page);
+    ~Server();
 	
 	std::string GetPort() const;
     std::string GetIp() const;
     std::string GetServName() const;
     std::string GetClientMax() const;
     std::string GetRoot() const;
+	std::unordered_map<int, std::string> GetErrorPage() const;
 
 	void StartServer();
 
@@ -45,6 +49,7 @@ public:
 	void   ValidateServerName(std::vector<std::string>& tokens);
 	void   ValidateClientMaxBodySize(std::vector<std::string>& tokens);
 	void   ValidateRoot(std::vector<std::string>& tokens);
+	void   ValidateErrorPage(std::vector<std::string>& tokens);
 };
 
 #endif

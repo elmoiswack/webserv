@@ -2,10 +2,8 @@
 #include "../includes/Parser.hpp"
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
-               const std::string& client_max, const std::string& root)
-    : _port(port), _ip(ip), _server_name(server_name), _client_max(client_max), _root(root), _websock(-1)
-{
-}
+               const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page)
+    : _port(port), _ip(ip),_server_name(server_name), _client_max(client_max), _root(root), _error_page(error_page), _websock(-1) {}
 
 Server::~Server()
 {
@@ -14,6 +12,7 @@ Server::~Server()
 	this->_server_name.clear();
 	this->_client_max.clear();
 	this->_root.clear();
+	this->_error_page.clear();
 	close(this->_websock);
 }
 

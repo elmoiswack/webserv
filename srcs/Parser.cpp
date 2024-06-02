@@ -102,18 +102,21 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
 
             tokens.erase(tokens.begin(), tokens.begin() + 2);
 
-            Server temp_server("", "", "", "", "");
+            std::unordered_map<int, std::string> emptyErrorPage;
+            Server temp_server("", "", "", "", "", emptyErrorPage);
 
             while (!tokens.empty() && tokens[0] != "}")
             {
-				if (tokens[0] == "location")
-					temp_server.ParseLocation(tokens);
+				// if (tokens[0] == "location")
+				// 	temp_server.ParseLocation(tokens);
                 if (tokens[0] == "listen")
                     temp_server.ValidateListen(tokens);
                 else if (tokens[0] == "port")
                     temp_server.ValidatePort(tokens);
                 else if (tokens[0] == "server_name")
                     temp_server.ValidateServerName(tokens);
+				else if (tokens[0] == "error_page")
+                    temp_server.ValidateErrorPage(tokens);
                 else if (tokens[0] == "client_max_body_size")
                     temp_server.ValidateClientMaxBodySize(tokens);
                 else if (tokens[0] == "root")

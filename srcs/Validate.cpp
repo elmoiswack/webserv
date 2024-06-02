@@ -143,6 +143,68 @@ void Server::ValidateRoot(std::vector<std::string>& tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 3);
 }
 
+void Server::ValidateErrorPage(std::vector<std::string>& tokens)
+{
+    std::cout << "Starting ValidateErrorPage" << std::endl;
+
+    // Check if there are enough tokens to process
+    if (tokens.size() < 3)
+        throw Parser::InvalidLineConfException("Invalid Error Page Token: Not enough tokens");
+
+    // Erase the 'error_page' token
+    tokens.erase(tokens.begin());
+
+    // Temporary vector to hold tokens until ';' is found
+    std::vector<std::string> tmp;
+    while (!tokens.empty() && tokens[0] != ";")
+    {
+        tmp.push_back(tokens[0]);
+        tokens.erase(tokens.begin());
+    }
+
+    // Ensure that the ';' token is found
+    if (tokens.empty() || tokens[0] != ";")
+        throw Parser::InvalidLineConfException("Invalid Error Page Token: Missing ';'");
+
+    // Erase the ';' token
+    tokens.erase(tokens.begin());
+
+    // If no tokens were copied to tmp, it's an invalid error page directive
+    if (tmp.empty())
+        throw Parser::InvalidLineConfException("Invalid Error Page Token: No error codes or URL");
+
+    // Take the error page URL and store it in errorURL, then remove it from tmp
+    std::string errorURL = tmp.back();
+    tmp.pop_back();
+
+    // Loop through each tmp token to process error codes
+    for (const auto& token : tmp)
+    {
+        try
+        {
+            std::cout << "Processing token: " << token << std::endl;
+
+            size_t i = 0;
+            int error_code = std::stoi(token, &i, 10);
+            if (i != token.size())
+            {
+                std::cerr << "Invalid character in error code: " << token.substr(i) << std::endl;
+                throw std::runtime_error("Invalid error code in config file");
+            }
+
+            // Insert error code and URL into the error page map
+            _error_page[error_code] = errorURL;
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Error processing error code '" << token << "': " << e.what() << std::endl;
+            throw std::runtime_error("Invalid error code in config file");
+        }
+    }
+    std::cout << "Finished ValidateErrorPage" << std::endl;
+}
+
+
 std::string Server::GetIp() const
 {
 	return (this->_ip);
@@ -166,4 +228,9 @@ std::string Server::GetClientMax() const
 std::string Server::GetRoot() const
 {
 	return (this->_root);
+}
+
+std::unordered_map<int, std::string> Server::GetErrorPage() const
+{
+	return (this->_error_page);
 }

@@ -43,9 +43,9 @@ void Location::ParseLocationBlock(std::vector<std::string>& tokens, Parser& pars
                 else if (tokens[0] == "alias")
                     locationblock.ValidateAlias(tokens);
                 else if (tokens[0] == "cgi_path")
-                    locationblock.ValidateCGIPath(tokens);
+                    locationblock.Validate_CGIpath(tokens);
 				else if (tokens[0] == "cgi_exit")
-                    locationblock.ValidateRoot(tokens);
+                    locationblock.Validate_CGIexit(tokens);
                 else
                     throw Parser::InvalidLineConfException("Unexpected token: " + tokens[0]);
             }
@@ -177,25 +177,44 @@ void    Location::ValidateAlias(std::vector<std::string> &tokens)
 	this->alias = tokens[0];
 
     // erase alias and ;
-    tokens.erase( tokens.begin() + 1);
+    tokens.erase(tokens.begin() + 1);
 }
 
-// THIS ONE ISN'T WORKING YET
-void    Location::ValidateCGIPath(std::vector<std::string> &tokens)
+void    Location::Validate_CGIpath(std::vector<std::string> &tokens)
 {
-
     if ( tokens.size() == 1) 
         throw Parser::InvalidLineConfException("The CGI Path is Missing!'");
 
 	// erase cgi_path token
     tokens.erase( tokens.begin());
 
-	if (tokens[0] != ";" || tokens[1] != ";")
-		throw Parser::InvalidLineConfException("The Alias or ; is Missing!");
-	
-	this->alias = tokens[0];
+	while (tokens[0] != ";")
+	{
+		if (tokens[0])
+		this->cgi_path.push_back(tokens[0]);
+		tokens.erase(tokens.begin());
+	}
 
-    // erase alias and ;
+    // erase ;
+    tokens.erase( tokens.begin() + 1);
+}
+
+void    Location::Validate_CGIexit(std::vector<std::string> &tokens)
+{
+    if ( tokens.size() == 1) 
+        throw Parser::InvalidLineConfException("The CGI Path is Missing!'");
+
+	// erase cgi_path token
+    tokens.erase( tokens.begin());
+
+	while (tokens[0] != ";")
+	{
+		if (tokens[0])
+		this->cgi_path.push_back(tokens[0]);
+		tokens.erase(tokens.begin());
+	}
+
+    // erase ;
     tokens.erase( tokens.begin() + 1);
 }
 
@@ -221,5 +240,9 @@ std::string Location::GetAlias( void ) const
 }
 
 std::string Location::GetReturnRedirect( void ) const {
+    return (this->returnredirect);
+}
+
+std::vector<std::string> Location::GetCGIPath( void ) const {
     return (this->returnredirect);
 }

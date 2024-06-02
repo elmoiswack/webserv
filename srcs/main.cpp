@@ -67,6 +67,14 @@ int main(int argc, char *argv[])
             std::cout << "Server Name: " << server.GetServName() << std::endl;
             std::cout << "Client Max Body Size: " << server.GetClientMax() << std::endl;
             std::cout << "Root: " << server.GetRoot() << std::endl;
+
+            std::unordered_map<int, std::string> errorPageMap = server.GetErrorPage();
+            std::cout << "Error Pages:" << std::endl;
+            for (const auto& errorPage : errorPageMap)
+            {
+                std::cout << "Error Code: " << errorPage.first << " -> URL: " << errorPage.second << std::endl;
+            }
+
             std::cout << "--------------------------------------" << std::endl;
         }
 
