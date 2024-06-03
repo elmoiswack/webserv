@@ -55,7 +55,7 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp)
     	"CONTENT_LENGTH=" + std::to_string(strlen(client_resp)),
    		"CONTENT_TYPE=text/plain",
 		"GATEWAY_INTERFACE=CGI/1.1",
-		"QUERY_STRING=first_name=rares&last_name=cox",
+		"QUERY_STRING=first_name=TESTlast_name=TEST",
 		"REQUEST_METHOD=POST",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
