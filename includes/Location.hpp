@@ -28,9 +28,11 @@ class Location {
 	int						 allow_methods;
 	std::string				 index;
 	std::string				 returnredirect;
-	std::vector<std::string> cgi_path;
+	std::vector<std::string> cgi_param;
 	std::string				 alias;
 	std::string				 locroot;
+	std::string				 cgi_index;
+	std::string				 cgi_pass;
 
 	std::vector<Location>	 locations_info;
 
@@ -47,9 +49,10 @@ class Location {
 	void ValidateIndex(std::vector<std::string> &tokens);
 	void ValidateReturn(std::vector<std::string> &tokens);
 	void ValidateAlias(std::vector<std::string> &tokens);
-	void Validate_CGIpath(std::vector<std::string> &tokens);
-	void Validate_CGIexit(std::vector<std::string> &tokens);
+	void Validate_CGIparam(std::vector<std::string> &tokens);
 	void ValidateLocRoot(std::vector<std::string>& tokens);
+	void Validate_CGIindex(std::vector<std::string>& tokens);
+	void Validate_CGIpass(std::vector<std::string>& tokens);
 
 std::vector<std::string>					 GetURL(void) const;
 	bool 					 GetAutoIndex(void) const;
@@ -57,7 +60,9 @@ std::vector<std::string>					 GetURL(void) const;
 	std::string 			 GetIndex(void) const;
 	std::string 			 GetReturnRedirect(void) const;
 	std::string 			 GetAlias(void) const;
-	std::vector<std::string> GetCGIPath(void) const;
+	std::vector<std::string> GetCGIparam(void) const;
+	std::string				 GetCGIindex(void) const;
+	std::string				 GetCGIpass(void) const;
 
 	std::string GetLocRoot(void) const;
 

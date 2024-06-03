@@ -92,7 +92,6 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
 
     // erase index and ;
      tokens.erase(tokens.begin(), tokens.begin() + 2);
-	 std::cout << "this index: " << this->index << std::endl;
 }
 
 void    Location::ValidateReturn(std::vector<std::string> &tokens)
@@ -152,21 +151,21 @@ void Location::ValidateLocRoot(std::vector<std::string>& tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 3);
 }
 
-void    Location::Validate_CGIpath(std::vector<std::string> &tokens)
+void    Location::Validate_CGIparam(std::vector<std::string> &tokens)
 {
     if ( tokens.size() == 1) 
-        throw Parser::InvalidLineConfException("The CGI Path is Missing!'");
+        throw Parser::InvalidLineConfException("The CGI Param is Missing!'");
 
-	// erase cgi_path token
-    tokens.erase( tokens.begin());
+	// erase fastcgi_param token
+    tokens.erase(tokens.begin(), tokens.begin() + 1);
 
 	if (tokens.size() <= 1)
-		throw Parser::InvalidLineConfException("Invalid CGI Path!'");
+		throw Parser::InvalidLineConfException("Invalid CGI Param!'");
 	while (tokens[0] != ";")
 	{
 		if (tokens[0] == "}")
-			throw Parser::InvalidLineConfException("Invalid CGI Path!'");
-		this->cgi_path.push_back(tokens[0]);
+			throw Parser::InvalidLineConfException("Invalid CGI Param!'");
+		this->cgi_param.push_back(tokens[0]);
 		tokens.erase(tokens.begin());
 	}
 
@@ -174,24 +173,47 @@ void    Location::Validate_CGIpath(std::vector<std::string> &tokens)
      tokens.erase(tokens.begin(), tokens.begin() + 1);
 }
 
-// void    Location::Validate_CGIexit(std::vector<std::string> &tokens)
-// {
-//     if ( tokens.size() == 1) 
-//         throw Parser::InvalidLineConfException("The CGI Path is Missing!'");
+void    Location::Validate_CGIindex(std::vector<std::string> &tokens)
+{
+    if ( tokens.size() == 1) 
+        throw Parser::InvalidLineConfException("The CGI Index is Missing!'");
 
-// 	// erase cgi_path token
-//     tokens.erase( tokens.begin());
+	// erase fastcgi_index token
+    tokens.erase(tokens.begin(), tokens.begin() + 1);
+	
+	if (tokens[0] == ";")
+		throw Parser::InvalidLineConfException("The CGI Index is Missing!");
 
-// 	while (tokens[0] != ";")
-// 	{
-// 		if (tokens[0])
-// 		this->cgi_path.push_back(tokens[0]);
-// 		tokens.erase(tokens.begin());
-// 	}
+	if (tokens[1] != ";")
+		throw Parser::InvalidLineConfException("; is Missing!");
 
-//     // erase ;
-//     tokens.erase( tokens.begin() + 1);
-// }
+    // add the root to the list
+    this->cgi_index = (tokens[0]);
+
+    // erase ;
+    tokens.erase(tokens.begin(), tokens.begin() + 2);
+}
+
+void    Location::Validate_CGIpass(std::vector<std::string> &tokens)
+{
+    if ( tokens.size() == 1) 
+        throw Parser::InvalidLineConfException("The CGI Index is Missing!'");
+
+	// erase fastcgi_pass token
+    tokens.erase(tokens.begin(), tokens.begin() + 1);
+	
+	if (tokens[0] == ";")
+		throw Parser::InvalidLineConfException("The CGI Pass is Missing!");
+
+	if (tokens[1] != ";")
+		throw Parser::InvalidLineConfException("; is Missing!");
+
+    // add the root to the list
+    this->cgi_pass = (tokens[0]);
+
+    // erase ;
+    tokens.erase(tokens.begin(), tokens.begin() + 2);
+}
 
 std::vector<std::string>    Location::GetURL(void) const {
     return (this->url);
@@ -217,10 +239,18 @@ std::string Location::GetReturnRedirect(void) const {
     return (this->returnredirect);
 }
 
-std::vector<std::string> Location::GetCGIPath(void) const {
-    return (this->cgi_path);
+std::vector<std::string> Location::GetCGIparam(void) const {
+    return (this->cgi_param);
 }
 
 std::string Location::GetLocRoot(void) const {
     return (this->locroot);
+}
+
+std::string Location::GetCGIindex(void) const {
+    return (this->cgi_index);
+}
+
+std::string Location::GetCGIpass(void) const {
+    return (this->cgi_pass);
 }

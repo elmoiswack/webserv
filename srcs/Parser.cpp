@@ -126,18 +126,18 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
 				else if (tokens[0] == "error_page")
                     temp_server.ValidateErrorPage(tokens);
                 else
+				{
                     throw InvalidLineConfException("Unexpected token: " + tokens[0]);
+				}
             }
 
             if (tokens.empty() || tokens[0] != "}")
                 throw InvalidLineConfException("Unmatched '{' in server block");
 
-            tokens.erase(tokens.begin());
-
             parser.AddServerBlock(temp_server);
         }
-        else
-            throw InvalidLineConfException("Unexpected token: " + tokens[0]);
+
+		tokens.erase( tokens.begin() );
     }
 }
 
@@ -157,7 +157,7 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
     // Remove the opening bracket from the vector
     if (tokens[0] != "{")
         throw std::runtime_error("Expected '{' after Location URL");
-    tokens.erase(tokens.begin());
+   tokens.erase(tokens.begin(), tokens.begin() + 1);
 
     // Loop through the tokens vector and parse the Location block
     while (tokens[0] != "}")
@@ -178,20 +178,22 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
             newLocation.ValidateAlias(tokens);
         else if (tokens[0] == "root")
             newLocation.ValidateLocRoot(tokens);
-        else if (tokens[0] == "cgi_path")
-            newLocation.Validate_CGIpath(tokens);
-        else
+        else if (tokens[0] == "fastcgi_param")
+            newLocation.Validate_CGIparam(tokens);
+		else if (tokens[0] == "fastcgi_pass")
+            newLocation.Validate_CGIpass(tokens);
+		else if (tokens[0] == "fastcgi_index")
+            newLocation.Validate_CGIindex(tokens);
+        else {
             throw std::runtime_error("Invalid instruction in Location block");
+		}
     }
 
     // Remove the closing bracket from the tokens vector
-    tokens.erase(tokens.begin());
+    tokens.erase(tokens.begin(), tokens.begin() + 1);
 
     // Add the location block to the server block
     this->_locations.push_back(newLocation);
-
-    // Print debug information
-    std::cout << "Added location: URL = " << (newLocation.GetURL().empty() ? "" : newLocation.GetURL()[0]) << std::endl;
 }
 
 const std::vector<Server>& Parser::GetServerBlocks() const
