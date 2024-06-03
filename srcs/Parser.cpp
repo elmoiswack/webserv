@@ -2,10 +2,9 @@
 #include "../includes/Server.hpp"
 #include "../includes/Location.hpp"
 
-Parser::Parser(std::string inputfile, Parser& parser) :
-	serverblocks()
-	{
-	OpenConfigFile(inputfile, parser);
+Parser::Parser(std::string inputfile, Parser& parser) : serverblocks()
+{
+    OpenConfigFile(inputfile, parser);
 }
 
 Parser::~Parser()
@@ -35,10 +34,6 @@ void Parser::OpenConfigFile(std::string inputfile, Parser& parser)
 	if (tokens.empty())
         throw(std::runtime_error("ERROR: Tokens are empty!"));
 
-    // print tokens (for demonstration)
-    // for (const auto& token : tokens) {
-    //     std::cout << "token: " << token << std::endl;
-    // }
 	// parse the server block
 	ParseServer(tokens, parser);
 }
@@ -194,6 +189,51 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
 
     // Add the location block to the server block
     this->_locations.push_back(newLocation);
+}
+
+Server& Parser::getServer(const std::string& serverName, int port)
+{
+    std::vector<Server>::iterator defaultServer = this->serverblocks.end();
+    std::vector<Server>::iterator serverMatchPort = this->serverblocks.end();
+    bool portMatchFound = false;
+	
+	// iterate through each server block in the serverblocks vector
+    for (auto it = this->serverblocks.begin(); it != this->serverblocks.end(); ++it)
+    {
+		// get the server names and port for the current server block
+        std::vector<std::string> serverNames = it->GetServerNames();
+        int serverPort = std::stoi(it->GetPort());
+
+		// iterate through each server name for the current server block
+        for (const auto& name : serverNames)
+        {
+			// if the server name and port both match, return the current server block
+            if (name == serverName && serverPort == port)
+                return *it;
+
+			// if the port matches and no previous port match was found, set serverMatchPort to the current server block
+            if (serverPort == port && !portMatchFound)
+            {
+                serverMatchPort = it;
+                portMatchFound = true;
+            }
+
+			// if the server name is "_" (default server) and the port matches, set defaultServer to the current server block
+            if (name == "_" && serverPort == port)
+                defaultServer = it;
+        }
+    }
+
+	// if a server with the matching port was found, return it
+    if (serverMatchPort != this->serverblocks.end())
+        return *serverMatchPort;
+	
+	// if a default server with the matching port was found, return it
+    if (defaultServer != this->serverblocks.end())
+        return *defaultServer;
+	
+	// if no matching server or default server was found, throw an exception
+    throw InvalidLineConfException("There is no matching server or default server found!");
 }
 
 const std::vector<Server>& Parser::GetServerBlocks() const

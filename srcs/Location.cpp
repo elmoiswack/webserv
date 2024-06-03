@@ -8,8 +8,7 @@ Location::Location() :
 {}
 
 Location::~Location()
-{
-}
+{}
 
 void    Location::ValidateLocationURL(std::vector<std::string> &tokens)
 {
@@ -30,7 +29,6 @@ void    Location::ValidateAutoIndex(std::vector<std::string> &tokens)
 
     if ( tokens.size() == 1) 
         throw Parser::InvalidLineConfException("on / off is Missing!'");
-	
 
 	// erase autoindex token
     tokens.erase( tokens.begin());
@@ -215,7 +213,7 @@ void    Location::Validate_CGIpass(std::vector<std::string> &tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
-std::vector<std::string>    Location::GetURL(void) const {
+std::vector<std::string>	Location::GetURL(void) const {
     return (this->url);
 }
 

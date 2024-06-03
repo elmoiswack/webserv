@@ -49,6 +49,7 @@ public:
     std::string GetRoot() const;
 	std::unordered_map<int, std::string> GetErrorPage() const;
 	std::string GetServerIndex() const;
+	std::vector<std::string> GetServerNames() const;
 
 	void StartServer();
 
@@ -61,13 +62,6 @@ public:
 	void   ValidateServerIndex(std::vector<std::string> &tokens);
 
 	void ParseLocationBlock(std::vector<std::string>& tokens);
-
-	// void Server::ParseLocationBlock(std::vector<std::string>& tokens)
-	// {
-	// 	Location location;
-	// 	location.ParseLocationBlock(tokens);
-	// 	_locations.push_back(location);
-	// }
 
 	std::vector<Location> GetLocations() const;
 };

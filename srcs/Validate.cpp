@@ -251,3 +251,10 @@ std::string Server::GetServerIndex() const
 std::vector<Location> Server::GetLocations() const {
     return (_locations);
 }
+
+std::vector<std::string> Server::GetServerNames() const
+{
+    std::vector<std::string> names;
+    names.push_back(this->_server_name);
+    return names;
+}

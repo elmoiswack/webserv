@@ -32,6 +32,7 @@ public:
 	~Parser();
 
 	const std::vector<Server>& GetServerBlocks() const;
+	Server& getServer(const std::string& serverName, int port);
 
 	void 					 OpenConfigFile(std::string inputfile, Parser& parser);
 	std::vector<std::string> Tokenizing(std::string &ProcessedString);
