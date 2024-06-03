@@ -1,6 +1,6 @@
 #include "../includes/Server.hpp"
 #include "../includes/utils_rares.hpp"
-#include "../includes/cgi.hpp"
+#include "../includes/Cgi.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -53,7 +53,7 @@ void Server::StartServer()
 
 	// keeps it running
 	long newsock;
-
+	Cgi cgi;
 	while (true)
     {
 		struct sockaddr_in client_addr;
@@ -70,11 +70,11 @@ void Server::StartServer()
 		recv(newsock, buffer, sizeof(buffer), 0); 
 		// std::cout << "Message from client: " << buffer << std::endl;
 
-		if (isCgi(std::string(buffer)))
+		if (cgi.isCgi(std::string(buffer)))
 		{
 			std::cout << "!!!!!!NEED TO RUN CGI SCRIPT\n";
-			std::cout << "\nPATH: " << extractCgiPath(std::string(buffer)) << "\n";
-			runCgi(extractCgiPath(std::string(buffer)));
+			std::cout << "\nPATH: " << cgi.extractCgiPath(std::string(buffer)) << "\n";
+			cgi.runCgi(cgi.extractCgiPath(std::string(buffer)));
 		}
 		
 

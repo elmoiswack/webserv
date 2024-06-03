@@ -6,7 +6,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-
-bool			isCgi(const std::string &url);
-std::string		extractCgiPath(const std::string &url);
-void			runCgi(const std::string &cgi_path);
+class Cgi
+{
+	public:
+		bool			isCgi(const std::string &url);
+		std::string		extractCgiPath(const std::string &url);
+		void			runCgi(const std::string &cgi_path);
+};

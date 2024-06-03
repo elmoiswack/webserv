@@ -1,6 +1,6 @@
-#include "../includes/cgi.hpp"
+#include "../includes/Cgi.hpp"
 
-bool isCgi(const std::string &url)
+bool Cgi::isCgi(const std::string &url)
 {
 	std::string extension;
 
@@ -13,7 +13,7 @@ bool isCgi(const std::string &url)
 }
 
 
-std::string extractCgiPath(const std::string &url)
+std::string Cgi::extractCgiPath(const std::string &url)
 {
 	std::string path;
 	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
@@ -24,7 +24,7 @@ std::string extractCgiPath(const std::string &url)
 	return (path);
 }
 
-void runCgi(const std::string &cgi_path)
+void Cgi::runCgi(const std::string &cgi_path)
 {
 	pid_t pid = fork();
 	if (pid == -1)

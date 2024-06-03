@@ -4,7 +4,7 @@ SRC	:=	main.cpp \
 		Parser.cpp \
 		Server.cpp \
 		utils_rares.cpp \
-		cgi.cpp \
+		Cgi.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs
