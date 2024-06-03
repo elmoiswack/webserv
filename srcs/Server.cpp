@@ -25,6 +25,19 @@ Server::~Server()
 	close(this->_websock);
 }
 
+bool isCgi(const std::string &url)
+{
+	std::string extension;
+
+	size_t i = url.find("."); 
+	while (url[i] != ' ')
+		extension.push_back(url[i++]);
+	if (extension != ".cgi")
+		return (false);
+	return (true);
+}
+
+
 //https://localhost:8080/ our address
 void Server::StartServer()
 {
@@ -53,7 +66,7 @@ void Server::StartServer()
 
 	// keeps it running
 	long newsock;
-	Cgi cgi;
+	// Cgi cgi;
 	while (true)
     {
 		struct sockaddr_in client_addr;
@@ -68,29 +81,31 @@ void Server::StartServer()
 		 
 		char buffer[1024] = { 0 }; 
 		recv(newsock, buffer, sizeof(buffer), 0); 
-		// std::cout << "Message from client: " << buffer << std::endl;
-
-		if (cgi.isCgi(std::string(buffer)))
+		std::cout << "Message from client: " << buffer << std::endl;
+		std::string response;
+		if (isCgi(std::string(buffer)))
 		{
-			std::cout << "!!!!!!NEED TO RUN CGI SCRIPT\n";
+			Cgi cgi(buffer);
+			std::cout << "RUNNING CGI SCRIPT...\n";
 			std::cout << "\nPATH: " << cgi.extractCgiPath(std::string(buffer)) << "\n";
 			cgi.runCgi(cgi.extractCgiPath(std::string(buffer)));
 		}
 		
-
-		// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
-		// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
-		std::string html_file = readFile("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www/index.html");
-		// std::cout << html_file << "\n";
-		std::string response =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
-		"\r\n"
-		+ html_file;
-        // Send the blank HTML page response again for new connections
-        write(newsock, response.c_str(), response.size());
-
+		// else
+		// {
+			// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
+			// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
+			std::string html_file = readFile("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www/index.html");
+			// std::cout << html_file << "\n";
+			response =
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
+			"\r\n"
+			+ html_file;
+       	 	// Send the blank HTML page response again for new connections
+		// }
+    	write(newsock, response.c_str(), response.size());
 		
         close(newsock);
 		// std::cout << "\n=============================\n";
