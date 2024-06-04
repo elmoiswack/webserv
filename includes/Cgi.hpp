@@ -16,6 +16,7 @@ class Cgi
 		std::vector<char *> 		m_cgi_env_vars_cstyle;
 	public:
 		Cgi(char *client_resp, const std::string &url);
+		~Cgi();
 		// bool						isCgi(const std::string &url);
 		std::string					constructCgiPath(const std::string &url);
 		std::string 				extractReqUrl(const std::string &url);

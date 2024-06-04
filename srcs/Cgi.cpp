@@ -8,6 +8,12 @@ Cgi::Cgi(char *client_resp, const std::string &url) :
 
 }
 
+Cgi::~Cgi()
+{
+	for (char *env : m_cgi_env_vars_cstyle)
+		delete[] env;
+	std::cout << "CGI DESCTRUCTED\n";
+}
 
 
 // bool Cgi::isCgi(const std::string &url)
@@ -90,8 +96,8 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const 
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	for (const std::string &env : env_vars)
-		std::cout << env << "\n";
+	// for (const std::string &env : env_vars)
+	// 	std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -99,9 +105,13 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const 
 std::vector<char *> Cgi::initCgiEnvVariablesCstyle()
 {
 	std::vector<char *> env_vars;
+
 	for (const std::string &env_var : m_cgi_env_vars)
 	{
-		env_vars.push_back(strdup(env_var.c_str()));
+		char *env_copy = new char[env_var.length() + 1];
+		std::copy(env_var.begin(), env_var.end(), env_copy);
+		env_copy[env_var.length()] = '\0';
+		env_vars.push_back(env_copy);
 	}
 	env_vars.push_back(nullptr);
 	return (env_vars);

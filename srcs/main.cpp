@@ -1,21 +1,9 @@
 #include <iostream>
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
-#include <unistd.h>
-
-std::string getCurrentWorkingDirectory() {
-    char buffer[1024];
-    if (getcwd(buffer, sizeof(buffer)) == nullptr) {
-        perror("getcwd error");
-        return "";
-    }
-    return std::string(buffer);
-}
 
 int main(int argc, char *argv[])
 {
-	    std::cout << "Current Working Directory: " << getCurrentWorkingDirectory() << std::endl;
-
 	if (argc != 2)
 	{
 		std::cout << "The program needs only 1 configuration file!\n";
