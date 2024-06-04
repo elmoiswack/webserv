@@ -13,6 +13,7 @@ Server::~Server()
 	this->_client_max.clear();
 	this->_root.clear();
 	this->_error_page.clear();
+	this->_serverindex.clear();
 	close(this->_websock);
 }
 

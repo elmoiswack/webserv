@@ -149,6 +149,8 @@ void Location::ValidateLocRoot(std::vector<std::string>& tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 3);
 }
 
+
+//  CGIparam sets parameters that are passed to the FastCGI server
 void    Location::Validate_CGIparam(std::vector<std::string> &tokens)
 {
     if ( tokens.size() == 1) 
@@ -171,6 +173,7 @@ void    Location::Validate_CGIparam(std::vector<std::string> &tokens)
      tokens.erase(tokens.begin(), tokens.begin() + 1);
 }
 
+//  sets the default file to serve when a directory is requested
 void    Location::Validate_CGIindex(std::vector<std::string> &tokens)
 {
     if ( tokens.size() == 1) 
@@ -192,6 +195,7 @@ void    Location::Validate_CGIindex(std::vector<std::string> &tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
+// specifies the address of the FastCGI server to which requests should be sent.
 void    Location::Validate_CGIpass(std::vector<std::string> &tokens)
 {
     if ( tokens.size() == 1) 
