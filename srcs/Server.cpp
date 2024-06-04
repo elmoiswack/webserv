@@ -30,10 +30,15 @@ bool isCgi(const std::string &url)
 	std::string extension;
 
 	size_t i = url.find("."); 
-	while (url[i] != ' ')
+	while (url[i] != ' ' && url[i] != '?')
 		extension.push_back(url[i++]);
 	if (extension != ".cgi")
+	{
+		// std::cout << "===\n\nNOT CGI======\n\n";
+
 		return (false);
+	}
+	// std::cout << "===\n\nIS CGI======\n\n";
 	return (true);
 }
 
@@ -87,15 +92,18 @@ void Server::StartServer()
 		{
 			Cgi cgi(buffer);
 			std::cout << "RUNNING CGI SCRIPT...\n";
-			std::cout << "\nPATH: " << cgi.extractCgiPath(std::string(buffer)) << "\n";
-			cgi.runCgi(cgi.extractCgiPath(std::string(buffer)));
+			std::string req_url = cgi.extractReqUrl(buffer);
+			std::string cgi_path = cgi.constructCgiPath(req_url);
+			std::cout << "\nREQUEST URL: " << req_url << "\n";
+			std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+			cgi.runCgi(cgi_path);
 		}
 		
 		// else
 		// {
 			// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
 			// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
-			std::string html_file = readFile("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www/index.html");
+			std::string html_file = readFile("./var/www/index.html");
 			// std::cout << html_file << "\n";
 			response =
 			"HTTP/1.1 200 OK\r\n"

@@ -16,7 +16,8 @@ class Cgi
 	public:
 		Cgi(char *client_resp);
 		// bool						isCgi(const std::string &url);
-		std::string					extractCgiPath(const std::string &url);
+		std::string					constructCgiPath(const std::string &url);
+		std::string 				extractReqUrl(const std::string &url);
 		std::string					readPipe(int fd);
 		void						runCgi(const std::string &cgi_path);
 		std::vector<std::string>	initCgiEnvVariables(const char *buf);

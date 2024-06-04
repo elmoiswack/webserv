@@ -22,17 +22,43 @@ Cgi::Cgi(char *client_resp) :
 // 	return (true);
 // }
 
+std::string Cgi::constructCgiPath(const std::string &url)
+{
+	std::string path;
+	// path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
+	path.append("./var/www/");
+	size_t pos = url.find_first_of('?');
+	if (pos == std::string::npos)
+		path.append(url);
+	else
+	{
+		// std::cout << "++++++++\n";
+		path.insert(path.size(), url, 0, pos);
+	}
+	return (path);
+}
 
-std::string Cgi::extractCgiPath(const std::string &url)
+std::string Cgi::extractReqUrl(const std::string &url)
 {
 	std::string path;
 	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
-	path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
+	// path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
 	size_t i = url.find("/");
 	while (url[i] != ' ')
 		path.push_back(url[i++]);
 	return (path);
 }
+
+// std::string Cgi::extractCgiPath(const std::string &url)
+// {
+// 	std::string path;
+// 	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
+// 	path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
+// 	size_t i = url.find("/");
+// 	while (url[i] != ' ')
+// 		path.push_back(url[i++]);
+// 	return (path);
+// }
 
 std::string	Cgi::readPipe(int fd)
 {
@@ -56,7 +82,7 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp)
    		"CONTENT_TYPE=text/plain",
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=first_name=TESTlast_name=TEST",
-		"REQUEST_METHOD=POST",
+		"REQUEST_METHOD=GET",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
 		"SCRIPT_FILENAME=",
@@ -75,7 +101,6 @@ std::vector<char *> Cgi::initCgiEnvVariablesCstyle()
 	std::vector<char *> env_vars;
 	for (const std::string &env_var : m_cgi_env_vars)
 	{
-		std::cout << "++++\n";
 		env_vars.push_back(strdup(env_var.c_str()));
 	}
 	env_vars.push_back(nullptr);

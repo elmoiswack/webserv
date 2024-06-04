@@ -13,6 +13,7 @@ first_name = params.get('first_name', [''])[0]
 last_name = params.get('last_name', [''])[0]
 
 # Print the extracted values
+
 print("<html>")
 print("<head><title>Extracted Names</title></head>")
 print("<body>")
