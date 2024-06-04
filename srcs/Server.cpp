@@ -86,18 +86,9 @@ void Server::StartServer()
 		 
 		char buffer[1024] = { 0 }; 
 		recv(newsock, buffer, sizeof(buffer), 0); 
-		std::cout << "Message from client: " << buffer << std::endl;
+		//std::cout << "Message from client:\n" << buffer << std::endl;
 		std::string response;
-		if (isCgi(std::string(buffer)))
-		{
-			Cgi cgi(buffer);
-			std::cout << "RUNNING CGI SCRIPT...\n";
-			std::string req_url = cgi.extractReqUrl(buffer);
-			std::string cgi_path = cgi.constructCgiPath(req_url);
-			std::cout << "\nREQUEST URL: " << req_url << "\n";
-			std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-			cgi.runCgi(cgi_path);
-		}
+		
 		
 		// else
 		// {
@@ -112,7 +103,24 @@ void Server::StartServer()
 			"\r\n"
 			+ html_file;
        	 	// Send the blank HTML page response again for new connections
+    		// write(newsock, response.c_str(), response.size());
 		// }
+    	//write(newsock, response.c_str(), response.size());
+		if (isCgi(std::string(buffer)))
+		{
+			response.clear();
+			Cgi cgi(buffer, cgi.extractReqUrl(buffer));
+			// std::cout << "RUNNING CGI SCRIPT...\n";
+			std::string req_url = cgi.extractReqUrl(buffer);
+			std::string cgi_path = cgi.constructCgiPath(req_url);
+			std::cout << "\nREQUEST URL: " << req_url << "\n";
+			std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
+			response = cgi.runCgi(cgi_path);
+			std::cout << "RESPONSE: \n" << response << "\n\n\n\n";
+			// response.erase();
+			// continue ;
+		}
     	write(newsock, response.c_str(), response.size());
 		
         close(newsock);

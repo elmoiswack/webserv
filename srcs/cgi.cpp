@@ -1,8 +1,8 @@
 #include "../includes/Cgi.hpp"
 
 
-Cgi::Cgi(char *client_resp, const std::string &url) : 
-	m_cgi_env_vars(this->initCgiEnvVariables(client_resp, url)),
+Cgi::Cgi(char *client_resp) : 
+	m_cgi_env_vars(this->initCgiEnvVariables(client_resp)),
 	m_cgi_env_vars_cstyle(initCgiEnvVariablesCstyle())
 {
 
@@ -72,14 +72,16 @@ std::string	Cgi::readPipe(int fd)
 	return (oss.str());
 }
 
-std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const std::string &url)
+
+
+std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp)
 {
 	std::vector<std::string> env_vars = 
 	{
     	"CONTENT_LENGTH=" + std::to_string(strlen(client_resp)),
    		"CONTENT_TYPE=text/plain",
 		"GATEWAY_INTERFACE=CGI/1.1",
-		"QUERY_STRING=" + this->extractQueryString(url),
+		"QUERY_STRING=first_name=TESTlast_name=TEST",
 		"REQUEST_METHOD=GET",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
@@ -90,8 +92,6 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const 
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	for (const std::string &env : env_vars)
-		std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -107,24 +107,8 @@ std::vector<char *> Cgi::initCgiEnvVariablesCstyle()
 	return (env_vars);
 }
 
-std::string	Cgi::extractQueryString(const std::string &url)
-{
-	// std::cout << "-----URL: " << url << "\n\n\n";
-	std::string querry_str;
-	size_t pos = url.find('?');
-	size_t end = url.find_last_of(' ');
-	if (pos != std::string::npos)
-	{
 
-		querry_str = (end != std::string::npos)
-			? url.substr(pos + 1, end - pos - 1)
-			: url.substr(pos + 1, url.length() - pos - 1);
-	}
-	// std::cout << "+++++++QUERRY: " << querry_str << "\n\n\n";
-	return (querry_str);
-}
-
-std::string Cgi::runCgi(const std::string &cgi_path)
+void Cgi::runCgi(const std::string &cgi_path)
 {
 	int	pipefd[2];
 
@@ -164,16 +148,15 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 		}
 		if (WIFEXITED(status))
 		{
-			// std::cout << "CGI script output:\n\n" << readPipe(pipefd[0]);
+			std::cout << "CGI script output:\n\n" << readPipe(pipefd[0]) << "\n";
 			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-			return (readPipe(pipefd[0]));
+
 		}
 		else
 		{
             std::cout << "Child process exited abnormally" << "\n";
 		}
 	}
-	return (nullptr);
 }
 
 
