@@ -2,13 +2,19 @@
 #include "../includes/Server.hpp"
 #include "../includes/Location.hpp"
 
-Parser::Parser(std::string inputfile, Parser& parser) : serverblocks()
-{
+Parser::Parser(std::string inputfile, Parser& parser) : serverblocks() {
     OpenConfigFile(inputfile, parser);
 }
 
 Parser::~Parser()
 {
+	this->_ip.clear();
+	this->_port.clear();
+	this->_server_name.clear();
+	this->_client_max.clear();
+	this->_root.clear();
+	this->_error_page.clear();
+	this->_serverindex.clear();
 }
 
 /* OpenConfigFile:

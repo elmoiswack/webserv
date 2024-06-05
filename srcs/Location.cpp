@@ -7,8 +7,16 @@ Location::Location() :
     allow_methods(0)
 {}
 
-Location::~Location()
-{}
+Location::~Location() {
+	this->url.clear();
+	this->index.clear();
+	this->returnredirect.clear();
+	this->cgi_param.clear();
+	this->alias.clear();
+	this->locroot.clear();
+	this->cgi_index.clear();
+	this->cgi_pass.clear();
+}
 
 void    Location::ValidateLocationURL(std::vector<std::string> &tokens)
 {
