@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
+#include "../includes/cgi.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,7 @@ int main(int argc, char *argv[])
 	{
 		Parser pars(argv[1]);
 		Server serv(pars);
+		runCgi("./var/www/cgi-bin");
 		serv.SetUpServer();
 
 	}

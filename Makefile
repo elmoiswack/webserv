@@ -3,6 +3,10 @@ NAME	:=	webserv
 SRC	:=	main.cpp \
 		Parser.cpp \
 		Server.cpp \
+		cgi.cpp \
+		utils_rares.cpp \
+		Request.cpp \
+		Response.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs

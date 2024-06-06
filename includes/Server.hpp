@@ -35,7 +35,7 @@ public:
 	void RecieveMessage(int fd, int index);
 
 	std::string HtmlToString(std::string path);
-	std::string GetResponse();
+	std::string GetResponse(int fd, int index);
 
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
