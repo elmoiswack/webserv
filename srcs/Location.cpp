@@ -65,8 +65,9 @@ void    Location::ValidateAllowMethods(std::vector<std::string> &tokens)
 
 	if (tokens[0] == ";")
 		throw Parser::InvalidLineConfException("The Allow Method is Missing!");
-	if (tokens[1] != ";")
+	if (tokens[1] != ";") {
 		throw Parser::InvalidLineConfException("; is Missing!");
+	}
 		if (tokens[0] == "GET")
 		this->allow_methods = GET;
 	else if (tokens[0] == "POST")

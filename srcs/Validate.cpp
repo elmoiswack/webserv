@@ -4,12 +4,14 @@
 void Server::ValidateListen(std::vector<std::string>& tokens)
 {
     // ensure there's a token after 'listen'
-    if (tokens.size() < 3|| tokens[1] == ";")
+    if (tokens.size() < 3|| tokens[1] == ";") {
         throw std::runtime_error("Listen token is missing!");
+	}
 
     // ensure there's a semicolon after the IP
-    if (tokens[2] != ";")
+    if (tokens[2] != ";") {
         throw std::runtime_error("Invalid Listen Token");
+	}
 
 
 	std::string ip = tokens[1];
@@ -25,8 +27,9 @@ void Server::ValidateListen(std::vector<std::string>& tokens)
     }
 
 	// ensure there are exactly 3 dots in the IP address
-    if (dot_count != 3)
+    if (dot_count != 3) {
         throw std::runtime_error("Invalid IP address format");
+	}
 
 	tokens.erase(tokens.begin(), tokens.begin() + 1);
 
@@ -40,12 +43,14 @@ void Server::ValidateListen(std::vector<std::string>& tokens)
 void Server::ValidatePort(std::vector<std::string>& tokens)
 {
     // ensure there's a token after 'port'
-    if (tokens.size() < 3 || tokens[1] == ";")
+    if (tokens.size() < 3 || tokens[1] == ";") {
         throw Parser::InvalidLineConfException("Port token is missing!");
+	}
 
     // ensure there's a semicolon after the port
-    if (tokens[2] != ";")
+    if (tokens[2] != ";") {
         throw Parser::InvalidLineConfException("Invalid Port Token");
+	}
 
 	std::string port = tokens[1];
     // check that the port contains only digits
