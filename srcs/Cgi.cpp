@@ -1,5 +1,16 @@
 #include "../includes/Cgi.hpp"
 
+bool isCgi(const std::string &url)
+{
+	std::string extension;
+
+	size_t i = url.find("."); 
+	while (url[i] != ' ' && url[i] != '?')
+		extension.push_back(url[i++]);
+	if (extension != ".cgi")
+		return (false);
+	return (true);
+}
 
 Cgi::Cgi()
 {
@@ -33,31 +44,17 @@ void	Cgi::setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle)
 }
 
 
-// bool Cgi::isCgi(const std::string &url)
-// {
-// 	std::string extension;
 
-// 	size_t i = url.find("."); 
-// 	while (url[i] != ' ')
-// 		extension.push_back(url[i++]);
-// 	if (extension != ".cgi")
-// 		return (false);
-// 	return (true);
-// }
 
 std::string Cgi::constructCgiPath(const std::string &url)
 {
 	std::string path;
-	// path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
 	path.append("./var/www/");
 	size_t pos = url.find_first_of('?');
 	if (pos == std::string::npos)
 		path.append(url);
 	else
-	{
-		// std::cout << "++++++++\n";
 		path.insert(path.size(), url, 0, pos);
-	}
 	return (path);
 }
 
@@ -69,17 +66,6 @@ std::string Cgi::extractReqUrl(const std::string &url)
 		path.push_back(url[i++]);
 	return (path);
 }
-
-// std::string Cgi::extractCgiPath(const std::string &url)
-// {
-// 	std::string path;
-// 	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
-// 	path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
-// 	size_t i = url.find("/");
-// 	while (url[i] != ' ')
-// 		path.push_back(url[i++]);
-// 	return (path);
-// }
 
 std::string	Cgi::readPipe(int fd)
 {
@@ -134,7 +120,6 @@ std::vector<char *> Cgi::initCgiEnvVarsCstyle()
 
 std::string	Cgi::extractQueryString(const std::string &url)
 {
-	// std::cout << "-----URL: " << url << "\n\n\n";
 	std::string querry_str;
 	size_t pos = url.find('?');
 	size_t end = url.find_last_of(' ');
@@ -145,12 +130,8 @@ std::string	Cgi::extractQueryString(const std::string &url)
 			? url.substr(pos + 1, end - pos - 1)
 			: url.substr(pos + 1, url.length() - pos - 1);
 	}
-	// std::cout << "+++++++QUERRY: " << querry_str << "\n\n\n";
 	return (querry_str);
 }
-
-
-
 
 std::string Cgi::runCgi(const std::string &cgi_path)
 {
@@ -168,10 +149,10 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 		std::cout << "ERROR CREATING CHILD PROCESS\n";
         exit(EXIT_FAILURE);			
 	}
-	else if (pid == 0)	//-> child process
+	else if (pid == 0)											//-> child process
 	{
-		close(pipefd[0]); // -> close read end of pipe, only need to write
-		dup2(pipefd[1], STDOUT_FILENO); // -> redirect stdout to write end of pipe
+		close(pipefd[0]); 										// -> close read end of pipe, only need to write
+		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
 		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
 		if (execve("/usr/bin/python3", const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1)
 		{
@@ -179,9 +160,9 @@ std::string Cgi::runCgi(const std::string &cgi_path)
         	std::exit(EXIT_FAILURE);			
 		}
 	}
-	else				//-> parent process
+	else														//-> parent process
 	{
-		close(pipefd[1]); // -> close write end of pipe, only need to read
+		close(pipefd[1]); 										// -> close write end of pipe, only need to read
 		int status;
 		pid_t result = waitpid(pid, &status, 0);
 		if (result == -1)
@@ -192,7 +173,6 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 		}
 		if (WIFEXITED(status))
 		{
-			// std::cout << "CGI script output:\n\n" << readPipe(pipefd[0]);
 			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
 			return (readPipe(pipefd[0]));
 		}
@@ -205,3 +185,89 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 }
 
 
+// bool isCgi(const std::string &url)
+// {
+// 	std::string extension;
+
+// 	size_t i = url.find("."); 
+// 	while (url[i] != ' ' && url[i] != '?')
+// 		extension.push_back(url[i++]);
+// 	if (extension != ".cgi")
+// 		return (false);
+// 	return (true);
+// }
+
+// ------OLD SERVER------//
+// void Server::StartServer()
+// {
+// 	this->_websock = socket(AF_INET, SOCK_STREAM, 0);
+// 	if (this->_websock < 0)
+// 	{
+// 		std::cout << "ERROR" << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}
+
+// 	struct sockaddr_in infoaddr;
+// 	memset(&infoaddr, '\0', sizeof(infoaddr));
+// 	infoaddr.sin_family = AF_INET;
+// 	infoaddr.sin_addr.s_addr = INADDR_ANY;
+// 	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
+// 	if (bind(this->_websock, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
+// 	{
+// 		std::cout << "ERROR BIND" << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	if (listen(this->_websock, 5) == -1)
+// 	{
+// 		std::cout << "ERROR LISTEN" << std::endl;
+// 		exit(EXIT_FAILURE);		
+// 	}
+
+// 	// keeps it running
+// 	long newsock;
+// 	while (true)
+//     {
+// 		struct sockaddr_in client_addr;
+//   		int client_addr_len = sizeof(client_addr);
+
+//        	newsock = accept(this->_websock, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+//         if (newsock == -1)
+//         {
+//             std::cout << "ERROR ACCEPT" << std::endl;
+//             exit(EXIT_FAILURE);			
+//         }
+		 
+// 		char buffer[1024] = { 0 }; 
+// 		recv(newsock, buffer, sizeof(buffer), 0); 
+// 		std::string response;		
+// 		std::string html_file = readFile("./var/www/index.html");
+// 		response =
+// 		"HTTP/1.1 200 OK\r\n"
+// 		"Content-Type: text/html\r\n"
+// 		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
+// 		"\r\n"
+// 		+ html_file;
+//        	 	// Send the blank HTML page response again for new connections
+//     		// write(newsock, response.c_str(), response.size());
+// 		// }
+//     	//write(newsock, response.c_str(), response.size());
+// 		if (isCgi(std::string(buffer)))
+// 		{
+// 			Cgi cgi;
+// 			response.clear();
+// 			std::string req_url = cgi.extractReqUrl(buffer);
+// 			std::string cgi_path = cgi.constructCgiPath(req_url);
+// 			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
+// 			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+// 			// std::cout << "\nREQUEST URL: " << req_url << "\n";
+// 			// std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+// 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
+// 			response = cgi.runCgi(cgi_path);
+// 			std::cout << "\n--------------------------\n";
+// 			std::cout << "RESPONSE: \n\n" << response;
+// 			std::cout << "--------------------------\n";
+// 		}
+//     	write(newsock, response.c_str(), response.size());
+//         close(newsock);
+//     }
+// }

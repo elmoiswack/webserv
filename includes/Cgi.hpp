@@ -29,3 +29,6 @@ class Cgi
 		void						setCgiEnvVars(const std::vector<std::string> &vars);
 		void						setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle);
 };
+
+
+bool isCgi(const std::string &url);

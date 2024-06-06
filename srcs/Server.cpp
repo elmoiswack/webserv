@@ -25,24 +25,6 @@ Server::~Server()
 	close(this->_websock);
 }
 
-bool isCgi(const std::string &url)
-{
-	std::string extension;
-
-	size_t i = url.find("."); 
-	while (url[i] != ' ' && url[i] != '?')
-		extension.push_back(url[i++]);
-	if (extension != ".cgi")
-	{
-		// std::cout << "===\n\nNOT CGI======\n\n";
-
-		return (false);
-	}
-	// std::cout << "===\n\nIS CGI======\n\n";
-	return (true);
-}
-
-
 //https://localhost:8080/ our address
 void Server::StartServer()
 {
@@ -71,7 +53,6 @@ void Server::StartServer()
 
 	// keeps it running
 	long newsock;
-	// Cgi cgi;
 	while (true)
     {
 		struct sockaddr_in client_addr;
@@ -86,22 +67,14 @@ void Server::StartServer()
 		 
 		char buffer[1024] = { 0 }; 
 		recv(newsock, buffer, sizeof(buffer), 0); 
-		//std::cout << "Message from client:\n" << buffer << std::endl;
-		std::string response;
-		
-		
-		// else
-		// {
-			// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
-			// std::string html_file = readFile("/home/coxer/Documents/GitHub/webserv/var/www/index.html");
-			std::string html_file = readFile("./var/www/index.html");
-			// std::cout << html_file << "\n";
-			response =
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
-			"\r\n"
-			+ html_file;
+		std::string response;		
+		std::string html_file = readFile("./var/www/index.html");
+		response =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
+		"\r\n"
+		+ html_file;
        	 	// Send the blank HTML page response again for new connections
     		// write(newsock, response.c_str(), response.size());
 		// }
@@ -110,8 +83,6 @@ void Server::StartServer()
 		{
 			Cgi cgi;
 			response.clear();
-			// Cgi cgi(buffer, cgi.extractReqUrl(buffer));
-			// std::cout << "RUNNING CGI SCRIPT...\n";
 			std::string req_url = cgi.extractReqUrl(buffer);
 			std::string cgi_path = cgi.constructCgiPath(req_url);
 			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
@@ -123,13 +94,9 @@ void Server::StartServer()
 			std::cout << "\n--------------------------\n";
 			std::cout << "RESPONSE: \n\n" << response;
 			std::cout << "--------------------------\n";
-			// response.erase();
-			// continue ;
 		}
     	write(newsock, response.c_str(), response.size());
-		
         close(newsock);
-		// std::cout << "\n=============================\n";
     }
 }	
 
