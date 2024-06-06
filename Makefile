@@ -5,7 +5,7 @@ SRC	:=	main.cpp \
 		Server.cpp \
 		Validate.cpp \
 		Location.cpp \
-		cgi.cpp \
+		Cgi.cpp \
 		utils_rares.cpp \
 		Request.cpp \
 		Response.cpp \

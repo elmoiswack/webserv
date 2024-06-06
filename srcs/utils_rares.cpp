@@ -6,11 +6,12 @@
 /*   By: raanghel <raanghel@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/05/15 18:17:10 by raanghel      #+#    #+#                 */
-/*   Updated: 2024/05/16 12:53:13 by coxer         ########   odam.nl         */
+/*   Updated: 2024/06/04 19:36:19 by coxer         ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"../includes/utils_rares.hpp"
+#include <unistd.h>
 
 std::string readFile(const std::string &path)
 {
@@ -24,4 +25,13 @@ std::string readFile(const std::string &path)
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	return (buffer.str());
+}
+
+std::string getCurrentWorkingDirectory() {
+    char buffer[1024];
+    if (getcwd(buffer, sizeof(buffer)) == nullptr) {
+        perror("getcwd error");
+        return "";
+    }
+    return std::string(buffer);
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
-#include "../includes/cgi.hpp"
+#include "../includes/Cgi.hpp"
 #include "../includes/Location.hpp"
 
 
