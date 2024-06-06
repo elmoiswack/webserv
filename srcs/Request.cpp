@@ -8,12 +8,7 @@
 void Server::EventsPollin(int fd, int index)
 {
 	logger("POLLIN");
-	if (this->_whatsockvec[index] == "CLIENT")
-	{
-		std::cout << this->GetResponse(fd, index) << std::endl;
-		return ;
-	}
-
+	std::cout << this->GetResponse(fd, index) << std::endl;
 }
 std::string Server::GetResponse(int fd, int index)
 {
@@ -30,6 +25,8 @@ void Server::RecieveMessage(int fd, int index)
 
 	char buff[10000];
 	int nbytes = recv(fd, &buff, sizeof(buff), 0);
+	std::cout << fd << std::endl;
+	std::cout << nbytes << std::endl;
 	if (nbytes == -1)
 	{
 		std::cout << "ERROR read" << std::endl;
