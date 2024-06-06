@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../includes/Parser.hpp"
 #include "../includes/Server.hpp"
+#include "../includes/cgi.hpp"
 #include "../includes/Location.hpp"
 
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
     try
     {
         Parser pars(argv[1], pars);
-
+      	runCgi("./var/www/cgi-bin");
         runTests(pars);
 
         std::vector<Server> servers = pars.GetServerBlocks();
@@ -78,6 +79,8 @@ int main(int argc, char *argv[])
         } catch (const std::exception& e) {
             std::cerr << "Error retrieving server: " << e.what() << std::endl;
         }
+        Server serv(pars);
+      	serv.SetUpServer();
     }
     catch(const std::exception& e)
     {
@@ -87,3 +90,24 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+// int main(int argc, char *argv[])
+// {
+// 	if (argc != 2)
+// 	{
+// 		std::cout << "The program needs only 1 configuration file!\n";
+// 		std::cout << "To run the program: ./webserv 'the configutation file'!" << std::endl;
+// 	}
+// 	try
+// 	{
+// 		Parser pars(argv[1]);
+// 		Server serv(pars);
+// 		runCgi("./var/www/cgi-bin");
+// 		serv.SetUpServer();
+
+// 	}
+// 	catch(const std::exception& e)
+// 	{
+// 		std::cerr << "ERROR: " << e.what() << std::endl;
+// 	}
+// }
