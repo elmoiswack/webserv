@@ -3,6 +3,8 @@ NAME	:=	webserv
 SRC	:=	main.cpp \
 		Parser.cpp \
 		Server.cpp \
+		Validate.cpp \
+		Location.cpp \
 		cgi.cpp \
 		utils_rares.cpp \
 		Request.cpp \

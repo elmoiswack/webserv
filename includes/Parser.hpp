@@ -1,6 +1,17 @@
-#pragma once
+#ifndef PARSER_HPP
+#define PARSER_HPP
 
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <regex>
+#include <unordered_map>
+
+#include "../includes/Server.hpp"
+
+class Server;
 
 class Parser
 {
@@ -8,15 +19,27 @@ private:
 	std::string _port;
 	std::string _ip;
 	std::string _server_name;
+	std::string _client_max;
+	std::string _root;
+	std::string _serverindex;
+	std::unordered_map<int, std::string> _error_page;
+	std::string _index;
+
+	std::vector<Server>				serverblocks;
+
 public:
-	Parser(std::string inputfile);
+	Parser(std::string inputfile, Parser& parser);
 	~Parser();
 
-	void StartParser(std::string inputfile);
+	const std::vector<Server>& GetServerBlocks() const;
+	Server& getServer(const std::string& serverName, int port);
 
-	std::string GetPort();
-	std::string GetIp();
-	std::string GetServName();
+	void 					 OpenConfigFile(std::string inputfile, Parser& parser);
+	std::vector<std::string> Tokenizing(std::string &ProcessedString);
+	void 					 ProcessConfigData(std::string &ConfigString);
+	void					 ParseServer(std::vector<std::string>& tokens, Parser& parser);
+
+	void AddServerBlock(const Server& server_block);
 
 	template <typename T>
 	int SkipWhitespaces(T input, int index)
@@ -42,3 +65,5 @@ public:
 		const char* what() const throw();
 	};
 };
+
+#endif

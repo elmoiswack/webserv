@@ -1,4 +1,11 @@
 #include "../includes/Server.hpp"
+
+#include "../includes/Parser.hpp"
+
+Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
+               const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex)
+    : _port(port), _ip(ip),_server_name(server_name), _client_max(client_max), _root(root), _serverindex(serverindex), _error_page(error_page), _websock(-1) {}
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -15,13 +22,20 @@ Server::Server(Parser &in)
 	this->_htmlstartsend = false;
 }
 
+
 Server::~Server()
 {
 	this->_ip.clear();
 	this->_server_name.clear();
+	this->_client_max.clear();
+	this->_root.clear();
+	this->_error_page.clear();
+	this->_serverindex.clear();
+	close(this->_websock);
 	this->_sockvec.clear();
 	this->_whatsockvec.clear();
 	this->_ports.clear();
+
 }
 
 void Server::AddSocket(int fd, bool is_client)
