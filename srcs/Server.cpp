@@ -108,11 +108,14 @@ void Server::StartServer()
     	//write(newsock, response.c_str(), response.size());
 		if (isCgi(std::string(buffer)))
 		{
+			Cgi cgi;
 			response.clear();
-			Cgi cgi(buffer, cgi.extractReqUrl(buffer));
+			// Cgi cgi(buffer, cgi.extractReqUrl(buffer));
 			// std::cout << "RUNNING CGI SCRIPT...\n";
 			std::string req_url = cgi.extractReqUrl(buffer);
 			std::string cgi_path = cgi.constructCgiPath(req_url);
+			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
+			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 			// std::cout << "\nREQUEST URL: " << req_url << "\n";
 			// std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";

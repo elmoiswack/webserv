@@ -15,7 +15,8 @@ class Cgi
 		std::vector<std::string> 	m_cgi_env_vars;
 		std::vector<char *> 		m_cgi_env_vars_cstyle;
 	public:
-		Cgi(char *client_resp, const std::string &url);
+		Cgi();
+		// Cgi(char *client_resp, const std::string &url);
 		~Cgi();
 		// bool						isCgi(const std::string &url);
 		std::string					constructCgiPath(const std::string &url);
@@ -23,6 +24,8 @@ class Cgi
 		std::string					extractQueryString(const std::string &url);
 		std::string					readPipe(int fd);
 		std::string					runCgi(const std::string &cgi_path);
-		std::vector<std::string>	initCgiEnvVariables(const char *client_resp, const std::string &url);
-		std::vector<char *>  		initCgiEnvVariablesCstyle();
+		std::vector<std::string>	initCgiEnvVars(const char *client_resp, const std::string &url);
+		std::vector<char *>  		initCgiEnvVarsCstyle();
+		void						setCgiEnvVars(const std::vector<std::string> &vars);
+		void						setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle);
 };

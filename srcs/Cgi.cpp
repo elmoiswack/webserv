@@ -1,18 +1,35 @@
 #include "../includes/Cgi.hpp"
 
 
-Cgi::Cgi(char *client_resp, const std::string &url) : 
-	m_cgi_env_vars(this->initCgiEnvVariables(client_resp, url)),
-	m_cgi_env_vars_cstyle(initCgiEnvVariablesCstyle())
+Cgi::Cgi()
 {
+	std::cout << "CGI CONSTRUCTED\n";
 
 }
+
+// Cgi::Cgi(char *client_resp, const std::string &url) : 
+// 	m_cgi_env_vars(this->initCgiEnvVars(client_resp, url)),
+// 	m_cgi_env_vars_cstyle(initCgiEnvVarsCstyle())
+// {
+
+// }
 
 Cgi::~Cgi()
 {
 	for (char *env : m_cgi_env_vars_cstyle)
 		delete[] env;
 	std::cout << "CGI DESCTRUCTED\n";
+}
+
+
+void	Cgi::setCgiEnvVars(const std::vector<std::string> &vars)
+{
+	m_cgi_env_vars = vars;
+}
+
+void	Cgi::setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle)
+{
+	m_cgi_env_vars_cstyle = vars_cstyle;
 }
 
 
@@ -47,8 +64,6 @@ std::string Cgi::constructCgiPath(const std::string &url)
 std::string Cgi::extractReqUrl(const std::string &url)
 {
 	std::string path;
-	// NEED TO MAKE IT WORK WITH RELATIVE PATH, USE ABLOSUTE FOR NOW!!!
-	// path.append("/Users/rares/Documents/CODING/Codam/GitHub/webserv/var/www");
 	size_t i = url.find("/");
 	while (url[i] != ' ')
 		path.push_back(url[i++]);
@@ -78,7 +93,7 @@ std::string	Cgi::readPipe(int fd)
 	return (oss.str());
 }
 
-std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const std::string &url)
+std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::string &url)
 {
 	std::vector<std::string> env_vars = 
 	{
@@ -102,7 +117,7 @@ std::vector<std::string>Cgi::initCgiEnvVariables(const char *client_resp, const 
 }
 
 
-std::vector<char *> Cgi::initCgiEnvVariablesCstyle()
+std::vector<char *> Cgi::initCgiEnvVarsCstyle()
 {
 	std::vector<char *> env_vars;
 
@@ -133,6 +148,9 @@ std::string	Cgi::extractQueryString(const std::string &url)
 	// std::cout << "+++++++QUERRY: " << querry_str << "\n\n\n";
 	return (querry_str);
 }
+
+
+
 
 std::string Cgi::runCgi(const std::string &cgi_path)
 {
