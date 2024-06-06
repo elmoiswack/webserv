@@ -21,6 +21,8 @@ Server::Server(Parser &in)
 	{
 		it->_locationblocks = it->GetLocations();
 		it->_ammount_sock = 0;
+		it->_recvmax = std::atoi(_client_max.c_str());
+		it->_donereading = false;
 	}
 }
 
@@ -157,7 +159,6 @@ void Server::RunPoll()
 		for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 		{
 			int ret = poll(it->_sockvec.data(), it->_sockvec.size(), -1);
-			std::cout << ret << std::endl;
 			if (ret < 0)
 			{
 				std::cout << "ERROR POLL" << std::endl;
@@ -171,7 +172,6 @@ void Server::RunPoll()
 
 void Server::PollEvents(std::vector<Server>::iterator it)
 {
-	std::cout << "da" << it->_ammount_sock << std::endl;
 	for (int index = 0; index != it->_ammount_sock; index++)
 	{
 		pollfd temp;
@@ -186,7 +186,7 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 			}
 			else
 			{
-				it->EventsPollin(temp.fd, index);
+				it->EventsPollin(temp.fd, it);
 			}
 		}
 		if (temp.revents & POLLOUT)

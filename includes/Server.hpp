@@ -31,7 +31,12 @@ private:
 	std::vector<struct pollfd> _sockvec;
 	std::vector<std::string> _whatsockvec;
  	int			_ammount_sock;
+	std::vector<char> _request;
 	std::string _response;
+	bool		_donereading;
+	int			_recvmax;
+
+
 	std::string _port;
 	std::string _ip;
 	std::string _server_name;
@@ -80,14 +85,14 @@ public:
 	void RunPoll();
 
 	void PollEvents(std::vector<Server>::iterator it);
-	void EventsPollin(int fd, int index);
+	void EventsPollin(int fd, std::vector<Server>::iterator it);
 	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
 	
 	void AcceptClient(int index, std::vector<Server>::iterator it);
-	void RecieveMessage(int fd, int index);
+	void RecieveMessage(int fd, std::vector<Server>::iterator it);
 
 	std::string HtmlToString(std::string path);
-	std::string GetResponse(int fd, int index);
+	std::string GetResponse(int fd, std::vector<Server>::iterator it);
 
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);

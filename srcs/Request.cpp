@@ -5,34 +5,37 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-void Server::EventsPollin(int fd, int index)
+void Server::EventsPollin(int fd, std::vector<Server>::iterator it)
 {
 	logger("POLLIN");
-	std::cout << this->GetResponse(fd, index) << std::endl;
+	std::cout << this->GetResponse(fd, it) << std::endl;
 }
-std::string Server::GetResponse(int fd, int index)
+std::string Server::GetResponse(int fd, std::vector<Server>::iterator it)
 {
-	this->RecieveMessage(fd, index);
+	if (it->_donereading == false)
+		this->RecieveMessage(fd, it);
+	
 	return (this->_response);
 }
 
-void Server::RecieveMessage(int fd, int index)
+void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
 {
 	logger("NOT WORKING");
 	logger("Ready to recieve...");
-	if (index != 0)
-		index = 0;
-
+	
+	std::string max = it->GetClientMax();
+	int recvmax = std::atoi(max.c_str());
 	char buff[10000];
-	int nbytes = recv(fd, &buff, sizeof(buff), 0);
-	std::cout << fd << std::endl;
-	std::cout << nbytes << std::endl;
-	if (nbytes == -1)
+	int rbytes = recv(fd, &buff, it->_recvmax, 0);
+	if (rbytes == -1)
 	{
 		std::cout << "ERROR read" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::string temp(buff);
-	this->_response = temp;
+	it->_request.push_back(buff);
+	if (rbytes < recvmax)
+	{
+		it->_donereading = true;
+	}
 	logger("message recieved!");
 }
