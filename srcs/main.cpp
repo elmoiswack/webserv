@@ -58,29 +58,17 @@ int main(int argc, char *argv[])
         std::cout << "To run the program: ./webserv 'the configuration file'!" << std::endl;
         return 1;
     }
-
     try
     {
         Parser pars(argv[1], pars);
-      	runCgi("./var/www/cgi-bin");
         runTests(pars);
+        Cgi cgi;
+      	cgi.runCgi("./var/www/cgi-bin");
 
-        std::vector<Server> servers = pars.GetServerBlocks();
-
-        if (!servers.empty()) {
-            servers[0].StartServer();
-            std::cout << "Started server on port: " << servers[0].GetPort() << std::endl;
-        }
-
-        // Test the getServer function
-        try {
-            Server& testServer = pars.getServer("test", 8001);
-            std::cout << "Retrieved server with port: " << testServer.GetPort() << std::endl;
-        } catch (const std::exception& e) {
-            std::cerr << "Error retrieving server: " << e.what() << std::endl;
-        }
+        //std::vector<Server> servers = pars.GetServerBlocks();
         Server serv(pars);
-      	serv.SetUpServer();
+        serv.SetUpServer();
+
     }
     catch(const std::exception& e)
     {

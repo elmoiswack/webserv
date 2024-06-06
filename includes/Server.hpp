@@ -26,7 +26,12 @@ class Server
 {
 private:
 
-
+	std::vector<Server> _serverblocks;
+	std::vector<Location> _locationblocks;
+	std::vector<struct pollfd> _sockvec;
+	std::vector<std::string> _whatsockvec;
+ 	int			_ammount_sock;
+	std::string _response;
 	std::string _port;
 	std::string _ip;
 	std::string _server_name;
@@ -40,20 +45,11 @@ private:
 
 	int		_websock;
 
-// 	std::string _ip;
-// 	std::vector<std::string> _ports;
-// 	std::string _server_name;
-// 	bool		_server_running;
-// 	int			_ammount_sock;
-// 	std::vector<struct pollfd> _sockvec;
-// 	std::vector<std::string> _whatsockvec;
-// 	std::string _response;
-// 	bool 		_htmlstartsend;
-
 public:
-    Server(const std::string& ip, const std::string& port, const std::string& server_name,
+ 	Server(const std::string& ip, const std::string& port, const std::string& server_name, \
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex);
-    ~Server();
+    Server(Parser &in);
+	~Server();
 	
 	std::string GetPort() const;
     std::string GetIp() const;
@@ -63,8 +59,6 @@ public:
 	std::unordered_map<int, std::string> GetErrorPage() const;
 	std::string GetServerIndex() const;
 	std::vector<std::string> GetServerNames() const;
-
-	void StartServer();
 
 	void   ValidateListen(std::vector<std::string>& tokens);
 	void   ValidatePort(std::vector<std::string>& tokens);
@@ -79,17 +73,17 @@ public:
 	std::vector<Location> GetLocations() const;
 
 	void SetUpServer();
-	void InitSocket();
-	void BindSockets();
-	void ListenSockets();
+	void InitSocket(std::vector<Server>::iterator it);
+	void BindSockets(std::vector<Server>::iterator it);
+	void ListenSockets(std::vector<Server>::iterator it);
 
 	void RunPoll();
 
-	void PollEvents();
+	void PollEvents(std::vector<Server>::iterator it);
 	void EventsPollin(int fd, int index);
-	void EventsPollout(int fd, int index);
+	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
 	
-	void AcceptClient(int index);
+	void AcceptClient(int index, std::vector<Server>::iterator it);
 	void RecieveMessage(int fd, int index);
 
 	std::string HtmlToString(std::string path);
@@ -97,7 +91,7 @@ public:
 
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
-	void CloseAllFds();
+	void CloseAllFds(std::vector<Server>::iterator it);
 };
 
 void logger(std::string input);

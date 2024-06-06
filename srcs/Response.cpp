@@ -21,28 +21,24 @@ std::string Server::HtmlToString(std::string path)
 	return (buffer.str());
 }
 
-void Server::EventsPollout(int fd, int index)
+void Server::EventsPollout(int fd, int index, std::vector<Server>::iterator it)
 {
 	logger("POLLOUT");
-	if (this->_whatsockvec[index] == "CLIENT")
+	if (it->_whatsockvec[index] == "CLIENT")
 	{
 		logger("sending response to client");
-		if (this->_htmlstartsend == false)
-		{
-			std::string html_file = this->HtmlToString("./var/www/index.html");
-			this->_response = 
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
-			"\r\n"
-			+ html_file;
-			this->_htmlstartsend = true;
-		}
-		logger(this->_response);
-		write(fd, this->_response.c_str(), this->_response.size());
+		std::string html_file = it->HtmlToString("./var/www/index.html");
+		it->_response = 
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
+		"\r\n"
+		+ html_file;
+		logger(it->_response);
+		write(fd, it->_response.c_str(), it->_response.size());
 		logger("response is sent to fd!");
 		close(fd);
 		logger("fd is closed");
-		this->_response.clear();
+		it->_response.clear();
 	}
 }

@@ -71,7 +71,10 @@
 		"numbers": "cpp",
 		"ranges": "cpp",
 		"span": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"list": "cpp",
+		"map": "cpp",
+		"regex": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "disabled"
 }

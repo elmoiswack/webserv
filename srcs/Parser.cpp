@@ -194,7 +194,7 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 1);
 
     // Add the location block to the server block
-    this->_locations.push_back(newLocation);
+    this->_locationblocks.push_back(newLocation);
 }
 
 Server& Parser::getServer(const std::string& serverName, int port)
