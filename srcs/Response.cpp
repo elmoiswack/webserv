@@ -27,18 +27,12 @@ void Server::EventsPollout(int fd, int index, std::vector<Server>::iterator it)
 	if (it->_whatsockvec[index] == "CLIENT")
 	{
 		logger("sending response to client");
-		std::string html_file = it->HtmlToString("./var/www/index.html");
-		it->_response = 
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
-		"\r\n"
-		+ html_file;
 		logger(it->_response);
 		write(fd, it->_response.c_str(), it->_response.size());
 		logger("response is sent to fd!");
 		close(fd);
 		logger("fd is closed");
 		it->_response.clear();
+		RmvSocket(index, it);
 	}
 }

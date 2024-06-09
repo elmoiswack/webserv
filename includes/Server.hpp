@@ -33,6 +33,7 @@ private:
  	int			_ammount_sock;
 	std::vector<char> _request;
 	std::string _response;
+	std::string _method;
 	bool		_donereading;
 	int			_recvmax;
 
@@ -92,10 +93,13 @@ public:
 	void RecieveMessage(int fd, std::vector<Server>::iterator it);
 
 	std::string HtmlToString(std::string path);
-	std::string GetResponse(int fd, std::vector<Server>::iterator it);
+	
+	
+	void GetResponse(int fd, std::vector<Server>::iterator it);
+	std::string ParseRequest(std::vector<Server>::iterator it);
 
 	void AddSocket(int fd, bool is_client);
-	void RmvSocket(int index);
+	void RmvSocket(int index, std::vector<Server>::iterator it);
 	void CloseAllFds(std::vector<Server>::iterator it);
 };
 
