@@ -17,11 +17,6 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 	if (it->_donereading == true)
 	{
 		std::string htmlfile = this->ParseRequest(it);
-		if (htmlfile.size() < 10)
-		{
-			logger("SOMETHIGN WHGENTEIA RRHWA");
-			exit(EXIT_FAILURE);
-		}
 		it->_response = 
 		"HTTP/1.1 200 OK\r\n"
 		"Content-Type: text/html\r\n"
@@ -36,7 +31,7 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 std::string Server::ParseRequest(std::vector<Server>::iterator it)
 {
 	std::vector<char>::iterator itfirst = it->_request.begin();
-	char arr[6];
+	char arr[7];
 	int index = 0;
 	while (!std::isspace(*itfirst))
 	{
@@ -50,29 +45,60 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	if (method == "GET")
 	{
 		it->_method = "GET";
-		if (std::isspace(*itfirst))
-		{
-			while (std::isspace(*itfirst))
-				itfirst++;
-		}
-		std::vector<char>::iterator itend = itfirst;
-		while (!std::isspace(*itend))
-			itend++;
-		std::string ja;
-		ja.assign(itfirst, itend);
-		logger(ja);
-		if (ja == "/")
-			return (it->HtmlToString("./var/www/index.html"));
+		return (this->MethodGet(itfirst));
 	}
-	if (method == "POST")
+	else if (method == "POST")
 	{
 		it->_method = "POST";
 	}
-	if (method == "DELETE")
+	else if (method == "DELETE")
 	{
 		it->_method = "DELETE";
 	}
 	return ("");
+}
+
+std::string Server::MethodGet(std::vector<char>::iterator itreq)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	logger(path);
+		
+	if (path == "/" || path == "/index.html")
+		return (this->HtmlToString("./var/www/index.html"));
+	else if (path.find("/status_codes/", 0) != path.npos)		
+		return (this->GetSatusCodeFile(path));
+	else
+		return (this->HtmlToString("./var/www/status_codes/404.html"));
+}
+
+std::string Server::GetSatusCodeFile(std::string code)
+{
+	std::string statuscode = "./var/www" + code;
+	return (this->HtmlToString(statuscode));
+}
+
+std::string Server::HtmlToString(std::string path)
+{
+	if (access(path.c_str(), F_OK | R_OK) == -1)
+	{
+		logger("DENIED ACCES htmltostring");
+		exit(EXIT_FAILURE);
+	}	
+	std::ifstream file(path, std::ios::binary);
+	if (!file.good())
+	{
+		std::cout << "Failed to read file!\n" << std::endl;
+		std::exit(EXIT_FAILURE);
+	}
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	return (buffer.str());
 }
 
 void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
@@ -85,7 +111,6 @@ void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
 		std::cout << "ERROR read" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "buff = " << buff << std::endl;
 	for (int i = 0; buff[i]; i++)
 	{
 		it->_request.push_back(buff[i]);

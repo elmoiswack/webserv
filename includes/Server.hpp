@@ -78,29 +78,33 @@ public:
 
 	std::vector<Location> GetLocations() const;
 
+	///SERVER.CPP
 	void SetUpServer();
 	void InitSocket(std::vector<Server>::iterator it);
 	void BindSockets(std::vector<Server>::iterator it);
 	void ListenSockets(std::vector<Server>::iterator it);
 
 	void RunPoll();
-
 	void PollEvents(std::vector<Server>::iterator it);
-	void EventsPollin(int fd, std::vector<Server>::iterator it);
-	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
 	
 	void AcceptClient(int index, std::vector<Server>::iterator it);
-	void RecieveMessage(int fd, std::vector<Server>::iterator it);
-
-	std::string HtmlToString(std::string path);
-	
-	
-	void GetResponse(int fd, std::vector<Server>::iterator it);
-	std::string ParseRequest(std::vector<Server>::iterator it);
-
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index, std::vector<Server>::iterator it);
 	void CloseAllFds(std::vector<Server>::iterator it);
+
+	
+	///REQUEST.CPP
+	void EventsPollin(int fd, std::vector<Server>::iterator it);
+	void RecieveMessage(int fd, std::vector<Server>::iterator it);
+	void GetResponse(int fd, std::vector<Server>::iterator it);
+	std::string ParseRequest(std::vector<Server>::iterator it);
+	std::string MethodGet(std::vector<char>::iterator itreq);
+	std::string HtmlToString(std::string path);
+	std::string GetSatusCodeFile(std::string code);
+
+	///RESPONSE.CPP
+	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
+
 };
 
 void logger(std::string input);

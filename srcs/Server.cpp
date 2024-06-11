@@ -93,7 +93,6 @@ void Server::RmvSocket(int index, std::vector<Server>::iterator serv)
 	serv->_ammount_sock--;
 }
 
-//https://localhost:8080/ our address
 void Server::SetUpServer()
 {
 	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
@@ -186,7 +185,6 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 		}
 		if (temp.revents & POLLOUT)
 		{
-			
 			it->EventsPollout(temp.fd, index, it);
 		}
 		if (temp.revents & POLLHUP)
