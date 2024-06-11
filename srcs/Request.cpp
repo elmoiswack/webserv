@@ -28,46 +28,50 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 		"\r\n"
 		+ htmlfile;
+		it->_request.clear();
+		this->_donereading = false;
 	}
 }
 
 std::string Server::ParseRequest(std::vector<Server>::iterator it)
 {
-	std::vector<char>::iterator itfind = std::find(it->_request.begin(), it->_request.end(), " ");
-	
-	
-	if (itfind != this->_request.end())
+	std::vector<char>::iterator itfirst = it->_request.begin();
+	char arr[6];
+	int index = 0;
+	while (!std::isspace(*itfirst))
+	{
+		arr[index] = *itfirst;
+		index++;
+		itfirst++;
+	}
+	arr[index] = '\0';
+	std::string method(arr);
+
+	if (method == "GET")
 	{
 		it->_method = "GET";
-		if (std::isspace(*itfind))
+		if (std::isspace(*itfirst))
 		{
-			while (std::isspace(*itfind))
-				itfind++;
+			while (std::isspace(*itfirst))
+				itfirst++;
 		}
-		std::vector<char>::iterator itend = itfind;
-		while (std::isalnum(*itend))
+		std::vector<char>::iterator itend = itfirst;
+		while (!std::isspace(*itend))
 			itend++;
-		std::string ja(itfind, itend);
-		it->_request.clear();
-		this->_donereading = false;
-		std::cout << "ja = ";
+		std::string ja;
+		ja.assign(itfirst, itend);
 		logger(ja);
 		if (ja == "/")
 			return (it->HtmlToString("./var/www/index.html"));
-		return (ja);
 	}
-	// itfind = std::find(it->_request.begin(), it->_request.end(), "POST");
-	// if (itfind != this->_request.end())
-	// {
-		
-	// }
-	// itfind = std::find(it->_request.begin(), it->_request.end(), "DELETE");
-	// if (itfind != this->_request.end())
-	// {
-		
-	// }
-	it->_request.clear();
-	this->_donereading = false;
+	if (method == "POST")
+	{
+		it->_method = "POST";
+	}
+	if (method == "DELETE")
+	{
+		it->_method = "DELETE";
+	}
 	return ("");
 }
 
