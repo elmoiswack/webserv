@@ -84,10 +84,10 @@ std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::
 	std::vector<std::string> env_vars = 
 	{
     	"CONTENT_LENGTH=" + std::to_string(strlen(client_resp)),
-   		"CONTENT_TYPE=text/plain",
+   		"CONTENT_TYPE= " + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
-		"REQUEST_METHOD=GET",
+		"REQUEST_METHOD=POST",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
 		"SCRIPT_FILENAME=",
@@ -131,6 +131,23 @@ std::string	Cgi::extractQueryString(const std::string &url)
 			: url.substr(pos + 1, url.length() - pos - 1);
 	}
 	return (querry_str);
+}
+
+std::string	Cgi::extractContentType(const std::string &req)
+{
+	std::string contentType;
+	std::size_t pos = req.find("Content-Type:");
+    if (pos != std::string::npos) {
+        //pos += sizeof("Content-Type: multipart/form-data; boundary=") - 1;
+        std::size_t endPos = req.find("\r\n", pos);
+        if (endPos != std::string::npos)
+		{
+			contentType = req.substr(pos, endPos - pos);
+			std::cout << "\n--CONENT TYPE: " << contentType << "\n\n";
+            return (contentType);
+        }
+    }
+    return "";
 }
 
 std::string Cgi::runCgi(const std::string &cgi_path)

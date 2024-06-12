@@ -65,8 +65,10 @@ void Server::StartServer()
             exit(EXIT_FAILURE);			
         }
 		 
-		char buffer[1024] = { 0 }; 
-		recv(newsock, buffer, sizeof(buffer), 0); 
+		char buffer[10240] = { 0 }; 
+		recv(newsock, buffer, sizeof(buffer), 0);
+		std::cout << "REQUEST: \n\n" << buffer;
+
 		std::string response;		
 		std::string html_file = readFile("./var/www/index.html");
 		response =

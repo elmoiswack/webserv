@@ -22,6 +22,7 @@ class Cgi
 		std::string					constructCgiPath(const std::string &url);
 		std::string 				extractReqUrl(const std::string &url);
 		std::string					extractQueryString(const std::string &url);
+		std::string					extractContentType(const std::string &req);
 		std::string					readPipe(int fd);
 		std::string					runCgi(const std::string &cgi_path);
 		std::vector<std::string>	initCgiEnvVars(const char *client_resp, const std::string &url);
