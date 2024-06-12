@@ -1,41 +1,57 @@
-# #!/usr/bin/env python3
+#!/usr/bin/python3
 
-# import os
-# import sys
+import cgi
+import os
 
-# # Get the content type header
-# content_type = os.getenv("CONTENT_TYPE")
-# if not content_type or "multipart/form-data" not in content_type:
-#     print("Content-Type: text/plain")
-#     print()
-#     print("Error: This script expects multipart/form-data!")
-#     sys.exit(1)
+upload_dir = "/var/www/uploads"
+print(cgi.FieldStorage())
 
-# # Get the boundary string
-# boundary = content_type.split("boundary=")[1]
+def save_and_respond(filename):
+    """Saves uploaded file and returns HTML response."""
+    # Get uploaded file data
+    form = cgi.FieldStorage()
+    file_data = form["file"]
 
-# # Read the request body from stdin
-# content_length = int(os.getenv("CONTENT_LENGTH"))
-# request_body = sys.stdin.buffer.read(content_length).decode("utf-8")
+    if file_data:
+        # Define upload directory
+        upload_dir = "/var/www/upload"
 
-# # Find the part containing the file data
-# file_start = request_body.find("--" + boundary + "\r\n")
-# file_end = request_body.find("--" + boundary + "--", file_start)
-# file_data = request_body[file_start:file_end]
+        # Construct file path
+        filename = os.path.join(upload_dir, "uploaded_file.txt")  # Or use a more descriptive filename
 
-# # Find filename
-# filename_start = file_data.find("filename=\"") + len("filename=\"")
-# filename_end = file_data.find("\"", filename_start)
-# filename = file_data[filename_start:filename_end]
+        # (Optional) Create upload directory if it doesn't exist
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir)
 
-# # Find file content
-# content_start = file_data.find("\r\n\r\n") + len("\r\n\r\n")
-# file_content = file_data[content_start:]
+        # Save the file
+        with open(filename, "wb") as f:
+            f.write(file_data)
+        message = "File uploaded successfully!"
+    else:
+        message = "No file uploaded."
 
-# # Save file content to a file
-# with open(filename, "wb") as f:
-#     f.write(file_content.encode("utf-8"))
+    html= (
+    	"<html>\n"
+    	"<body>\n"
+        	f"<h1>TEST{message}</h1>\n"
+    	"</body>\n"
+    	"</html>\n"
+	)
+    return (html)  # Encode for proper output
 
-# print("Content-Type: text/plain")
-# print()
-# print("File uploaded successfully!")
+
+# Main execution (assuming filename is passed as environment variable)
+filename = os.environ.get("UPLOAD_FILENAME")
+if not filename:
+    print("Error: UPLOAD_FILENAME environment variable not set!")
+    exit(1)
+
+# Generate basic HTTP headers (replace or extend as needed)
+html_headers = (
+	"HTTP/1.1 200 OK\r\n"
+	"Content-Type: text/html\r\n\r"
+)
+
+print(html_headers)
+response = save_and_respond(filename)
+print(response)

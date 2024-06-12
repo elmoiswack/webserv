@@ -89,14 +89,15 @@ void Server::StartServer()
 			std::string cgi_path = cgi.constructCgiPath(req_url);
 			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
 			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-			// std::cout << "\nREQUEST URL: " << req_url << "\n";
-			// std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+			std::cout << "\nREQUEST URL: " << req_url << "\n";
+			std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
 			response = cgi.runCgi(cgi_path);
 			std::cout << "\n--------------------------\n";
 			std::cout << "RESPONSE: \n\n" << response;
 			std::cout << "--------------------------\n";
 		}
+
     	write(newsock, response.c_str(), response.size());
         close(newsock);
     }

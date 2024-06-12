@@ -49,7 +49,7 @@ void	Cgi::setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle)
 std::string Cgi::constructCgiPath(const std::string &url)
 {
 	std::string path;
-	path.append("./var/www/");
+	path.append("./var/www");
 	size_t pos = url.find_first_of('?');
 	if (pos == std::string::npos)
 		path.append(url);
@@ -84,9 +84,10 @@ std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::
 	std::vector<std::string> env_vars = 
 	{
     	"CONTENT_LENGTH=" + std::to_string(strlen(client_resp)),
-   		"CONTENT_TYPE= " + this->extractContentType(client_resp),
+   		"CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
+		"UPLOAD_FILENAME=test",
 		"REQUEST_METHOD=POST",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
@@ -97,8 +98,8 @@ std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	// for (const std::string &env : env_vars)
-	// 	std::cout << env << "\n";
+	for (const std::string &env : env_vars)
+		std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -135,15 +136,18 @@ std::string	Cgi::extractQueryString(const std::string &url)
 
 std::string	Cgi::extractContentType(const std::string &req)
 {
+
+	if (req.empty())
+		return ("");
 	std::string contentType;
 	std::size_t pos = req.find("Content-Type:");
     if (pos != std::string::npos) {
-        //pos += sizeof("Content-Type: multipart/form-data; boundary=") - 1;
+        pos += sizeof("Content-Type:");
         std::size_t endPos = req.find("\r\n", pos);
         if (endPos != std::string::npos)
 		{
 			contentType = req.substr(pos, endPos - pos);
-			std::cout << "\n--CONENT TYPE: " << contentType << "\n\n";
+			std::cout << "\n--CONTENT TYPE: " << contentType << "\n\n";
             return (contentType);
         }
     }
@@ -159,7 +163,6 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 		std::cout << "ERROR PIPE\n";
 		std::exit(EXIT_FAILURE);
 	}
-
 	pid_t pid = fork();
 	if (pid == -1)
 	{
@@ -168,6 +171,7 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 	}
 	else if (pid == 0)											//-> child process
 	{
+		std::cout << "\n\n+++++++++++++++\n\n";
 		close(pipefd[0]); 										// -> close read end of pipe, only need to write
 		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
 		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
