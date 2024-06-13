@@ -83,11 +83,11 @@ std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::
 {
 	std::vector<std::string> env_vars = 
 	{
-    	"CONTENT_LENGTH=" + std::to_string(strlen(client_resp)),
+    	"CONTENT_LENGTH=206", /*std::to_string(strlen(client_resp)),*/
    		"CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
-		"UPLOAD_FILENAME=test",
+		"UPLOAD_FILENAME=test.txt",
 		"REQUEST_METHOD=POST",
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
@@ -147,63 +147,127 @@ std::string	Cgi::extractContentType(const std::string &req)
         if (endPos != std::string::npos)
 		{
 			contentType = req.substr(pos, endPos - pos);
-			std::cout << "\n--CONTENT TYPE: " << contentType << "\n\n";
+			//std::cout << "\n--CONTENT TYPE: " << contentType << "\n\n";
             return (contentType);
         }
     }
     return "";
 }
 
+
 std::string Cgi::runCgi(const std::string &cgi_path)
 {
-	int	pipefd[2];
+	int responsePipeFd[2];
+    int uploadPipeFd[2];
 
-	if (pipe(pipefd) == -1)
-	{
-		std::cout << "ERROR PIPE\n";
-		std::exit(EXIT_FAILURE);
-	}
-	pid_t pid = fork();
-	if (pid == -1)
-	{
-		std::cout << "ERROR CREATING CHILD PROCESS\n";
-        exit(EXIT_FAILURE);			
-	}
-	else if (pid == 0)											//-> child process
-	{
-		std::cout << "\n\n+++++++++++++++\n\n";
-		close(pipefd[0]); 										// -> close read end of pipe, only need to write
-		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
-		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-		if (execve("/usr/bin/python3", const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1)
-		{
-			std::cout << "ERROR EXECUTING CGI SCRIPT\n";
-        	std::exit(EXIT_FAILURE);			
-		}
-	}
-	else														//-> parent process
-	{
-		close(pipefd[1]); 										// -> close write end of pipe, only need to read
-		int status;
-		pid_t result = waitpid(pid, &status, 0);
-		if (result == -1)
-		{
-			std::cout << "ERROR PARENT PROCESS\n";
-            exit(EXIT_FAILURE);			
+    if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
+        std::cout << "ERROR PIPE\n";
+        std::exit(EXIT_FAILURE);
+    }
 
-		}
-		if (WIFEXITED(status))
-		{
-			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-			return (readPipe(pipefd[0]));
-		}
-		else
-		{
+    pid_t pid = fork();
+    if (pid == -1)
+	{
+        std::cout << "ERROR CREATING CHILD PROCESS\n";
+        exit(EXIT_FAILURE);            
+    }
+	else if (pid == 0)
+	{ // Child process
+        close(responsePipeFd[0]); // Close read end of response pipe
+        dup2(responsePipeFd[1], STDOUT_FILENO); // Redirect stdout to write end of response pipe
+
+        close(uploadPipeFd[1]); // Close write end of upload pipe
+        dup2(uploadPipeFd[0], STDIN_FILENO); // Redirect stdin to read end of upload pipe
+
+        const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
+        if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
+            std::cout << "ERROR EXECUTING CGI SCRIPT\n";
+            std::exit(EXIT_FAILURE);            
+        }
+    }
+	else
+	{ // Parent process
+        std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
+								"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+								"Content-Type: text/plain\r\n\r\n"
+								"TEST\r\n"
+								"TEST\r\n"
+								"TEST\r\n"
+								"TEST\r\n"
+                                "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
+        close(responsePipeFd[1]); // Close write end of response pipe
+
+        close(uploadPipeFd[0]); // Close read end of upload pipe
+        write(uploadPipeFd[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
+        close(uploadPipeFd[1]); // Close write end of upload pipe after writing
+
+        int status;
+        pid_t result = waitpid(pid, &status, 0);
+        if (result == -1) {
+            std::cout << "ERROR PARENT PROCESS\n";
+            exit(EXIT_FAILURE);            
+        }
+        if (WIFEXITED(status)) {
+            std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+            return (readPipe(responsePipeFd[0]));
+        } else {
             std::cout << "Child process exited abnormally" << "\n";
-		}
-	}
-	return (nullptr);
+        }
+    }
+    return "";
 }
+
+
+// std::string Cgi::runCgi(const std::string &cgi_path)
+// {
+// 	int	pipefd[2];
+
+// 	if (pipe(pipefd) == -1)
+// 	{
+// 		std::cout << "ERROR PIPE\n";
+// 		std::exit(EXIT_FAILURE);
+// 	}
+// 	pid_t pid = fork();
+// 	if (pid == -1)
+// 	{
+// 		std::cout << "ERROR CREATING CHILD PROCESS\n";
+//         exit(EXIT_FAILURE);			
+// 	}
+// 	else if (pid == 0)											//-> child process
+// 	{
+// 		//std::cout << "\n\n+++++++++++++++\n\n";
+// 		close(pipefd[0]); 										// -> close read end of pipe, only need to write
+// 		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
+// 		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
+// 		if (execve("/usr/bin/python3", const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1)
+// 		{
+// 			std::cout << "ERROR EXECUTING CGI SCRIPT\n";
+//         	std::exit(EXIT_FAILURE);			
+// 		}
+// 	}
+// 	else														//-> parent process
+// 	{
+// 		close(pipefd[1]); 										// -> close write end of pipe, only need to read
+// 		int status;
+// 		pid_t result = waitpid(pid, &status, 0);
+// 		if (result == -1)
+// 		{
+// 			std::cout << "ERROR PARENT PROCESS\n";
+//             exit(EXIT_FAILURE);			
+
+// 		}
+// 		if (WIFEXITED(status))
+// 		{
+// 			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+// 			return (readPipe(pipefd[0]));
+// 		}
+// 		else
+// 		{
+//             std::cout << "Child process exited abnormally" << "\n";
+// 		}
+// 	}
+// 	return (nullptr);
+// }
 
 
 // bool isCgi(const std::string &url)

@@ -3,7 +3,7 @@
 import cgi
 import os
 
-upload_dir = "/var/www/uploads"
+# upload_dir = "/var/www/uploads"
 print(cgi.FieldStorage())
 
 def save_and_respond(filename):
