@@ -70,7 +70,7 @@ std::string Cgi::extractReqUrl(const std::string &url)
 std::string	Cgi::readPipe(int fd)
 {
 	std::ostringstream oss;
-	char buffer[128];
+	char buffer[1200];
 	ssize_t bytes_read = 0;
 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
@@ -81,10 +81,12 @@ std::string	Cgi::readPipe(int fd)
 
 std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::string &url)
 {
+		(void) client_resp;
 	std::vector<std::string> env_vars = 
-	{
+	{	
     	"CONTENT_LENGTH=206", /*std::to_string(strlen(client_resp)),*/
-   		"CONTENT_TYPE=" + this->extractContentType(client_resp),
+   		"CONTENT_TYPE=multipart/form-data; boundary=----WebKitFormBoundaryRSs5b6yEDT0Vouq9",
+   		// "CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
 		"UPLOAD_FILENAME=test.txt",
@@ -159,6 +161,7 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 {
 	int responsePipeFd[2];
     int uploadPipeFd[2];
+	std::cout << cgi_path;
 
     if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
         std::cout << "ERROR PIPE\n";
@@ -178,23 +181,35 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 
         close(uploadPipeFd[1]); // Close write end of upload pipe
         dup2(uploadPipeFd[0], STDIN_FILENO); // Redirect stdin to read end of upload pipe
-
-        const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-        if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
+	    const char *args[] = {cgi_path.c_str(), NULL};
+	    // const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
+        // if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
+        if (execve(cgi_path.c_str(), const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1) {
             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
             std::exit(EXIT_FAILURE);            
         }
     }
 	else
 	{ // Parent process
-        std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
-								"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-								"Content-Type: text/plain\r\n\r\n"
-								"TEST\r\n"
-								"TEST\r\n"
-								"TEST\r\n"
-								"TEST\r\n"
-                                "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
+	
+		    std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
+    		std::string post_data = "--" + boundary + "\r\n"
+                            "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+                            "Content-Type: text/plain\r\n\r\n"
+                            "TEST\r\n"
+                            "TEST\r\n"
+                            "TEST\r\n"
+                            "TEST\r\n"
+                            "--" + boundary + "--\r\n";
+        // std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
+		// 						"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+		// 						"Content-Type: text/plain\r\n\r\n"
+		// 						"TEST\r\n"
+		// 						"TEST\r\n"
+		// 						"TEST\r\n"
+		// 						"TEST\r\n"
+        //                         "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
+		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(responsePipeFd[1]); // Close write end of response pipe
 
         close(uploadPipeFd[0]); // Close read end of upload pipe
@@ -216,6 +231,71 @@ std::string Cgi::runCgi(const std::string &cgi_path)
     }
     return "";
 }
+
+
+// std::string Cgi::runCgi(const std::string &cgi_path)
+// {
+// 	int responsePipeFd[2];
+//     int uploadPipeFd[2];
+
+//     if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
+//         std::cout << "ERROR PIPE\n";
+//         std::exit(EXIT_FAILURE);
+//     }
+
+//     pid_t pid = fork();
+//     if (pid == -1)
+// 	{
+//         std::cout << "ERROR CREATING CHILD PROCESS\n";
+//         exit(EXIT_FAILURE);            
+//     }
+// 	else if (pid == 0)
+// 	{ // Child process
+//         close(responsePipeFd[0]); // Close read end of response pipe
+//         dup2(responsePipeFd[1], STDOUT_FILENO); // Redirect stdout to write end of response pipe
+
+//         close(uploadPipeFd[1]); // Close write end of upload pipe
+//         dup2(uploadPipeFd[0], STDIN_FILENO); // Redirect stdin to read end of upload pipe
+	
+//         const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
+//         if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
+//             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
+//             std::exit(EXIT_FAILURE);            
+//         }
+//     }
+// 	else
+// 	{ // Parent process
+	
+//         std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
+// 								"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+// 								"Content-Type: text/plain\r\n\r\n"
+// 								"TEST\r\n"
+// 								"TEST\r\n"
+// 								"TEST\r\n"
+// 								"TEST\r\n"
+//                                 "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
+// 		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
+//         close(responsePipeFd[1]); // Close write end of response pipe
+
+//         close(uploadPipeFd[0]); // Close read end of upload pipe
+//         write(uploadPipeFd[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
+//         close(uploadPipeFd[1]); // Close write end of upload pipe after writing
+
+//         int status;
+//         pid_t result = waitpid(pid, &status, 0);
+//         if (result == -1) {
+//             std::cout << "ERROR PARENT PROCESS\n";
+//             exit(EXIT_FAILURE);            
+//         }
+//         if (WIFEXITED(status)) {
+//             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+//             return (readPipe(responsePipeFd[0]));
+//         } else {
+//             std::cout << "Child process exited abnormally" << "\n";
+//         }
+//     }
+//     return "";
+// }
 
 
 // std::string Cgi::runCgi(const std::string &cgi_path)

@@ -67,6 +67,17 @@ void Server::StartServer()
 		 
 		char buffer[10240] = { 0 }; 
 		recv(newsock, buffer, sizeof(buffer), 0);
+		// std::string buffer;
+		// char temp_buffer[1024];
+		// int bytes_received;
+		// while ((bytes_received = recv(newsock, temp_buffer, sizeof(temp_buffer), 0)) > 0) 
+		// {
+    	// 	buffer.append(temp_buffer, bytes_received);
+    	// 	// Check if we've reached end of headers
+    	// 	if (buffer.find("\r\n\r\n") != std::string::npos) 
+    	// 	    break;
+    	// }
+
 		std::cout << "REQUEST: \n\n" << buffer;
 
 		std::string response;		
