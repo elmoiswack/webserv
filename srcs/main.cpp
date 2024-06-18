@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
 		Parser pars(argv[1]);
 		Server serv(pars);
 		serv.StartServer();
-
-	}
+	}	
 	catch(const std::exception& e)
 	{
 		std::cerr << "ERROR: " << e.what() << std::endl;

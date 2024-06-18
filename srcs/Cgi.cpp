@@ -18,12 +18,12 @@ Cgi::Cgi()
 
 }
 
-// Cgi::Cgi(char *client_resp, const std::string &url) : 
-// 	m_cgi_env_vars(this->initCgiEnvVars(client_resp, url)),
-// 	m_cgi_env_vars_cstyle(initCgiEnvVarsCstyle())
-// {
+Cgi::Cgi(char *client_resp, const std::string &url) : 
+	m_cgi_env_vars(this->initCgiEnvVars(client_resp, url)),
+	m_cgi_env_vars_cstyle(initCgiEnvVarsCstyle())
+{
 
-// }
+}
 
 Cgi::~Cgi()
 {
@@ -79,7 +79,7 @@ std::string	Cgi::readPipe(int fd)
 	return (oss.str());
 }
 
-std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::string &url)
+std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, const std::string &url)
 {
 		(void) client_resp;
 	std::vector<std::string> env_vars = 
@@ -100,8 +100,8 @@ std::vector<std::string>Cgi::initCgiEnvVars(const char *client_resp, const std::
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	for (const std::string &env : env_vars)
-		std::cout << env << "\n";
+	// for (const std::string &env : env_vars)
+	// 	std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -161,7 +161,8 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 {
 	int responsePipeFd[2];
     int uploadPipeFd[2];
-	std::cout << cgi_path;
+	
+	// std::cout << "\n\n\n\n++++++++++" << cgi_path;
 
     if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
         std::cout << "ERROR PIPE\n";
@@ -196,7 +197,6 @@ std::string Cgi::runCgi(const std::string &cgi_path)
     		std::string post_data = "--" + boundary + "\r\n"
                             "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
                             "Content-Type: text/plain\r\n\r\n"
-                            "TEST\r\n"
                             "TEST\r\n"
                             "TEST\r\n"
                             "TEST\r\n"

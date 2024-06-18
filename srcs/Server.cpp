@@ -65,20 +65,43 @@ void Server::StartServer()
             exit(EXIT_FAILURE);			
         }
 		 
-		char buffer[10240] = { 0 }; 
-		recv(newsock, buffer, sizeof(buffer), 0);
-		// std::string buffer;
-		// char temp_buffer[1024];
-		// int bytes_received;
-		// while ((bytes_received = recv(newsock, temp_buffer, sizeof(temp_buffer), 0)) > 0) 
-		// {
-    	// 	buffer.append(temp_buffer, bytes_received);
-    	// 	// Check if we've reached end of headers
-    	// 	if (buffer.find("\r\n\r\n") != std::string::npos) 
-    	// 	    break;
-    	// }
+		std::string request;
+        char buffer[1024];
+        int bytes_received;
+        bool headers_received = false;
+        size_t content_length = 0;
+        std::string headers;
 
-		std::cout << "REQUEST: \n\n" << buffer;
+        while ((bytes_received = recv(newsock, buffer, sizeof(buffer), 0)) > 0)
+        {
+            request.append(buffer, bytes_received);
+
+            // Check if headers have been received
+            if (!headers_received)
+            {
+                size_t header_end = request.find("\r\n\r\n");
+                if (header_end != std::string::npos)
+                {
+                    headers = request.substr(0, header_end + 4);
+                    headers_received = true;
+
+                    // Parse headers to find Content-Length
+                    size_t content_length_pos = headers.find("Content-Length: ");
+                    if (content_length_pos != std::string::npos)
+                    {
+                        size_t content_length_end = headers.find("\r\n", content_length_pos);
+                        std::string content_length_str = headers.substr(content_length_pos + 16, content_length_end - content_length_pos - 16);
+                        content_length = std::stoul(content_length_str);
+                    }
+                }
+            }
+
+            // Check if we have received the entire body
+            if (headers_received && request.size() >= headers.size() + content_length)
+                break;
+        }
+		
+		std::cout << "\n\n--------REQUEST: \n\n" << request;
 
 		std::string response;		
 		std::string html_file = readFile("./var/www/index.html");
@@ -92,13 +115,13 @@ void Server::StartServer()
     		// write(newsock, response.c_str(), response.size());
 		// }
     	//write(newsock, response.c_str(), response.size());
-		if (isCgi(std::string(buffer)))
+		if (isCgi(std::string(request)))
 		{
 			Cgi cgi;
 			response.clear();
-			std::string req_url = cgi.extractReqUrl(buffer);
+			std::string req_url = cgi.extractReqUrl(request);
 			std::string cgi_path = cgi.constructCgiPath(req_url);
-			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
+			cgi.setCgiEnvVars(cgi.initCgiEnvVars(request, req_url));
 			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 			//std::cout << "\nREQUEST URL: " << req_url << "\n";
 			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
