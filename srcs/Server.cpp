@@ -130,6 +130,8 @@ void Server::BindSockets(std::vector<Server>::iterator it)
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
 	infoaddr.sin_port = htons(std::atoi(port.c_str()));
 	logger("port = " + port);
+	int opt = 1;
+	setsockopt(it->_sockvec[0].fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
 	if (bind(it->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR bruh" << std::endl;
