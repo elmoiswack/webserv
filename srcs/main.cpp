@@ -15,6 +15,7 @@ void runTests(const Parser& parser) {
         std::cout << "Client Max Body Size: " << server.GetClientMax() << std::endl;
         std::cout << "Root: " << server.GetRoot() << std::endl;
         std::cout << "Server Index: " << server.GetServerIndex() << std::endl;
+		std::cout << "Allow Methods: " << server.GetAllowMethods() << std::endl;
         std::cout << "--------------------------------------" << std::endl;
 
         std::unordered_map<int, std::string> errorPageMap = server.GetErrorPage();

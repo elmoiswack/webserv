@@ -89,11 +89,9 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
 	// erase index token
     tokens.erase(tokens.begin());
 
-	if (tokens[0] == ";")
-		throw Parser::InvalidLineConfException("The Index is Missing!");
-
-	if (tokens[1] != ";")
-		throw Parser::InvalidLineConfException("; is Missing!");
+    if (tokens[0] != "/index.html" || tokens[1] != ";") {
+        throw Parser::InvalidLineConfException("The Index must be '/index.html' followed by ';'");
+	}
 	
 	this->index = tokens[0];
 
@@ -101,19 +99,21 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
      tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
-void    Location::ValidateReturn(std::vector<std::string> &tokens)
-{
-    if ( tokens.size() == 1) 
+void    Location::ValidateReturn(std::vector<std::string> &tokens) {
+    if ( tokens.size() == 1) {
         throw Parser::InvalidLineConfException("The redirection html is Missing!'");
+	}
 
 	// erase return token
        tokens.erase(tokens.begin(), tokens.begin());
 
-	if (tokens[0] == ";")
+	if (tokens[0] == ";") {
 		throw Parser::InvalidLineConfException("The redirection html is Missing!");
+	}
 
-	if (tokens[2] != ";")
+	if (tokens[2] != ";") {
 		throw Parser::InvalidLineConfException("The ; is Missing!");
+	}
 
 	this->returnredirect = tokens[0];
 
