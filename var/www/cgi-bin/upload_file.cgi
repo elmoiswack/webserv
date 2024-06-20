@@ -5,18 +5,11 @@ import os
 from os import environ
 import cgitb; cgitb.enable()
 import sys
-# import cgitb
 
-# print(cgi.FieldStorage())
-
-# Enable CGI traceback for debugging
-cgitb.enable()
 message = ""
-
 def handle_post():
     form = cgi.FieldStorage()
     file_item = form['file']
-
     if file_item.filename:
         # Securely get the filename
         file_name = os.path.basename(file_item.filename)
@@ -24,6 +17,9 @@ def handle_post():
         # Full path to save the file
         file_path = os.path.join(upload_dir, file_name)
         # Check if the upload directory exists, if not, create it
+        # print("\n\nFILE_NAME: " + file_name)
+        # print("\n\nFILE_PATH: " + file_path)
+        # print("\n\nUPLOAD_DIR: " + upload_dir)
         if os.path.exists(file_path):
             message = "File with the same name already exists, upload cancelled!"
         else:

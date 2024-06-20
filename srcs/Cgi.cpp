@@ -175,8 +175,8 @@ std::string Cgi::runCgi(const std::string &cgi_path)
         std::cout << "ERROR CREATING CHILD PROCESS\n";
         exit(EXIT_FAILURE);            
     }
-	else if (pid == 0)
-	{ // Child process
+	else if (pid == 0) 	// Child process
+	{
         close(responsePipeFd[0]); // Close read end of response pipe
         dup2(responsePipeFd[1], STDOUT_FILENO); // Redirect stdout to write end of response pipe
 
@@ -190,28 +190,19 @@ std::string Cgi::runCgi(const std::string &cgi_path)
             std::exit(EXIT_FAILURE);            
         }
     }
-	else
-	{ // Parent process
+	else  				// Parent process
+	{
 	
-		    std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
-    		std::string post_data = "--" + boundary + "\r\n"
-                            "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-                            "Content-Type: text/plain\r\n\r\n"
-                            "TEST\r\n"
-                            "TEST\r\n"
-                            "TEST\r\n"
-                            "--" + boundary + "--\r\n";
-        // std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
-		// 						"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-		// 						"Content-Type: text/plain\r\n\r\n"
-		// 						"TEST\r\n"
-		// 						"TEST\r\n"
-		// 						"TEST\r\n"
-		// 						"TEST\r\n"
-        //                         "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
+		std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
+    	std::string post_data = "--" + boundary + "\r\n"
+                            	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+                            	"Content-Type: text/plain\r\n\r\n"
+                            	"TEST\r\n"
+                            	"TEST\r\n"
+                            	"TEST\r\n"
+                            	"--" + boundary + "--\r\n";
 		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(responsePipeFd[1]); // Close write end of response pipe
-
         close(uploadPipeFd[0]); // Close read end of upload pipe
         write(uploadPipeFd[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
         close(uploadPipeFd[1]); // Close write end of upload pipe after writing
