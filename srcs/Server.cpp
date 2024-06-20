@@ -21,6 +21,8 @@ Server::Server(Parser &in)
 	{
 		it->_locationblocks = it->GetLocations();
 		it->_ammount_sock = 0;
+		it->_recvmax = std::atoi(it->_client_max.c_str());
+		it->_donereading = false;
 	}
 }
 
@@ -28,17 +30,28 @@ Server::Server(Parser &in)
 
 Server::~Server()
 {
-	// this->_ip.clear();
-	// this->_server_name.clear();
-	// this->_client_max.clear();
-	// this->_root.clear();
-	// this->_error_page.clear();
-	// this->_serverindex.clear();
-	// close(this->_websock);
-	// this->_sockvec.clear();
-	// this->_whatsockvec.clear();
-	// this->_ports.clear();
-
+	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
+	{
+		it->_whatsockvec.clear();
+		it->_client_max.clear();
+		it->_error_page.clear();
+		it->_index.clear();
+		it->_ip.clear();
+		it->_locationblocks.clear();
+		it->_locations.clear();
+		it->_port.clear();
+		it->_request.clear();
+		it->_response.clear();
+		it->_root.clear();
+		it->_server_name.clear();
+		it->_serverindex.clear();
+		it->_sockvec.clear();
+		it->_whatsockvec.clear();
+	}
+	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
+	{
+		this->_serverblocks.clear();
+	}
 }
 
 void Server::AddSocket(int fd, bool is_client)
@@ -62,7 +75,7 @@ void Server::AddSocket(int fd, bool is_client)
 	this->_ammount_sock += 1;
 }
 
-void Server::RmvSocket(int index)
+void Server::RmvSocket(int index, std::vector<Server>::iterator serv)
 {
 	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
 	for (int i = 0; i != index; i++)
@@ -77,9 +90,9 @@ void Server::RmvSocket(int index)
 		jt++;
 	}
 	this->_whatsockvec.erase(jt);
+	serv->_ammount_sock--;
 }
 
-//https://localhost:8080/ our address
 void Server::SetUpServer()
 {
 	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
@@ -100,23 +113,6 @@ void Server::SetUpServer()
 
 void Server::InitSocket(std::vector<Server>::iterator it)
 {
-	// std::vector<std::string>::iterator it;
-	// for (it = this->_ports.begin(); it != this->_ports.end(); it++)
-	// {
-	// 	int websock = socket(AF_INET, SOCK_STREAM, 0);
-	// 	if (websock < 0)
-	// 	{
-	// 		std::cout << "ERROR SOCKET" << std::endl;
-	// 		exit(EXIT_FAILURE);
-	// 	}
-	// 	if (fcntl(websock, F_SETFL, O_NONBLOCK) == -1)
-	// 	{
-	// 		std::cout << "ERROR FCNTL" << std::endl;
-	// 		exit(EXIT_FAILURE);	
-	// 	}
-	// 	this->AddSocket(websock, false);
-	// }
-
 	int websock = socket(AF_INET, SOCK_STREAM, 0);
 	if (websock < 0)
 	{
@@ -133,8 +129,8 @@ void Server::BindSockets(std::vector<Server>::iterator it)
 	infoaddr.sin_family = AF_INET;
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
 	infoaddr.sin_port = htons(std::atoi(port.c_str()));
-	std::cout << "port= " << port << std::endl;
-	if (bind(it->_sockvec[0].fd, reinterpret_cast<struct sockaddr *>(&infoaddr), sizeof(infoaddr)) == -1)
+	logger("port = " + port);
+	if (bind(it->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR bruh" << std::endl;
 		exit(EXIT_FAILURE);
@@ -157,7 +153,6 @@ void Server::RunPoll()
 		for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 		{
 			int ret = poll(it->_sockvec.data(), it->_sockvec.size(), -1);
-			std::cout << ret << std::endl;
 			if (ret < 0)
 			{
 				std::cout << "ERROR POLL" << std::endl;
@@ -171,8 +166,7 @@ void Server::RunPoll()
 
 void Server::PollEvents(std::vector<Server>::iterator it)
 {
-	std::cout << "da" << it->_ammount_sock << std::endl;
-	for (int index = 0; index != it->_ammount_sock; index++)
+	for (int index = 0; index < it->_ammount_sock; index++)
 	{
 		pollfd temp;
 		temp.fd = it->_sockvec[index].fd;
@@ -186,19 +180,18 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 			}
 			else
 			{
-				it->EventsPollin(temp.fd, index);
+				it->EventsPollin(temp.fd, it);
 			}
 		}
 		if (temp.revents & POLLOUT)
 		{
-			
 			it->EventsPollout(temp.fd, index, it);
 		}
 		if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
 			close(temp.fd);
-			it->RmvSocket(index);
+			it->RmvSocket(index, it);
 		}
 		if (temp.revents & POLLERR)
 		{
