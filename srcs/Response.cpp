@@ -14,7 +14,7 @@ void Server::EventsPollout(int fd, int index, std::vector<Server>::iterator it)
 	if (it->_whatsockvec[index] == "CLIENT")
 	{
 		logger("sending response to client...");
-		logger(it->_response);
+		//logger(it->_response);
 		write(fd, it->_response.c_str(), it->_response.size());
 		logger("response is sent to fd!");
 		close(fd);

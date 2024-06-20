@@ -31,6 +31,11 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 std::string Server::ParseRequest(std::vector<Server>::iterator it)
 {
 	std::vector<char>::iterator itfirst = it->_request.begin();
+	for (std::vector<char>::iterator bruh = it->_request.begin(); bruh != it->_request.end(); bruh++)
+	{
+		std::cout << *bruh;
+	}
+	std::cout << std::endl;
 	char arr[7];
 	int index = 0;
 	while (!std::isspace(*itfirst))
@@ -42,10 +47,12 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	arr[index] = '\0';
 	std::string method(arr);
 
+
+
 	if (method == "GET")
 	{
 		it->_method = "GET";
-		return (this->MethodGet(itfirst));
+		return (this->MethodGet(itfirst, it));
 	}
 	else if (method == "POST")
 	{
@@ -58,7 +65,7 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	return ("");
 }
 
-std::string Server::MethodGet(std::vector<char>::iterator itreq)
+std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
 {
 	while (std::isspace(*itreq))
 		itreq++;
@@ -68,13 +75,13 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	std::string path;
 	path.assign(itreq, itend);
 	logger(path);
-		
+
 	if (path == "/" || path == "/index.html")
-		return (this->HtmlToString("./var/www/index.html"));
+		return (it->HtmlToString("./var/www/index.html"));
 	else if (path.find("/status_codes/", 0) != path.npos)		
-		return (this->GetSatusCodeFile(path));
+		return (it->GetSatusCodeFile(path));
 	else
-		return (this->HtmlToString("./var/www/status_codes/404.html"));
+		return (it->HtmlToString("./var/www/status_codes/404.html"));
 }
 
 std::string Server::GetSatusCodeFile(std::string code)

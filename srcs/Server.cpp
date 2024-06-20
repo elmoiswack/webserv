@@ -129,8 +129,8 @@ void Server::BindSockets(std::vector<Server>::iterator it)
 	infoaddr.sin_family = AF_INET;
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
 	infoaddr.sin_port = htons(std::atoi(port.c_str()));
-	std::cout << "port= " << port << std::endl;
-	if (bind(it->_sockvec[0].fd, reinterpret_cast<struct sockaddr *>(&infoaddr), sizeof(infoaddr)) == -1)
+	logger("port = " + port);
+	if (bind(it->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR bruh" << std::endl;
 		exit(EXIT_FAILURE);
