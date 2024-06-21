@@ -15,19 +15,19 @@ bool isCgi(const std::string &url)
 Cgi::Cgi()
 {
 	std::cout << "CGI CONSTRUCTED\n";
-
+	_initPipes();
 }
 
-Cgi::Cgi(char *client_resp, const std::string &url) : 
-	m_cgi_env_vars(this->initCgiEnvVars(client_resp, url)),
-	m_cgi_env_vars_cstyle(initCgiEnvVarsCstyle())
-{
+// Cgi::Cgi(char *client_resp, const std::string &url) : 
+// 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
+// 	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
+// {
 
-}
+// }
 
 Cgi::~Cgi()
 {
-	for (char *env : m_cgi_env_vars_cstyle)
+	for (char *env : _cgiEnvVarsCstyle)
 		delete[] env;
 	std::cout << "CGI DESCTRUCTED\n";
 }
@@ -35,15 +35,13 @@ Cgi::~Cgi()
 
 void	Cgi::setCgiEnvVars(const std::vector<std::string> &vars)
 {
-	m_cgi_env_vars = vars;
+	_cgiEnvVars = vars;
 }
 
 void	Cgi::setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle)
 {
-	m_cgi_env_vars_cstyle = vars_cstyle;
+	_cgiEnvVarsCstyle = vars_cstyle;
 }
-
-
 
 
 std::string Cgi::constructCgiPath(const std::string &url)
@@ -81,10 +79,10 @@ std::string	Cgi::readPipe(int fd)
 
 std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, const std::string &url)
 {
-		(void) client_resp;
+	(void) client_resp;
 	std::vector<std::string> env_vars = 
 	{	
-    	"CONTENT_LENGTH=206", /*std::to_string(strlen(client_resp)),*/
+    	"CONTENT_LENGTH=",
    		"CONTENT_TYPE=multipart/form-data; boundary=----WebKitFormBoundaryRSs5b6yEDT0Vouq9",
    		// "CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
@@ -110,7 +108,7 @@ std::vector<char *> Cgi::initCgiEnvVarsCstyle()
 {
 	std::vector<char *> env_vars;
 
-	for (const std::string &env_var : m_cgi_env_vars)
+	for (const std::string &env_var : _cgiEnvVars)
 	{
 		char *env_copy = new char[env_var.length() + 1];
 		std::copy(env_var.begin(), env_var.end(), env_copy);
@@ -138,7 +136,6 @@ std::string	Cgi::extractQueryString(const std::string &url)
 
 std::string	Cgi::extractContentType(const std::string &req)
 {
-
 	if (req.empty())
 		return ("");
 	std::string contentType;
@@ -156,19 +153,8 @@ std::string	Cgi::extractContentType(const std::string &req)
     return "";
 }
 
-
 std::string Cgi::runCgi(const std::string &cgi_path)
 {
-	int responsePipeFd[2];
-    int uploadPipeFd[2];
-	
-	// std::cout << "\n\n\n\n++++++++++" << cgi_path;
-
-    if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
-        std::cout << "ERROR PIPE\n";
-        std::exit(EXIT_FAILURE);
-    }
-
     pid_t pid = fork();
     if (pid == -1)
 	{
@@ -177,22 +163,19 @@ std::string Cgi::runCgi(const std::string &cgi_path)
     }
 	else if (pid == 0) 	// Child process
 	{
-        close(responsePipeFd[0]); // Close read end of response pipe
-        dup2(responsePipeFd[1], STDOUT_FILENO); // Redirect stdout to write end of response pipe
-
-        close(uploadPipeFd[1]); // Close write end of upload pipe
-        dup2(uploadPipeFd[0], STDIN_FILENO); // Redirect stdin to read end of upload pipe
+        close(_responsePipe[0]); 					// Close read end of response pipe
+        dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect stdout to write end of response pipe
+        close(_uploadPipe[1]); 						// Close write end of upload pipe
+        dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect stdin to read end of upload pipe
 	    const char *args[] = {cgi_path.c_str(), NULL};
-	    // const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-        // if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
-        if (execve(cgi_path.c_str(), const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1) {
+        if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1) {
             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
             std::exit(EXIT_FAILURE);            
         }
     }
-	else  				// Parent process
+	else  											// Parent process
 	{
-	
+		_pid = pid; 								// save pid for further processing if needed
 		std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
     	std::string post_data = "--" + boundary + "\r\n"
                             	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
@@ -202,10 +185,11 @@ std::string Cgi::runCgi(const std::string &cgi_path)
                             	"TEST\r\n"
                             	"--" + boundary + "--\r\n";
 		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-        close(responsePipeFd[1]); // Close write end of response pipe
-        close(uploadPipeFd[0]); // Close read end of upload pipe
-        write(uploadPipeFd[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
-        close(uploadPipeFd[1]); // Close write end of upload pipe after writing
+        close(_responsePipe[1]);					// Close write end of response pipe
+        close(_uploadPipe[0]);						// Close read end of upload pipe
+		// !!HAS TO BE RAN THROUGH POLL!!
+        write(_uploadPipe[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
+        close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
 
         int status;
         pid_t result = waitpid(pid, &status, 0);
@@ -215,12 +199,21 @@ std::string Cgi::runCgi(const std::string &cgi_path)
         }
         if (WIFEXITED(status)) {
             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-            return (readPipe(responsePipeFd[0]));
+            return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
         } else {
             std::cout << "Child process exited abnormally" << "\n";
         }
     }
     return "";
+}
+
+void Cgi::_initPipes()
+{
+    if (pipe(_responsePipe) == -1 || pipe(_uploadPipe) == -1)
+	{
+        std::cout << "ERROR PIPE\n";
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -310,7 +303,7 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 // 		close(pipefd[0]); 										// -> close read end of pipe, only need to write
 // 		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
 // 		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-// 		if (execve("/usr/bin/python3", const_cast<char**>(args), m_cgi_env_vars_cstyle.data()) == -1)
+// 		if (execve("/usr/bin/python3", const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
 // 		{
 // 			std::cout << "ERROR EXECUTING CGI SCRIPT\n";
 //         	std::exit(EXIT_FAILURE);			

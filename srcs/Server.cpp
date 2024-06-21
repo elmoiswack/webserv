@@ -39,7 +39,9 @@ void Server::StartServer()
 	memset(&infoaddr, '\0', sizeof(infoaddr));
 	infoaddr.sin_family = AF_INET;
 	infoaddr.sin_addr.s_addr = INADDR_ANY;
-	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
+	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));
+	int opt = 1;
+	setsockopt(this->_websock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
 	if (bind(this->_websock, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR BIND" << std::endl;

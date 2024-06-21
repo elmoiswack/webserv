@@ -12,11 +12,15 @@
 class Cgi
 {
 	private:
-		std::vector<std::string> 	m_cgi_env_vars;
-		std::vector<char *> 		m_cgi_env_vars_cstyle;
+		std::vector<std::string> 	_cgiEnvVars;
+		std::vector<char *> 		_cgiEnvVarsCstyle;
+		int 						_uploadPipe[2];
+		int 						_responsePipe[2];
+		pid_t						_pid;
+		void						_initPipes();
 	public:
 		Cgi();
-		Cgi(char *client_resp, const std::string &url);
+		// Cgi(char *client_resp, const std::string &url);
 		~Cgi();
 		// bool						isCgi(const std::string &url);
 		std::string					constructCgiPath(const std::string &url);
