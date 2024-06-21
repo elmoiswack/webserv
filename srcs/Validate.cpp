@@ -209,8 +209,8 @@ void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
 
 	// erase index token
     tokens.erase( tokens.begin());
-    if (tokens[0] != "/index.html" || tokens[1] != ";") {
-        throw Parser::InvalidLineConfException("The Index must be '/index.html' followed by ';'");
+    if (tokens[0] != "/index.html" || tokens[0] != "/" || tokens[1] != ";") {
+        throw Parser::InvalidLineConfException("The Index must be '/index.html' or "/" followed by ';'");
 	}
 	
 	this->_serverindex = tokens[0];
