@@ -209,13 +209,43 @@ void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
 
 	// erase index token
     tokens.erase( tokens.begin());
-	if (tokens[0] == ";" || tokens[1] != ";")
-		throw Parser::InvalidLineConfException("The Index or ; is Missing!");
+    if (tokens[0] != "/index.html" || tokens[1] != ";") {
+        throw Parser::InvalidLineConfException("The Index must be '/index.html' followed by ';'");
+	}
 	
 	this->_serverindex = tokens[0];
 
     // erase index and ;
      tokens.erase(tokens.begin(), tokens.begin() + 2);
+}
+
+void Server::ValidateAllowMethods(std::vector<std::string>& tokens) {
+	if (tokens.size() < 3 || tokens[1] == ";") {
+        throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+	}
+
+    // erase allow_methods token
+    tokens.erase(tokens.begin(), tokens.begin() + 1);
+
+    if (tokens[0] == ";") {
+        throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+	}
+
+    if (tokens[1] != ";") {
+        throw Parser::InvalidLineConfException("; is Missing!");
+    }
+
+    if (tokens[0] == "GET")
+        this->_allow_methods = GET;
+    else if (tokens[0] == "POST")
+        this->_allow_methods = POST;
+    else if (tokens[0] == "DELETE")
+        this->_allow_methods = DELETE;
+    else
+        throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
+
+    // erase allow method and ;
+    tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
 std::string Server::GetIp() const
@@ -262,4 +292,8 @@ std::vector<std::string> Server::GetServerNames() const
     std::vector<std::string> names;
     names.push_back(this->_server_name);
     return names;
+}
+
+int Server::GetAllowMethods() const {
+    return _allow_methods;
 }

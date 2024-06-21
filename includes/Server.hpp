@@ -36,6 +36,7 @@ private:
 	std::string _method;
 	bool		_donereading;
 	int			_recvmax;
+	int 		_allow_methods;
 
 
 	std::string _port;
@@ -52,8 +53,8 @@ private:
 	int		_websock;
 
 public:
- 	Server(const std::string& ip, const std::string& port, const std::string& server_name, \
-           const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex);
+ 	Server(const std::string& ip, const std::string& port, const std::string& server_name,
+           const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);
 	~Server();
 	
@@ -65,6 +66,7 @@ public:
 	std::unordered_map<int, std::string> GetErrorPage() const;
 	std::string GetServerIndex() const;
 	std::vector<std::string> GetServerNames() const;
+	int GetAllowMethods() const; 
 
 	void   ValidateListen(std::vector<std::string>& tokens);
 	void   ValidatePort(std::vector<std::string>& tokens);
@@ -73,6 +75,7 @@ public:
 	void   ValidateRoot(std::vector<std::string>& tokens);
 	void   ValidateErrorPage(std::vector<std::string>& tokens);
 	void   ValidateServerIndex(std::vector<std::string> &tokens);
+	void 	ValidateAllowMethods(std::vector<std::string>& tokens);
 
 	void ParseLocationBlock(std::vector<std::string>& tokens);
 
