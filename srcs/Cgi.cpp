@@ -164,11 +164,12 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 	else if (pid == 0) 	// Child process
 	{
         close(_responsePipe[0]); 					// Close read end of response pipe
-        dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect stdout to write end of response pipe
         close(_uploadPipe[1]); 						// Close write end of upload pipe
-        dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect stdin to read end of upload pipe
+        dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect cgi stdout to write end of response pipe
+        dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect cgi stdin to read end of upload pipe
 	    const char *args[] = {cgi_path.c_str(), NULL};
-        if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1) {
+        if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
+		{
             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
             std::exit(EXIT_FAILURE);            
         }
@@ -185,10 +186,10 @@ std::string Cgi::runCgi(const std::string &cgi_path)
                             	"TEST\r\n"
                             	"--" + boundary + "--\r\n";
 		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-        close(_responsePipe[1]);					// Close write end of response pipe
+        close(_responsePipe[1]);					// Close write end of CGI response pipe
+		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         close(_uploadPipe[0]);						// Close read end of upload pipe
-		// !!HAS TO BE RAN THROUGH POLL!!
-        write(_uploadPipe[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
+        write(_uploadPipe[1], post_data.c_str(), post_data.size()); // Write POST data to CGI via upload pipe
         close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
 
         int status;
