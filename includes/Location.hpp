@@ -25,7 +25,7 @@ class Location {
 
 	std::vector<std::string> url;
 	bool 					 auto_index;
-	int						 allow_methods;
+	std::vector<int>		 allow_methods;
 	std::string				 index;
 	std::string				 returnredirect;
 	std::vector<std::string> cgi_param;
@@ -45,7 +45,7 @@ class Location {
 
 	void ValidateLocationURL(std::vector<std::string> &tokens);
 	void ValidateAutoIndex(std::vector<std::string> &tokens);
-	void ValidateAllowMethods(std::vector<std::string> &tokens);
+	void Validate_AllowMethods(std::vector<std::string> &tokens);
 	void ValidateIndex(std::vector<std::string> &tokens);
 	void ValidateReturn(std::vector<std::string> &tokens);
 	void ValidateAlias(std::vector<std::string> &tokens);
@@ -56,7 +56,7 @@ class Location {
 
 std::vector<std::string>					 GetURL(void) const;
 	bool 					 GetAutoIndex(void) const;
-	bool 					 GetAllowMethods(void) const;
+	std::vector<std::string> Get_AllowMethods(void) const;
 	std::string 			 GetIndex(void) const;
 	std::string 			 GetReturnRedirect(void) const;
 	std::string 			 GetAlias(void) const;
