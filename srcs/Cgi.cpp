@@ -60,7 +60,7 @@ std::string Cgi::extractReqUrl(const std::string &url)
 {
 	std::string path;
 	size_t i = url.find("/");
-	while (url[i] != ' ')
+	while (url[i])
 		path.push_back(url[i++]);
 	return (path);
 }

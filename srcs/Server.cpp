@@ -23,6 +23,7 @@ Server::Server(Parser &in)
 		it->_ammount_sock = 0;
 		it->_recvmax = std::atoi(it->_client_max.c_str());
 		it->_donereading = false;
+		it->_iscgi = false;
 	}
 }
 

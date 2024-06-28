@@ -19,13 +19,22 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 		try
 		{
 			std::string htmlfile = this->ParseRequest(it);
-			it->_response = 
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-			"\r\n"
-			+ htmlfile;
-			it->_request.clear();
+			if (it->_iscgi == false)
+			{
+				it->_response = 
+				"HTTP/1.1 200 OK\r\n"
+				"Content-Type: text/html\r\n"
+				"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+				"\r\n"
+				+ htmlfile;
+				it->_request.clear();
+			}
+			else if (it->_iscgi == true)
+			{
+				it->_response = htmlfile;
+				it->_iscgi = false;
+				it->_request.clear();
+			}
 			this->_donereading = false;
 		}
 		catch(const std::exception& e)
@@ -89,7 +98,27 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Ser
 	path.assign(itreq, itend);
 	logger(path);
 
-	if (path == "/" || path == "/index.html")
+	if (isCgi(path))
+		{
+			Cgi cgi;
+			it->_iscgi = true;
+			if (it->_response.size() > 0)
+				it->_response.clear();
+			//std::string req_url = cgi.extractReqUrl(path);
+			std::string cgi_path = cgi.constructCgiPath(path);
+			std::string tmp(it->_request.begin(), it->_request.end());
+			cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
+			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+			//std::cout << "\nREQUEST URL: " << req_url << "\n";
+			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
+			it->_response = cgi.runCgi(cgi_path);
+			std::cout << "\n--------------------------\n";
+			std::cout << "RESPONSE: \n\n" << it->_response;
+			std::cout << "--------------------------\n";
+			return (it->_response);
+		}
+	else if (path == "/" || path == "/index.html")
 		return (it->HtmlToString("./var/www/index.html"));
 	else if (path.find("/status_codes/", 0) != path.npos)		
 		return (it->GetSatusCodeFile(path));

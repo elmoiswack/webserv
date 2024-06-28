@@ -37,6 +37,7 @@ private:
 	bool		_donereading;
 	int			_recvmax;
 	int 		_allow_methods;
+	bool		_iscgi;
 
 
 	std::string _port;
