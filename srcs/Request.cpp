@@ -68,11 +68,6 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-	
-	std::vector<Location> bruh = it->GetLocations();
-	std::vector<Location>::iterator itbruh = bruh.begin();
-	std::cout << "hello bruh index = " << itbruh->GetIndex() << std::endl;
-
 	if (method == "GET")
 	{
 		it->_method = "GET";
