@@ -2,16 +2,6 @@
 
 bool isCgi(const std::string &url)
 {
-	// std::string extension;
-
-	// std::cout << "URL = " << url << std::endl;
-	// size_t i = url.find("."); 
-	// while (url[i] != ' ' && url[i] != '?')
-	// 	extension.push_back(url[i++]);
-	// std::cout << "aEXTENSION = " << extension << std::endl;
-	// if (extension != ".cgi")
-	// 	return (false);
-	// return (true);
 	if (url.find(".cgi") != url.npos)
 		return (true);
 	return (false);
@@ -20,8 +10,18 @@ bool isCgi(const std::string &url)
 Cgi::Cgi()
 {
 	std::cout << "CGI CONSTRUCTED\n";
-	_initPipes();
 }
+
+Cgi::Cgi(std::string path, std::vector<Server>::iterator it)
+{
+	_initPipes();
+	this->_cgiPath = this->constructCgiPath(path);
+	std::string request_as_str(it->GetRequest().begin(), it->GetRequest().end());
+	this->setCgiEnvVars(this->initCgiEnvVars(request_as_str, path));
+	this->setCgiEnvVarsCstyle(initCgiEnvVarsCstyle());
+	std::cout << "CGI CONSTRUCTED\n";
+}
+
 
 // Cgi::Cgi(char *client_resp, const std::string &url) : 
 // 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
@@ -222,6 +222,10 @@ void Cgi::_initPipes()
     }
 }
 
+std::string Cgi::getCgiPath() const
+{
+	return (this->_cgiPath);
+}
 
 // std::string Cgi::runCgi(const std::string &cgi_path)
 // {

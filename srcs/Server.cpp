@@ -232,3 +232,8 @@ void logger(std::string input)
 {
 	std::cout << input << std::endl;
 }
+
+std::vector<char> Server::GetRequest()
+{
+	return (this->_request);
+}

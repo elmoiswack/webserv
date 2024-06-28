@@ -76,13 +76,13 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	else if (method == "POST")
 	{
 		it->_method = "POST";
-		std::string bvruhg = this->MethodPost(itfirst, it);
-		if (bvruhg.size() == 0)
+		std::string temp = this->MethodPost(itfirst, it);
+		if (temp.size() == 0)
 		{
 			logger("BRUH FAILED POST");
 			exit(EXIT_FAILURE);
 		}
-		return (bvruhg);
+		return (temp);
 	}
 	else if (method == "DELETE")
 	{
@@ -106,20 +106,20 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Se
 
 	if (isCgi(path))
 	{
-		Cgi cgi;
+		// Cgi cgi;
+		Cgi cgi(path, it);
+		
 		it->_iscgi = true;
 		if (it->_response.size() > 0)
 			it->_response.clear();
-		//std::string req_url = cgi.extractReqUrl(path);
-		std::string cgi_path = cgi.constructCgiPath(path);
-		std::string tmp(it->_request.begin(), it->_request.end());
-		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+		// std::string cgi_path = cgi.constructCgiPath(path);
+		// std::string request_as_str(it->_request.begin(), it->_request.end());
+		// cgi.setCgiEnvVars(cgi.initCgiEnvVars(request_as_str, path));
+		// cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		//std::cout << "\nREQUEST URL: " << req_url << "\n";
 		//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
 		// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-		it->_response = cgi.runCgi(cgi_path);
-			
+		it->_response = cgi.runCgi(cgi.getCgiPath());
 		std::cout << "\n--------------------------\n";
 		std::cout << "RESPONSE: \n\n" << it->_response;
 		std::cout << "--------------------------\n";
@@ -141,20 +141,21 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Ser
 
 	if (isCgi(path))
 		{
-			Cgi cgi;
+			// Cgi cgi;
+			Cgi cgi(path, it);
+
 			it->_iscgi = true;
 			if (it->_response.size() > 0)
 				it->_response.clear();
 			//std::string req_url = cgi.extractReqUrl(path);
-			std::string cgi_path = cgi.constructCgiPath(path);
-			std::string tmp(it->_request.begin(), it->_request.end());
-			cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+			// std::string cgi_path = cgi.constructCgiPath(path);
+			// std::string request_as_str(it->_request.begin(), it->_request.end());
+			// cgi.setCgiEnvVars(cgi.initCgiEnvVars(request_as_str, path));
+			// cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 			//std::cout << "\nREQUEST URL: " << req_url << "\n";
 			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-			it->_response = cgi.runCgi(cgi_path);
-
+			it->_response = cgi.runCgi(cgi.getCgiPath());
 			std::cout << "\n--------------------------\n";
 			std::cout << "RESPONSE: \n\n" << it->_response;
 			std::cout << "--------------------------\n";

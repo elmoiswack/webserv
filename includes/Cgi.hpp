@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../includes/Server.hpp"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -21,17 +22,20 @@
  * - child writes to pipe, the STDOUT is redirected to write end of pipe
  * - parent reads the CGI output from read end of this pipe
  */
+
 class Cgi
 {
 	private:
 		std::vector<std::string> 	_cgiEnvVars;
-		std::vector<char *> 		_cgiEnvVarsCstyle;
+		std::vector<char*> 			_cgiEnvVarsCstyle;
+		std::string					_cgiPath;
 		int 						_uploadPipe[2];
 		int 						_responsePipe[2];	
 		pid_t						_pid;
 		void						_initPipes();
 	public:
 		Cgi();
+		Cgi(std::string path, std::vector<Server>::iterator it);
 		// Cgi(char *client_resp, const std::string &url);
 		~Cgi();
 		// bool						isCgi(const std::string &url);
@@ -45,6 +49,7 @@ class Cgi
 		std::vector<char *>  		initCgiEnvVarsCstyle();
 		void						setCgiEnvVars(const std::vector<std::string> &vars);
 		void						setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle);
+		std::string					getCgiPath() const;
 };
 
 
