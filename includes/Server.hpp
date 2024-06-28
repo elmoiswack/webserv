@@ -105,6 +105,9 @@ public:
 	///RESPONSE.CPP
 	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
 
+
+	
+
 };
 
 void logger(std::string input);
