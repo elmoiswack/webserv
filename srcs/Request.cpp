@@ -16,26 +16,38 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 		this->RecieveMessage(fd, it);
 	if (it->_donereading == true)
 	{
-		std::string htmlfile = this->ParseRequest(it);
-		it->_response = 
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-		"\r\n"
-		+ htmlfile;
-		it->_request.clear();
-		this->_donereading = false;
+		try
+		{
+			std::string htmlfile = this->ParseRequest(it);
+			it->_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			"\r\n"
+			+ htmlfile;
+			it->_request.clear();
+			this->_donereading = false;
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+
 	}
 }
+
+#include "../includes/Cgi.hpp"
 
 std::string Server::ParseRequest(std::vector<Server>::iterator it)
 {
 	std::vector<char>::iterator itfirst = it->_request.begin();
+	logger("\n\nRequest after reading is done =");
 	for (std::vector<char>::iterator bruh = it->_request.begin(); bruh != it->_request.end(); bruh++)
 	{
 		std::cout << *bruh;
 	}
 	std::cout << std::endl;
+	logger("\n\n");
 	char arr[7];
 	int index = 0;
 	while (!std::isspace(*itfirst))
@@ -46,9 +58,7 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-
-
-
+	
 	if (method == "GET")
 	{
 		it->_method = "GET";
@@ -63,7 +73,9 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	{
 		it->_method = "DELETE";
 	}
-	return ("");
+	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
+	logger("sending client back to index.html\n");
+	return (it->HtmlToString("./var/www/index.html"));
 }
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
@@ -119,13 +131,16 @@ void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
 		std::cout << "ERROR read" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	for (int i = 0; buff[i]; i++)
+	logger("request:");
+	for (int i = 0; i < rbytes; i++)
 	{
+		std::cout << buff[i];
 		it->_request.push_back(buff[i]);
 	}
+	std::cout << std::endl;
+	std::cout << "Bytes recv = " << rbytes << std::endl;
 	if (rbytes < it->_recvmax)
 	{
-		std::cout << "Bytes recv = " << rbytes << std::endl;
 		it->_donereading = true;
 		it->_request.push_back('\0');
 	}

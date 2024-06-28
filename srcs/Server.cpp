@@ -173,6 +173,10 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 		temp.fd = it->_sockvec[index].fd;
 		temp.events = it->_sockvec[index].events;
 		temp.revents = it->_sockvec[index].revents;
+
+		std::cout << "index = " << index << " = ";
+		logger(it->_whatsockvec[index]);
+		
 		if (temp.revents & POLLIN)
 		{
 			if (it->_whatsockvec[index] == "SERVER")
@@ -184,17 +188,17 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 				it->EventsPollin(temp.fd, it);
 			}
 		}
-		if (temp.revents & POLLOUT)
+		else if (temp.revents & POLLOUT)
 		{
 			it->EventsPollout(temp.fd, index, it);
 		}
-		if (temp.revents & POLLHUP)
+		else if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
 			close(temp.fd);
 			it->RmvSocket(index, it);
 		}
-		if (temp.revents & POLLERR)
+		else if (temp.revents & POLLERR)
 		{
 			logger("Fuck error poll");
 			exit(EXIT_FAILURE);
