@@ -2,14 +2,19 @@
 
 bool isCgi(const std::string &url)
 {
-	std::string extension;
+	// std::string extension;
 
-	size_t i = url.find("."); 
-	while (url[i] != ' ' && url[i] != '?')
-		extension.push_back(url[i++]);
-	if (extension != ".cgi")
-		return (false);
-	return (true);
+	// std::cout << "URL = " << url << std::endl;
+	// size_t i = url.find("."); 
+	// while (url[i] != ' ' && url[i] != '?')
+	// 	extension.push_back(url[i++]);
+	// std::cout << "aEXTENSION = " << extension << std::endl;
+	// if (extension != ".cgi")
+	// 	return (false);
+	// return (true);
+	if (url.find(".cgi") != url.npos)
+		return (true);
+	return (false);
 }
 
 Cgi::Cgi()

@@ -31,6 +31,7 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 			}
 			else if (it->_iscgi == true)
 			{
+
 				it->_response = htmlfile;
 				it->_iscgi = false;
 				it->_request.clear();
@@ -68,6 +69,10 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	arr[index] = '\0';
 	std::string method(arr);
 	
+	std::vector<Location> bruh = it->GetLocations();
+	std::vector<Location>::iterator itbruh = bruh.begin();
+	std::cout << "hello bruh index = " << itbruh->GetIndex() << std::endl;
+
 	if (method == "GET")
 	{
 		it->_method = "GET";
@@ -76,7 +81,13 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	else if (method == "POST")
 	{
 		it->_method = "POST";
-		// return ()
+		std::string bvruhg = this->MethodPost(itfirst, it);
+		if (bvruhg.size() == 0)
+		{
+			logger("BRUH FAILED POST");
+			exit(EXIT_FAILURE);
+		}
+		return (bvruhg);
 	}
 	else if (method == "DELETE")
 	{
@@ -85,6 +96,41 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
 	logger("sending client back to index.html\n");
 	return (it->HtmlToString("./var/www/index.html"));
+}
+
+std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	logger(path);
+
+	if (isCgi(path))
+	{
+		Cgi cgi;
+		it->_iscgi = true;
+		if (it->_response.size() > 0)
+			it->_response.clear();
+		//std::string req_url = cgi.extractReqUrl(path);
+		std::string cgi_path = cgi.constructCgiPath(path);
+		std::string tmp(it->_request.begin(), it->_request.end());
+		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
+		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+		//std::cout << "\nREQUEST URL: " << req_url << "\n";
+		//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+		// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
+		it->_response = cgi.runCgi(cgi_path);
+			
+		std::cout << "\n--------------------------\n";
+		std::cout << "RESPONSE: \n\n" << it->_response;
+		std::cout << "--------------------------\n";
+		return (it->_response);
+	}
+	return ("");
 }
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
@@ -113,11 +159,13 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Ser
 			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
 			it->_response = cgi.runCgi(cgi_path);
+
 			std::cout << "\n--------------------------\n";
 			std::cout << "RESPONSE: \n\n" << it->_response;
 			std::cout << "--------------------------\n";
 			return (it->_response);
 		}
+
 	else if (path == "/" || path == "/index.html")
 		return (it->HtmlToString("./var/www/index.html"));
 	else if (path.find("/status_codes/", 0) != path.npos)		

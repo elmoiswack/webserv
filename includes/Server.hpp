@@ -103,6 +103,7 @@ public:
 	void GetResponse(int fd, std::vector<Server>::iterator it);
 	std::string ParseRequest(std::vector<Server>::iterator it);
 	std::string MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
+	std::string MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
 	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code);
 
