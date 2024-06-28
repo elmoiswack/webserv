@@ -105,7 +105,7 @@ public:
 	std::string MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
 	std::string MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
 	std::string HtmlToString(std::string path);
-	std::string GetSatusCodeFile(std::string code);
+	std::string GetSatusCodeFile(std::string code, std::vector<Server>::iterator it);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);

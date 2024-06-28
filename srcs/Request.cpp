@@ -68,10 +68,7 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-	
-	std::vector<Location> bruh = it->GetLocations();
-	std::vector<Location>::iterator itbruh = bruh.begin();
-	std::cout << "hello bruh index = " << itbruh->GetIndex() << std::endl;
+
 
 	if (method == "GET")
 	{
@@ -144,40 +141,64 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Ser
 	path.assign(itreq, itend);
 	logger(path);
 
+	std::vector<Location>::iterator itloc = it->_locationblocks.begin();
 	if (isCgi(path))
-		{
-			Cgi cgi;
-			it->_iscgi = true;
-			if (it->_response.size() > 0)
-				it->_response.clear();
-			//std::string req_url = cgi.extractReqUrl(path);
-			std::string cgi_path = cgi.constructCgiPath(path);
-			std::string tmp(it->_request.begin(), it->_request.end());
-			cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-			//std::cout << "\nREQUEST URL: " << req_url << "\n";
-			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-			it->_response = cgi.runCgi(cgi_path);
-
-			std::cout << "\n--------------------------\n";
-			std::cout << "RESPONSE: \n\n" << it->_response;
-			std::cout << "--------------------------\n";
-			return (it->_response);
-		}
-
-	else if (path == "/" || path == "/index.html")
-		return (it->HtmlToString("./var/www/index.html"));
+	{
+		Cgi cgi;
+		it->_iscgi = true;
+		if (it->_response.size() > 0)
+			it->_response.clear();
+		//std::string req_url = cgi.extractReqUrl(path);
+		std::string cgi_path = cgi.constructCgiPath(path);
+		std::string tmp(it->_request.begin(), it->_request.end());
+		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
+		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+		//std::cout << "\nREQUEST URL: " << req_url << "\n";
+		//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
+		// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
+		it->_response = cgi.runCgi(cgi_path);
+		std::cout << "\n--------------------------\n";
+		std::cout << "RESPONSE: \n\n" << it->_response;
+		std::cout << "--------------------------\n";
+		return (it->_response);
+	}
+	else if (path == "/" || path == itloc->GetIndex())
+		return (it->HtmlToString("./var/www" + itloc->GetIndex()));
 	else if (path.find("/status_codes/", 0) != path.npos)		
-		return (it->GetSatusCodeFile(path));
+		return (it->GetSatusCodeFile(path, it));
 	else
 		return (it->HtmlToString("./var/www/status_codes/404.html"));
 }
 
-std::string Server::GetSatusCodeFile(std::string code)
+std::string Server::GetSatusCodeFile(std::string path, std::vector<Server>::iterator it)
 {
-	std::string statuscode = "./var/www" + code;
-	return (this->HtmlToString(statuscode));
+	// std::string::iterator begin = path.begin();
+	// while (!std::isdigit(*begin))
+	// 	begin++;
+	// auto end = begin;
+	// while (std::isdigit(*end))
+	// 	end++;
+	// std::string strcode(begin, end);
+	// int code = std::stoi(strcode);
+	// std::cout << "CODE = " << code << std::endl;
+	
+	// std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
+	// while (iterr != it->_error_page.end() && iterr->first != code)
+	// {
+	// 	std::cout << iterr->first << std::endl;
+	// 	iterr++;
+	// }
+	// if (iterr == it->_error_page.end())
+	// {
+	// 	std::cout << "ficledsajda" << std::endl;
+	// 	exit(1);
+	// }
+	// std::cout << "itersecond = " << iterr->second << std::endl;
+	// std::string statuscode = "./var/www" + code;
+	// return (it->HtmlToString(statuscode));
+
+	std::string statuscode = "./var/www" + path;
+	return (it->HtmlToString(statuscode));
 }
 
 std::string Server::HtmlToString(std::string path)

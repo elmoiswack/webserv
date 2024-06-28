@@ -95,18 +95,17 @@ void Server::RmvSocket(int index, std::vector<Server>::iterator serv)
 
 void Server::SetUpServer()
 {
-	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
+	std::cout << "FKSAHFKSAHFA = " << this->_serverblocks.size() << std::endl;
+	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		std::vector<Server>::iterator it = this->_serverblocks.begin();
 		this->InitSocket(it);
 		this->BindSockets(it);
 		this->ListenSockets(it);
 	}
 	logger("Server is initialized!");
 	this->RunPoll();
-	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
+	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		std::vector<Server>::iterator it = this->_serverblocks.begin();
 		this->CloseAllFds(it);
 	}
 }
