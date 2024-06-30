@@ -284,7 +284,7 @@ std::string Server::GetServerIndex() const
 }
 
 std::vector<Location> Server::GetLocations() const {
-    return (_locations);
+    return (_locationblocks);
 }
 
 std::vector<std::string> Server::GetServerNames() const
