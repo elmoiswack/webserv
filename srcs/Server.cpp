@@ -153,6 +153,8 @@ void Server::RunPoll()
 	{
 		for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 		{
+			logger("port: ");
+			logger(it->_port);
 			int ret = poll(it->_sockvec.data(), it->_sockvec.size(), -1);
 			if (ret < 0)
 			{
@@ -227,7 +229,7 @@ void Server::CloseAllFds(std::vector<Server>::iterator it)
 	}
 }
 
-void logger(std::string input)
+template <typename T> void logger(T input)
 {
 	std::cout << input << std::endl;
 }

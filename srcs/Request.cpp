@@ -60,7 +60,7 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	logger("\n\n");
 	char arr[7];
 	int index = 0;
-	while (!std::isspace(*itfirst))
+	while (!std::isspace(*itfirst) && index < 7)
 	{
 		arr[index] = *itfirst;
 		index++;

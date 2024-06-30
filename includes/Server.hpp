@@ -114,5 +114,4 @@ public:
 	
 
 };
-
-void logger(std::string input);
+template <typename T> void logger(T input);
