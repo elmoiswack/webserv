@@ -17,14 +17,14 @@ OBJS		:= 	$(addprefix $(OBJDIR)/,$(SRC:.cpp=.o))
 SRCS		:= 	$(addprefix $(SRCDIR)/,$(SRC))
 
 CC	:=	c++
-CFLAGS	:= -Wall -Werror -Wextra -std=c++11
+CFLAGS	:= -Wall -Werror -Wextra -std=c++11 #-fsanitize=address -g
 
 HEADERS := -I ./includes
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $^ -o $(NAME)
+	$(CC) $^ -o $(NAME) $(CFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
