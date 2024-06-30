@@ -56,30 +56,52 @@ void    Location::ValidateAutoIndex(std::vector<std::string> &tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
-void    Location::ValidateAllowMethods(std::vector<std::string> &tokens)
-{
-    if ( tokens.size() == 1) 
-        throw Parser::InvalidLineConfException("The Allow Method is Missing!'");
+void Location::Validate_AllowMethods(std::vector<std::string>& tokens) {
+    if (tokens.size() < 3 || tokens[1] == ";") {
+        throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+    }
 
-	// erase allow_methods token
+    // erase allow_methods token
     tokens.erase(tokens.begin(), tokens.begin() + 1);
 
-	if (tokens[0] == ";")
-		throw Parser::InvalidLineConfException("The Allow Method is Missing!");
-	if (tokens[1] != ";") {
-		throw Parser::InvalidLineConfException("; is Missing!");
-	}
-		if (tokens[0] == "GET")
-		this->allow_methods = GET;
-	else if (tokens[0] == "POST")
-		this->allow_methods = POST;
-	else if (tokens[0] == "DELETE")
-		this->allow_methods = DELETE;
-	else
-		throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
+    // Check if the first token is a semicolon, which means no method is provided
+    if (tokens[0] == ";") {
+        throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+    }
 	
-	// erase allow method and ;
-    tokens.erase(tokens.begin(), tokens.begin() + 2);
+
+    // Loop through the tokens to collect allowed methods
+    size_t i = 0;
+    while (i < tokens.size()) {
+        if (tokens[i] == ";") {
+            if (i == 0) {
+                throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+            }
+            break;
+        }
+
+        if (tokens[i] == "GET") {
+            allow_methods.push_back(GET);
+        }
+		else if (tokens[i] == "POST") {
+            allow_methods.push_back(POST);
+        }
+		else if (tokens[i] == "DELETE") {
+            allow_methods.push_back(DELETE);
+        } else {
+            throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
+        }
+
+        i++;
+    }
+
+    // Check if the last token is not a semicolon
+    if (i == tokens.size() || tokens[i] != ";") {
+        throw Parser::InvalidLineConfException("; is Missing!");
+    }
+
+    // erase allow methods and ;
+    tokens.erase(tokens.begin(), tokens.begin() + i + 1);
 }
 
 void    Location::ValidateIndex(std::vector<std::string> &tokens)
@@ -90,7 +112,7 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
 	// erase index token
     tokens.erase(tokens.begin());
 
-    	if (tokens[0] != "/index.html" || (tokens[0] != "/" && tokens[1] != ";")) {
+  	if (!((tokens[0] == "/index.html" && tokens[1] == ";") || (tokens[0] == "/" && tokens[1] == ";"))) {
         throw Parser::InvalidLineConfException("The Index must be '/index.html' or '/' followed by ';'");
 	}
 	this->index = tokens[0];
@@ -234,8 +256,22 @@ bool    Location::GetAutoIndex(void) const {
     return (this->auto_index);
 }
 
-bool    Location::GetAllowMethods(void) const {
-    return (this->allow_methods);
+std::vector<std::string> Location::Get_AllowMethods() const {
+    std::vector<std::string> methods_as_string;
+    for (const auto& method : allow_methods) {
+        switch (method) {
+            case GET:
+                methods_as_string.push_back("GET");
+                break;
+            case POST:
+                methods_as_string.push_back("POST");
+                break;
+            case DELETE:
+                methods_as_string.push_back("DELETE");
+                break;
+        }
+    }
+    return methods_as_string;
 }
 
 std::string Location::GetIndex(void) const {

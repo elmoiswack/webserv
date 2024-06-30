@@ -15,7 +15,12 @@ void runTests(const Parser& parser) {
         std::cout << "Client Max Body Size: " << server.GetClientMax() << std::endl;
         std::cout << "Root: " << server.GetRoot() << std::endl;
         std::cout << "Server Index: " << server.GetServerIndex() << std::endl;
-		std::cout << "Allow Methods: " << server.GetAllowMethods() << std::endl;
+		std::vector<std::string> test_methods = server.GetAllowMethods();
+   			std::cout << "Allow Methods: ";
+    		for (const auto& method : test_methods) {
+       		 std::cout << method << " ";
+   			}
+		std::cout << std::endl;
         std::cout << "--------------------------------------" << std::endl;
 
         std::unordered_map<int, std::string> errorPageMap = server.GetErrorPage();
@@ -33,7 +38,12 @@ void runTests(const Parser& parser) {
                 std::cout << "URL: " << url << std::endl;
             }
             std::cout << "Auto Index: " << (location.GetAutoIndex() ? "on" : "off") << std::endl;
-            std::cout << "Allow Methods: " << location.GetAllowMethods() << std::endl;
+    		std::vector<std::string> _methods = location.Get_AllowMethods();	
+   			std::cout << "Allow Methods: ";
+    		for (const auto& method : _methods) {
+       		 std::cout << method << " ";
+   			}
+    		std::cout << std::endl;
             std::cout << "Index: " << location.GetIndex() << std::endl;
             std::cout << "Return Redirect: " << location.GetReturnRedirect() << std::endl;
             std::cout << "Alias: " << location.GetAlias() << std::endl;

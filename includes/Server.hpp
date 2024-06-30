@@ -35,8 +35,7 @@ private:
 	std::string _response;
 	std::string _method;
 	bool		_donereading;
-	int			_recvmax;
-	int 		_allow_methods;
+	std::vector<int> _allow_methods;
 	bool		_iscgi;
 
 
@@ -67,7 +66,7 @@ public:
 	std::unordered_map<int, std::string> GetErrorPage() const;
 	std::string GetServerIndex() const;
 	std::vector<std::string> GetServerNames() const;
-	int GetAllowMethods() const; 
+	std::vector<std::string> GetAllowMethods() const; 
 
 	void   ValidateListen(std::vector<std::string>& tokens);
 	void   ValidatePort(std::vector<std::string>& tokens);
@@ -76,7 +75,7 @@ public:
 	void   ValidateRoot(std::vector<std::string>& tokens);
 	void   ValidateErrorPage(std::vector<std::string>& tokens);
 	void   ValidateServerIndex(std::vector<std::string> &tokens);
-	void 	ValidateAllowMethods(std::vector<std::string>& tokens);
+	void   ValidateAllowMethods(std::vector<std::string>& tokens);
 
 	void ParseLocationBlock(std::vector<std::string>& tokens);
 
