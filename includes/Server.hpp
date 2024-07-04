@@ -38,7 +38,7 @@ private:
 	std::vector<int> _allow_methods;
 	bool		_iscgi;
 
-
+	int			_recvmax;
 	std::string _port;
 	std::string _ip;
 	std::string _server_name;
