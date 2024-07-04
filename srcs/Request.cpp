@@ -98,6 +98,59 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	return (it->HtmlToString("./var/www/index.html"));
 }
 
+std::string Server::ExtractBoundary(const std::string &content) {
+
+	std::string boundary_prefix = "boundary=";
+    size_t boundary_start = content.find(boundary_prefix);
+    if (boundary_start == std::string::npos) {
+        return "";
+    }
+
+    boundary_start += boundary_prefix.length(); // adjust start to point of start boundary
+    
+    size_t boundary_end = content.find("\n", boundary_start);
+    // if (boundary_end == std::string::npos) { 
+    //     boundary_end = content_type.length();
+    // }
+
+    // trim white space
+    std::string boundary = content.substr(boundary_start, boundary_end - boundary_start);
+    boundary.erase(boundary.find_last_not_of(" \t\n\r\f\v") + 1);
+    
+    return (boundary);
+}
+
+std::string Server::ParsePost(const std::string &content) {
+	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
+    size_t content_type_start = content.find(content_type_header);
+    if (content_type_start == std::string::npos) {
+        return "";
+    }
+    content_type_start += content_type_header.length();
+    size_t content_type_end = content.find("\n", content_type_start);
+    std::string content_type = content.substr(content_type_start, content_type_end - content_type_start);
+    
+    std::string boundary = ExtractBoundary(content);
+    if (boundary.empty()) {
+        return "";
+    }
+    
+    std::string boundary_start = "--" + boundary;
+    std::string boundary_end = boundary_start + "--";
+	
+    size_t start_pos = content.find(boundary_start);
+    size_t end_pos = content.find(boundary_end);
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+        return "";
+    }
+    
+    // Include boundary_start in the extracted data
+    std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
+    
+    return post_data;
+}
+
+
 std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
 {
 	while (std::isspace(*itreq))
@@ -115,6 +168,19 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Se
 		it->_iscgi = true;
 		if (it->_response.size() > 0)
 			it->_response.clear();
+		
+		std::string data(it->_request.begin(), it->_request.end());
+        
+        // Extract multipart data if the request is multipart/form-data
+        std::string content(data.begin(), data.end());
+        std::string post_data = ParsePost(content);
+
+		std::cout << std::endl;
+		std::cout << std::endl;
+		std::cout << "EXTRACTED POST DATA !!!!: \n" << post_data << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
+
 		//std::string req_url = cgi.extractReqUrl(path);
 		std::string cgi_path = cgi.constructCgiPath(path);
 		std::string tmp(it->_request.begin(), it->_request.end());

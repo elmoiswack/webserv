@@ -1,0 +1,82 @@
+POST /cgi-bin/upload_file.cgi HTTP/1.1
+Host: localhost:8001
+Connection: keep-alive
+Content-Length: 192
+Cache-Control: max-age=0
+sec-ch-ua: "Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+Origin: http://localhost:8001
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary2lBR7hWi44zTQQii
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:8001/index.html
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+------WebKitFormBoundary2lBR7hWi44zTQQii
+Content-Disposition: form-data; name="file"; filename="bla.txt"
+Content-Type: text/plain
+
+ai
+Bytes recv = 1024
+message recieved!
+index = 0 = SERVER
+index = 1 = CLIENT
+POLLIN
+Ready to recieve...
+request:
+sdjakdsd
+
+------WebKitFormBoundary2lBR7hWi44zTQQii--
+
+Bytes recv = 55
+message recieved!
+
+
+Request after reading is done =
+POST /cgi-bin/upload_file.cgi HTTP/1.1
+Host: localhost:8001
+Connection: keep-alive
+Content-Length: 192
+Cache-Control: max-age=0
+sec-ch-ua: "Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+Origin: http://localhost:8001
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary2lBR7hWi44zTQQii
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:8001/index.html
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+------WebKitFormBoundary2lBR7hWi44zTQQii
+Content-Disposition: form-data; name="file"; filename="bla.txt"
+Content-Type: text/plain
+
+aisdjakdsd
+
+------WebKitFormBoundary2lBR7hWi44zTQQii--
+
+
+
+
+hello bruh index = /index.html
+/cgi-bin/upload_file.cgi
+CGI CONSTRUCTED
+
+
+POST size: 198
+
+Child process exited with status: 0

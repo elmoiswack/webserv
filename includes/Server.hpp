@@ -94,6 +94,8 @@ public:
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index, std::vector<Server>::iterator it);
 	void CloseAllFds(std::vector<Server>::iterator it);
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
 
 	
 	///REQUEST.CPP
