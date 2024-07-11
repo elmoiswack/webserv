@@ -74,60 +74,55 @@ std::string Server::ParseRequest()
 		this->_method = "GET";
 		return (this->MethodGet(itfirst));
 	}
-	// else if (method == "POST")
-	// {
-	// 	it->_method = "POST";
-	// 	std::string bvruhg = this->MethodPost(itfirst, it);
-	// 	if (bvruhg.size() == 0)
-	// 	{
-	// 		logger("BRUH FAILED POST");
-	// 		exit(EXIT_FAILURE);
-	// 	}
-	// 	return (bvruhg);
-	// }
-	// else if (method == "DELETE")
-	// {
-	// 	it->_method = "DELETE";
-	// }
+	else if (method == "POST")
+	{
+		this->_method = "POST";
+		std::string bvruhg = this->MethodPost(itfirst);
+		if (bvruhg.size() == 0)
+		{
+			logger("BRUH FAILED POST");
+			exit(EXIT_FAILURE);
+		}
+		return (bvruhg);
+	}
+	else if (method == "DELETE")
+	{
+		this->_method = "DELETE";
+	}
 	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
 	logger("sending client back to index.html\n");
 	return (this->HtmlToString("./var/www/index.html"));
 }
 
-// std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
-// {
-// 	while (std::isspace(*itreq))
-// 		itreq++;
-// 	std::vector<char>::iterator itend = itreq;
-// 	while (!std::isspace(*itend))
-// 		itend++;
-// 	std::string path;
-// 	path.assign(itreq, itend);
-// 	logger(path);
+std::string Server::MethodPost(std::vector<char>::iterator itreq)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	logger(path);
 
-// 	if (isCgi(path))
-// 	{
-// 		Cgi cgi;
-// 		it->_iscgi = true;
-// 		if (it->_response.size() > 0)
-// 			it->_response.clear();
-// 		//std::string req_url = cgi.extractReqUrl(path);
-// 		std::string cgi_path = cgi.constructCgiPath(path);
-// 		std::string tmp(it->_request.begin(), it->_request.end());
-// 		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-// 		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-// 		//std::cout << "\nREQUEST URL: " << req_url << "\n";
-// 		//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-// 		// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-// 		it->_response = cgi.runCgi(cgi_path);
-			
-// 		std::cout << "\n--------------------------\n";
-// 		std::cout << "RESPONSE: \n\n" << it->_response;
-// 		std::cout << "--------------------------\n";
-// 		return (it->_response);
-// 	}
-// 	return ("");
-// }
+	if (isCgi(path))
+	{
+		Cgi cgi;
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
+		std::string cgi_path = cgi.constructCgiPath(path);
+		std::string tmp(this->_request.begin(), this->_request.end());
+		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
+		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+		this->_response = cgi.runCgi(cgi_path);
+		std::cout << "\n--------------------------\n";
+		std::cout << "RESPONSE: \n\n" << this->_response;
+		std::cout << "--------------------------\n";
+		return (this->_response);
+	}
+	return ("");
+}
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq)
 {
@@ -141,29 +136,25 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	logger(path);
 
 	std::vector<Location>::iterator itloc = this->_locationblocks.begin();
-	// if (isCgi(path))
-	// {
-	// 	Cgi cgi;
-	// 	it->_iscgi = true;
-	// 	if (it->_response.size() > 0)
-	// 		it->_response.clear();
-	// 	//std::string req_url = cgi.extractReqUrl(path);
-	// 	std::string cgi_path = cgi.constructCgiPath(path);
-	// 	std::string tmp(it->_request.begin(), it->_request.end());
-	// 	cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-	// 	cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-	// 	//std::cout << "\nREQUEST URL: " << req_url << "\n";
-	// 	//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-	// 	// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-	// 	it->_response = cgi.runCgi(cgi_path);
-	// 	std::cout << "\n--------------------------\n";
-	// 	std::cout << "RESPONSE: \n\n" << it->_response;
-	// 	std::cout << "--------------------------\n";
-	// 	return (it->_response);
-	// }
+	if (isCgi(path))
+	{
+		Cgi cgi;
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
+		std::string cgi_path = cgi.constructCgiPath(path);
+		std::string tmp(this->_request.begin(), this->_request.end());
+		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
+		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
+		this->_response = cgi.runCgi(cgi_path);
+		std::cout << "\n--------------------------\n";
+		std::cout << "RESPONSE: \n\n" << this->_response;
+		std::cout << "--------------------------\n";
+		return (this->_response);
+	}
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
-	else if (path.find("/status_codes/", 0) != path.npos)		
+	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path));
 	else
 		return (this->HtmlToString("./var/www/status_codes/404.html"));
