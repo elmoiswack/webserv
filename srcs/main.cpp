@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     {
         Parser pars(argv[1], pars);
         runTests(pars);
-        Cgi cgi;
-      	cgi.runCgi("./var/www/cgi-bin");
+        // Cgi cgi;
+      	// cgi.runCgi("./var/www/cgi-bin");
 
         //std::vector<Server> servers = pars.GetServerBlocks();
         Server serv(pars);

@@ -132,7 +132,7 @@ std::string	Cgi::extractQueryString(const std::string &url)
 	if (pos != std::string::npos)
 	{
 
-		querry_str = (end != std::string::npos)
+		querry_str = end != std::string::npos
 			? url.substr(pos + 1, end - pos - 1)
 			: url.substr(pos + 1, url.length() - pos - 1);
 	}
@@ -190,7 +190,7 @@ std::string Cgi::runCgi(const std::string &cgi_path)
                             	"TEST\r\n"
                             	"TEST\r\n"
                             	"--" + boundary + "--\r\n";
-		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
+		//std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         close(_uploadPipe[0]);						// Close read end of upload pipe
