@@ -19,6 +19,6 @@ void Server::EventsPollout(int fd, int index)
 		close(fd);
 		logger("fd is closed and removed!");
 		this->_response.clear();
-		this->RmvSocket(index);
+		this->RmvSocket(index); //if removed, i believe the connection is there and so the the client doesn't have to reload, need to test it tho...
 	}
 }
