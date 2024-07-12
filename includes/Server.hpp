@@ -34,7 +34,6 @@ private:
 	std::vector<char> _request;
 	std::string _response;
 	std::string _method;
-	std::string _post_data;
 	bool		_donereading;
 	int			_recvmax;
 	int 		_allow_methods;

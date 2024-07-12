@@ -175,6 +175,7 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		std::string post_data = ParsePost(tmp);
 		std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
 		cgi.setPostData(post_data);
+		cgi.setMethod(this->_method);
 		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
 		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		this->_response = cgi.runCgi(cgi_path);
@@ -206,6 +207,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
 		std::string tmp(this->_request.begin(), this->_request.end());
+		cgi.setMethod(this->_method);
 		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
 		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		this->_response = cgi.runCgi(cgi_path);

@@ -53,6 +53,11 @@ void	Cgi::setPostData(const std::string &post_data)
 	_postData = post_data;
 }
 
+void	Cgi::setMethod(const std::string &method)
+{
+	_method = method;
+}
+
 std::string Cgi::constructCgiPath(const std::string &url)
 {
 	std::string path;
@@ -109,7 +114,6 @@ std::string extractBoundary(const std::string &content) {
 
 std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, const std::string &url)
 {
-	(void) client_resp;
 	std::vector<std::string> env_vars = 
 	{	
     	"CONTENT_LENGTH=",
@@ -118,7 +122,7 @@ std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, cons
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
 		"UPLOAD_FILENAME=test.txt",
-		"REQUEST_METHOD=POST",
+		"REQUEST_METHOD=" + this->_method,
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
 		"SCRIPT_FILENAME=",
@@ -207,21 +211,12 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 	else  											// Parent process
 	{
 		_pid = pid; 								// save pid for further processing if needed
-		// std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
-    	// std::string post_data = "--" + boundary + "\r\n"
-        //                     	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-        //                     	"Content-Type: text/plain\r\n\r\n"
-        //                     	"TEST\r\n"
-        //                     	"TEST\r\n"
-        //                     	"TEST\r\n"
-        //                     	"--" + boundary + "--\r\n";
 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         close(_uploadPipe[0]);						// Close read end of upload pipe
         write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
         close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
-
         int status;
         pid_t result = waitpid(pid, &status, 0);
         if (result == -1) {
@@ -246,6 +241,18 @@ void Cgi::_initPipes()
         std::exit(EXIT_FAILURE);
     }
 }
+
+
+
+
+		// std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
+    	// std::string post_data = "--" + boundary + "\r\n"
+        //                     	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+        //                     	"Content-Type: text/plain\r\n\r\n"
+        //                     	"TEST\r\n"
+        //                     	"TEST\r\n"
+        //                     	"TEST\r\n"
+        //                     	"--" + boundary + "--\r\n";
 
 
 // std::string Cgi::runCgi(const std::string &cgi_path)
