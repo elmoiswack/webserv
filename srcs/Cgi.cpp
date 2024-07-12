@@ -23,6 +23,23 @@ Cgi::Cgi()
 	_initPipes();
 }
 
+Cgi::Cgi(const std::string &method, const std::string &post_data, const std::string &path, const std::string &request) :
+    _method(method),
+    _postData(post_data),
+	_cgiEnvVars(initCgiEnvVars(request, path)),
+	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
+{
+	_initPipes();
+}
+
+Cgi::Cgi(const std::string &method, const std::string &path, const std::string &request) :
+    _method(method),
+	_cgiEnvVars(initCgiEnvVars(request, path)),
+	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
+{
+	_initPipes();
+}
+
 // Cgi::Cgi(char *client_resp, const std::string &url) : 
 // 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
 // 	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())

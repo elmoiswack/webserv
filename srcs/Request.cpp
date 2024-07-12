@@ -166,22 +166,16 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	logger(path);
 	if (isCgi(path))
 	{
-		Cgi cgi;
+		std::string tmp(this->_request.begin(), this->_request.end());
+		std::string post_data = ParsePost(tmp);
+		Cgi cgi(_method, post_data, path, tmp);
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		std::string tmp(this->_request.begin(), this->_request.end());
-		std::string post_data = ParsePost(tmp);
-		std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
-		cgi.setPostData(post_data);
-		cgi.setMethod(this->_method);
-		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		this->_response = cgi.runCgi(cgi_path);
-		std::cout << "\n--------------------------\n";
-		std::cout << "RESPONSE: \n\n" << this->_response;
-		std::cout << "--------------------------\n";
+		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
+		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
 	return ("");
@@ -201,19 +195,14 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	std::vector<Location>::iterator itloc = this->_locationblocks.begin();
 	if (isCgi(path))
 	{
-		Cgi cgi;
+		std::string tmp(this->_request.begin(), this->_request.end());
+		Cgi cgi(_method, path, tmp);
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		std::string tmp(this->_request.begin(), this->_request.end());
-		cgi.setMethod(this->_method);
-		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		this->_response = cgi.runCgi(cgi_path);
-		std::cout << "\n--------------------------\n";
-		std::cout << "RESPONSE: \n\n" << this->_response;
-		std::cout << "--------------------------\n";
+		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
 	if (path == "/" || path == itloc->GetIndex())
