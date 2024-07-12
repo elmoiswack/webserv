@@ -25,6 +25,7 @@ class Cgi
 {
 	private:
 		std::vector<std::string> 	_cgiEnvVars;
+		std::string 				_postData;
 		std::vector<char *> 		_cgiEnvVarsCstyle;
 		int 						_uploadPipe[2];
 		int 						_responsePipe[2];	
@@ -43,8 +44,11 @@ class Cgi
 		std::string					runCgi(const std::string &cgi_path);
 		std::vector<std::string>	initCgiEnvVars(const std::string &client_resp, const std::string &url);
 		std::vector<char *>  		initCgiEnvVarsCstyle();
+		void						setPostData(const std::string &post_data);
 		void						setCgiEnvVars(const std::vector<std::string> &vars);
 		void						setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle);
+		std::string					getPos(const std::string &url);
+
 };
 
 

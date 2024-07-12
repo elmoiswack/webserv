@@ -248,6 +248,11 @@ void Server::ValidateAllowMethods(std::vector<std::string>& tokens) {
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
+std::string Server::GetMethod() const
+{
+	return (this->_method);
+}
+
 std::string Server::GetIp() const
 {
 	return (this->_ip);

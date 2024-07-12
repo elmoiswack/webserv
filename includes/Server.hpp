@@ -34,6 +34,7 @@ private:
 	std::vector<char> _request;
 	std::string _response;
 	std::string _method;
+	std::string _post_data;
 	bool		_donereading;
 	int			_recvmax;
 	int 		_allow_methods;
@@ -58,7 +59,8 @@ public:
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);
 	~Server();
-	
+
+	std::string GetMethod() const;
 	std::string GetPort() const;
     std::string GetIp() const;
     std::string GetServName() const;
@@ -95,7 +97,8 @@ public:
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
 	void CloseAllFds();
-
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd);

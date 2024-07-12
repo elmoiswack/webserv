@@ -94,6 +94,66 @@ std::string Server::ParseRequest()
 	return (this->HtmlToString("./var/www/index.html"));
 }
 
+std::string Server::ExtractBoundary(const std::string &content) {
+
+	std::string boundary_prefix = "boundary=";
+    size_t boundary_start = content.find(boundary_prefix);
+    if (boundary_start == std::string::npos) {
+        return "";
+    }
+
+    boundary_start += boundary_prefix.length(); // adjust start to point of start boundary
+    
+    size_t boundary_end = content.find("\n", boundary_start);
+    // if (boundary_end == std::string::npos) { 
+    //     boundary_end = content.length();
+    // }
+
+    // trim white space
+    std::string boundary = content.substr(boundary_start, boundary_end - boundary_start);
+    boundary.erase(boundary.find_last_not_of(" \t\n\r\f\v") + 1);
+    
+    return (boundary);
+}
+
+std::string Server::ParsePost(const std::string &content) {
+	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
+    size_t content_type_start = content.find(content_type_header);
+    if (content_type_start == std::string::npos) {
+		std::cout << "Content-Type not found" << std::endl;
+        return ("");
+    }
+    content_type_start += content_type_header.length();
+    size_t content_type_end = content.find("\n", content_type_start);
+    std::string content_type = content.substr(content_type_start, content_type_end - content_type_start);
+
+	//   std::cout << "Content-Type: " << content_type << std::endl;
+
+    std::string boundary = ExtractBoundary(content);
+    if (boundary.empty()) {
+		std::cout << "Boundary not found" << std::endl;
+        return ("");
+    }
+
+	// std::cout << "Boundary: " << boundary << std::endl;
+
+    std::string boundary_start = "--" + boundary;
+    std::string boundary_end = boundary_start + "--";
+	
+    size_t start_pos = content.find(boundary_start);
+    size_t end_pos = content.find(boundary_end);
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+		std::cout << "Boundary positions not found" << std::endl;
+        return ("");
+    }
+    
+    // Include boundary_start in the extracted data
+	// start_pos += boundary_start.length();
+    std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
+    
+    return post_data;
+}
+
 std::string Server::MethodPost(std::vector<char>::iterator itreq)
 {
 	while (std::isspace(*itreq))
@@ -104,7 +164,6 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	std::string path;
 	path.assign(itreq, itend);
 	logger(path);
-
 	if (isCgi(path))
 	{
 		Cgi cgi;
@@ -113,6 +172,9 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
 		std::string tmp(this->_request.begin(), this->_request.end());
+		std::string post_data = ParsePost(tmp);
+		std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
+		cgi.setPostData(post_data);
 		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
 		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
 		this->_response = cgi.runCgi(cgi_path);
