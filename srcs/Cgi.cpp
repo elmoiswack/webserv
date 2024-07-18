@@ -23,6 +23,23 @@ Cgi::Cgi()
 	_initPipes();
 }
 
+Cgi::Cgi(const std::string &method, const std::string &post_data, const std::string &path, const std::string &request) :
+    _method(method),
+    _postData(post_data),
+	_cgiEnvVars(initCgiEnvVars(request, path)),
+	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
+{
+	_initPipes();
+}
+
+Cgi::Cgi(const std::string &method, const std::string &path, const std::string &request) :
+    _method(method),
+	_cgiEnvVars(initCgiEnvVars(request, path)),
+	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
+{
+	_initPipes();
+}
+
 // Cgi::Cgi(char *client_resp, const std::string &url) : 
 // 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
 // 	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
@@ -48,6 +65,15 @@ void	Cgi::setCgiEnvVarsCstyle(const std::vector<char *> &vars_cstyle)
 	_cgiEnvVarsCstyle = vars_cstyle;
 }
 
+void	Cgi::setPostData(const std::string &post_data)
+{
+	_postData = post_data;
+}
+
+void	Cgi::setMethod(const std::string &method)
+{
+	_method = method;
+}
 
 std::string Cgi::constructCgiPath(const std::string &url)
 {
@@ -81,19 +107,39 @@ std::string	Cgi::readPipe(int fd)
 	// std::cout << oss.str() << "\n";
 	return (oss.str());
 }
+std::string extractBoundary(const std::string &content) {
+
+	std::string boundary_prefix = "boundary=";
+    size_t boundary_start = content.find(boundary_prefix);
+    if (boundary_start == std::string::npos) {
+        return "";
+    }
+
+    boundary_start += boundary_prefix.length(); // adjust start to point of start boundary
+    
+    size_t boundary_end = content.find("\n", boundary_start);
+    // if (boundary_end == std::string::npos) { 
+    //     boundary_end = content.length();
+    // }
+
+    // trim white space
+    std::string boundary = content.substr(boundary_start, boundary_end - boundary_start);
+    boundary.erase(boundary.find_last_not_of(" \t\n\r\f\v") + 1);
+    
+    return (boundary);
+}
 
 std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, const std::string &url)
 {
-	(void) client_resp;
 	std::vector<std::string> env_vars = 
 	{	
     	"CONTENT_LENGTH=",
-   		"CONTENT_TYPE=multipart/form-data; boundary=----WebKitFormBoundaryRSs5b6yEDT0Vouq9",
+   		"CONTENT_TYPE=multipart/form-data; boundary=" + extractBoundary(client_resp),
    		// "CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
 		"UPLOAD_FILENAME=test.txt",
-		"REQUEST_METHOD=POST",
+		"REQUEST_METHOD=" + this->_method,
 		"REMOTE_ADDR=",
 		"SCRIPT_NAME=",
 		"SCRIPT_FILENAME=",
@@ -103,8 +149,8 @@ std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, cons
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	// for (const std::string &env : env_vars)
-	// 	std::cout << env << "\n";
+	for (const std::string &env : env_vars)
+		std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -132,7 +178,7 @@ std::string	Cgi::extractQueryString(const std::string &url)
 	if (pos != std::string::npos)
 	{
 
-		querry_str = (end != std::string::npos)
+		querry_str = end != std::string::npos
 			? url.substr(pos + 1, end - pos - 1)
 			: url.substr(pos + 1, url.length() - pos - 1);
 	}
@@ -182,21 +228,12 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 	else  											// Parent process
 	{
 		_pid = pid; 								// save pid for further processing if needed
-		std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
-    	std::string post_data = "--" + boundary + "\r\n"
-                            	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-                            	"Content-Type: text/plain\r\n\r\n"
-                            	"TEST\r\n"
-                            	"TEST\r\n"
-                            	"TEST\r\n"
-                            	"--" + boundary + "--\r\n";
-		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
+		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         close(_uploadPipe[0]);						// Close read end of upload pipe
-        write(_uploadPipe[1], post_data.c_str(), post_data.size()); // Write POST data to CGI via upload pipe
+        write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
         close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
-
         int status;
         pid_t result = waitpid(pid, &status, 0);
         if (result == -1) {
@@ -221,6 +258,18 @@ void Cgi::_initPipes()
         std::exit(EXIT_FAILURE);
     }
 }
+
+
+
+
+		// std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
+    	// std::string post_data = "--" + boundary + "\r\n"
+        //                     	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+        //                     	"Content-Type: text/plain\r\n\r\n"
+        //                     	"TEST\r\n"
+        //                     	"TEST\r\n"
+        //                     	"TEST\r\n"
+        //                     	"--" + boundary + "--\r\n";
 
 
 // std::string Cgi::runCgi(const std::string &cgi_path)

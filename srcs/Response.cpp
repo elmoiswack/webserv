@@ -8,18 +8,17 @@
 #include<string>
 #include <sstream>
 
-void Server::EventsPollout(int fd, int index, std::vector<Server>::iterator it)
+void Server::EventsPollout(int fd, int index)
 {
 	logger("POLLOUT");
-	if (it->_whatsockvec[index] == "CLIENT")
+	if (this->_whatsockvec[index] == "CLIENT")
 	{
 		logger("sending response to client...");
-		//logger(it->_response);
-		write(fd, it->_response.c_str(), it->_response.size());
+		write(fd, this->_response.c_str(), this->_response.size());
 		logger("response is sent to fd!");
 		close(fd);
 		logger("fd is closed and removed!");
-		it->_response.clear();
-		RmvSocket(index, it);
+		this->_response.clear();
+		this->RmvSocket(index);
 	}
 }

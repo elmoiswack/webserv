@@ -5,36 +5,35 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-void Server::EventsPollin(int fd, std::vector<Server>::iterator it)
+void Server::EventsPollin(int fd)
 {
 	logger("POLLIN");
-	this->GetResponse(fd, it);
+	this->GetResponse(fd);
 }
-void Server::GetResponse(int fd, std::vector<Server>::iterator it)
+void Server::GetResponse(int fd)
 {
-	if (it->_donereading == false)
-		this->RecieveMessage(fd, it);
-	if (it->_donereading == true)
+	if (this->_donereading == false)
+		this->RecieveMessage(fd);
+	if (this->_donereading == true)
 	{
 		try
 		{
-			std::string htmlfile = this->ParseRequest(it);
-			if (it->_iscgi == false)
+			std::string htmlfile = this->ParseRequest();
+			if (this->_iscgi == false)
 			{
-				it->_response = 
+				this->_response = 
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Type: text/html\r\n"
 				"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 				"\r\n"
 				+ htmlfile;
-				it->_request.clear();
+				this->_request.clear();
 			}
-			else if (it->_iscgi == true)
+			else if (this->_iscgi == true)
 			{
-
-				it->_response = htmlfile;
-				it->_iscgi = false;
-				it->_request.clear();
+				this->_response = htmlfile;
+				this->_iscgi = false;
+				this->_request.clear();
 			}
 			this->_donereading = false;
 		}
@@ -48,11 +47,11 @@ void Server::GetResponse(int fd, std::vector<Server>::iterator it)
 
 #include "../includes/Cgi.hpp"
 
-std::string Server::ParseRequest(std::vector<Server>::iterator it)
+std::string Server::ParseRequest()
 {
-	std::vector<char>::iterator itfirst = it->_request.begin();
+	std::vector<char>::iterator itfirst = this->_request.begin();
 	logger("\n\nRequest after reading is done =");
-	for (std::vector<char>::iterator bruh = it->_request.begin(); bruh != it->_request.end(); bruh++)
+	for (std::vector<char>::iterator bruh = this->_request.begin(); bruh != this->_request.end(); bruh++)
 	{
 		std::cout << *bruh;
 	}
@@ -68,20 +67,17 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-	
-	std::vector<Location> bruh = it->GetLocations();
-	std::vector<Location>::iterator itbruh = bruh.begin();
-	std::cout << "hello bruh index = " << itbruh->GetIndex() << std::endl;
+
 
 	if (method == "GET")
 	{
-		it->_method = "GET";
-		return (this->MethodGet(itfirst, it));
+		this->_method = "GET";
+		return (this->MethodGet(itfirst));
 	}
 	else if (method == "POST")
 	{
-		it->_method = "POST";
-		std::string bvruhg = this->MethodPost(itfirst, it);
+		this->_method = "POST";
+		std::string bvruhg = this->MethodPost(itfirst);
 		if (bvruhg.size() == 0)
 		{
 			logger("BRUH FAILED POST");
@@ -91,14 +87,74 @@ std::string Server::ParseRequest(std::vector<Server>::iterator it)
 	}
 	else if (method == "DELETE")
 	{
-		it->_method = "DELETE";
+		this->_method = "DELETE";
 	}
 	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
 	logger("sending client back to index.html\n");
-	return (it->HtmlToString("./var/www/index.html"));
+	return (this->HtmlToString("./var/www/index.html"));
 }
 
-std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
+std::string Server::ExtractBoundary(const std::string &content) {
+
+	std::string boundary_prefix = "boundary=";
+    size_t boundary_start = content.find(boundary_prefix);
+    if (boundary_start == std::string::npos) {
+        return "";
+    }
+
+    boundary_start += boundary_prefix.length(); // adjust start to point of start boundary
+    
+    size_t boundary_end = content.find("\n", boundary_start);
+    // if (boundary_end == std::string::npos) { 
+    //     boundary_end = content.length();
+    // }
+
+    // trim white space
+    std::string boundary = content.substr(boundary_start, boundary_end - boundary_start);
+    boundary.erase(boundary.find_last_not_of(" \t\n\r\f\v") + 1);
+    
+    return (boundary);
+}
+
+std::string Server::ParsePost(const std::string &content) {
+	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
+    size_t content_type_start = content.find(content_type_header);
+    if (content_type_start == std::string::npos) {
+		std::cout << "Content-Type not found" << std::endl;
+        return ("");
+    }
+    content_type_start += content_type_header.length();
+    size_t content_type_end = content.find("\n", content_type_start);
+    std::string content_type = content.substr(content_type_start, content_type_end - content_type_start);
+
+	//   std::cout << "Content-Type: " << content_type << std::endl;
+
+    std::string boundary = ExtractBoundary(content);
+    if (boundary.empty()) {
+		std::cout << "Boundary not found" << std::endl;
+        return ("");
+    }
+
+	// std::cout << "Boundary: " << boundary << std::endl;
+
+    std::string boundary_start = "--" + boundary;
+    std::string boundary_end = boundary_start + "--";
+	
+    size_t start_pos = content.find(boundary_start);
+    size_t end_pos = content.find(boundary_end);
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+		std::cout << "Boundary positions not found" << std::endl;
+        return ("");
+    }
+    
+    // Include boundary_start in the extracted data
+	// start_pos += boundary_start.length();
+    std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
+    
+    return post_data;
+}
+
+std::string Server::MethodPost(std::vector<char>::iterator itreq)
 {
 	while (std::isspace(*itreq))
 		itreq++;
@@ -108,32 +164,24 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, std::vector<Se
 	std::string path;
 	path.assign(itreq, itend);
 	logger(path);
-
 	if (isCgi(path))
 	{
-		Cgi cgi;
-		it->_iscgi = true;
-		if (it->_response.size() > 0)
-			it->_response.clear();
-		//std::string req_url = cgi.extractReqUrl(path);
+		std::string tmp(this->_request.begin(), this->_request.end());
+		std::string post_data = ParsePost(tmp);
+		Cgi cgi(_method, post_data, path, tmp);
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		std::string tmp(it->_request.begin(), it->_request.end());
-		cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-		cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-		//std::cout << "\nREQUEST URL: " << req_url << "\n";
-		//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-		// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-		it->_response = cgi.runCgi(cgi_path);
-			
-		std::cout << "\n--------------------------\n";
-		std::cout << "RESPONSE: \n\n" << it->_response;
-		std::cout << "--------------------------\n";
-		return (it->_response);
+		this->_response = cgi.runCgi(cgi_path);
+		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
+		// std::cout << "RESPONSE: \n\n" << this->_response;
+		return (this->_response);
 	}
 	return ("");
 }
 
-std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it)
+std::string Server::MethodGet(std::vector<char>::iterator itreq)
 {
 	while (std::isspace(*itreq))
 		itreq++;
@@ -144,39 +192,55 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, std::vector<Ser
 	path.assign(itreq, itend);
 	logger(path);
 
+	std::vector<Location>::iterator itloc = this->_locationblocks.begin();
 	if (isCgi(path))
-		{
-			Cgi cgi;
-			it->_iscgi = true;
-			if (it->_response.size() > 0)
-				it->_response.clear();
-			//std::string req_url = cgi.extractReqUrl(path);
-			std::string cgi_path = cgi.constructCgiPath(path);
-			std::string tmp(it->_request.begin(), it->_request.end());
-			cgi.setCgiEnvVars(cgi.initCgiEnvVars(tmp, path));
-			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-			//std::cout << "\nREQUEST URL: " << req_url << "\n";
-			//std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-			it->_response = cgi.runCgi(cgi_path);
-
-			std::cout << "\n--------------------------\n";
-			std::cout << "RESPONSE: \n\n" << it->_response;
-			std::cout << "--------------------------\n";
-			return (it->_response);
-		}
-
-	else if (path == "/" || path == "/index.html")
-		return (it->HtmlToString("./var/www/index.html"));
-	else if (path.find("/status_codes/", 0) != path.npos)		
-		return (it->GetSatusCodeFile(path));
+	{
+		std::string tmp(this->_request.begin(), this->_request.end());
+		Cgi cgi(_method, path, tmp);
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
+		std::string cgi_path = cgi.constructCgiPath(path);
+		this->_response = cgi.runCgi(cgi_path);
+		// std::cout << "RESPONSE: \n\n" << this->_response;
+		return (this->_response);
+	}
+	if (path == "/" || path == itloc->GetIndex())
+		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
+	else if (path.find("/status_codes/", 0) != path.npos)
+		return (this->GetSatusCodeFile(path));
 	else
-		return (it->HtmlToString("./var/www/status_codes/404.html"));
+		return (this->HtmlToString("./var/www/status_codes/404.html"));
 }
 
-std::string Server::GetSatusCodeFile(std::string code)
+std::string Server::GetSatusCodeFile(std::string path)
 {
-	std::string statuscode = "./var/www" + code;
+	// std::string::iterator begin = path.begin();
+	// while (!std::isdigit(*begin))
+	// 	begin++;
+	// auto end = begin;
+	// while (std::isdigit(*end))
+	// 	end++;
+	// std::string strcode(begin, end);
+	// int code = std::stoi(strcode);
+	// std::cout << "CODE = " << code << std::endl;
+	
+	// std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
+	// while (iterr != it->_error_page.end() && iterr->first != code)
+	// {
+	// 	std::cout << iterr->first << std::endl;
+	// 	iterr++;
+	// }
+	// if (iterr == it->_error_page.end())
+	// {
+	// 	std::cout << "ficledsajda" << std::endl;
+	// 	exit(1);
+	// }
+	// std::cout << "itersecond = " << iterr->second << std::endl;
+	// std::string statuscode = "./var/www" + code;
+	// return (it->HtmlToString(statuscode));
+
+	std::string statuscode = "./var/www" + path;
 	return (this->HtmlToString(statuscode));
 }
 
@@ -198,11 +262,12 @@ std::string Server::HtmlToString(std::string path)
 	return (buffer.str());
 }
 
-void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
+void Server::RecieveMessage(int fd)
 {
 	logger("Ready to recieve...");
-	char buff[it->_recvmax];
-	int rbytes = recv(fd, &buff, it->_recvmax, 0);
+	std::cout << "maxrecv = " << this->_recvmax << std::endl;
+	char buff[this->_recvmax];
+	int rbytes = recv(fd, &buff, this->_recvmax, 0);
 	if (rbytes == -1)
 	{
 		std::cout << "ERROR read" << std::endl;
@@ -212,14 +277,14 @@ void Server::RecieveMessage(int fd, std::vector<Server>::iterator it)
 	for (int i = 0; i < rbytes; i++)
 	{
 		std::cout << buff[i];
-		it->_request.push_back(buff[i]);
+		this->_request.push_back(buff[i]);
 	}
 	std::cout << std::endl;
 	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < it->_recvmax)
+	if (rbytes < this->_recvmax)
 	{
-		it->_donereading = true;
-		it->_request.push_back('\0');
+		this->_donereading = true;
+		this->_request.push_back('\0');
 	}
 	logger("message recieved!");
 }

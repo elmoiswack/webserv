@@ -57,7 +57,8 @@ public:
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);
 	~Server();
-	
+
+	std::string GetMethod() const;
 	std::string GetPort() const;
     std::string GetIp() const;
     std::string GetServName() const;
@@ -83,31 +84,32 @@ public:
 
 	///SERVER.CPP
 	void SetUpServer();
-	void InitSocket(std::vector<Server>::iterator it);
-	void BindSockets(std::vector<Server>::iterator it);
-	void ListenSockets(std::vector<Server>::iterator it);
+	void InitSocket();
+	void BindSockets(std::vector<Server>::iterator it, int index);
+	void ListenSockets(int index);
 
 	void RunPoll();
-	void PollEvents(std::vector<Server>::iterator it);
+	void PollEvents();
 	
-	void AcceptClient(int index, std::vector<Server>::iterator it);
+	void AcceptClient(int index);
 	void AddSocket(int fd, bool is_client);
-	void RmvSocket(int index, std::vector<Server>::iterator it);
-	void CloseAllFds(std::vector<Server>::iterator it);
-
+	void RmvSocket(int index);
+	void CloseAllFds();
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
-	void EventsPollin(int fd, std::vector<Server>::iterator it);
-	void RecieveMessage(int fd, std::vector<Server>::iterator it);
-	void GetResponse(int fd, std::vector<Server>::iterator it);
-	std::string ParseRequest(std::vector<Server>::iterator it);
-	std::string MethodGet(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
-	std::string MethodPost(std::vector<char>::iterator itreq, std::vector<Server>::iterator it);
+	void EventsPollin(int fd);
+	void RecieveMessage(int fd);
+	void GetResponse(int fd);
+	std::string ParseRequest();
+	std::string MethodGet(std::vector<char>::iterator itreq);
+	std::string MethodPost(std::vector<char>::iterator itreq);
 	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd, int index, std::vector<Server>::iterator it);
+	void EventsPollout(int fd, int index);
 
 
 	

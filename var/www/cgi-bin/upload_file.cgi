@@ -54,15 +54,7 @@ def handle_post():
     print(html_content)
 
 def main():
-    # Determine the request method
-    method = os.environ.get('REQUEST_METHOD', 'POST').upper()
-    if method == 'POST':
-        handle_post()
-    else:
-        print("Status: 405 Method Not Allowed")
-        print("Content-Type: text/html")
-        print()
-        print("<html><body><h1>405 Method Not Allowed</h1></body></html>")
+	handle_post()
 
 if __name__ == "__main__":
     main()

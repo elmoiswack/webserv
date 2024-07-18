@@ -19,11 +19,11 @@ Server::Server(Parser &in)
 	this->_serverblocks = in.GetServerBlocks();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		it->_locationblocks = it->GetLocations();
-		it->_ammount_sock = 0;
-		it->_recvmax = std::atoi(it->_client_max.c_str());
-		it->_donereading = false;
-		it->_iscgi = false;
+		this->_locationblocks = it->GetLocations();
+		this->_ammount_sock = 0;
+		this->_recvmax = std::atoi(it->_client_max.c_str());
+		this->_donereading = false;
+		this->_iscgi = false;
 	}
 }
 
@@ -44,10 +44,10 @@ Server::~Server()
 		it->_root.clear();
 		it->_server_name.clear();
 		it->_serverindex.clear();
-		it->_sockvec.clear();
 		it->_whatsockvec.clear();
 		it->_allow_methods.clear();
 	}
+	this->_sockvec.clear();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
 		this->_serverblocks.clear();
@@ -75,7 +75,7 @@ void Server::AddSocket(int fd, bool is_client)
 	this->_ammount_sock += 1;
 }
 
-void Server::RmvSocket(int index, std::vector<Server>::iterator serv)
+void Server::RmvSocket(int index)
 {
 	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
 	for (int i = 0; i != index; i++)
@@ -90,28 +90,26 @@ void Server::RmvSocket(int index, std::vector<Server>::iterator serv)
 		jt++;
 	}
 	this->_whatsockvec.erase(jt);
-	serv->_ammount_sock--;
+	this->_ammount_sock--;
 }
 
 void Server::SetUpServer()
 {
-	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
+	std::cout << "FKSAHFKSAHFA = " << this->_serverblocks.size() << std::endl;
+	int index = 0;
+	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		std::vector<Server>::iterator it = this->_serverblocks.begin();
-		this->InitSocket(it);
-		this->BindSockets(it);
-		this->ListenSockets(it);
+		this->InitSocket();
+		this->BindSockets(it, index);
+		this->ListenSockets(index);
+		index++;
 	}
 	logger("Server is initialized!");
 	this->RunPoll();
-	for (unsigned long i = 0; i < this->_serverblocks.size(); i++)
-	{
-		std::vector<Server>::iterator it = this->_serverblocks.begin();
-		this->CloseAllFds(it);
-	}
+	this->CloseAllFds();
 }
 
-void Server::InitSocket(std::vector<Server>::iterator it)
+void Server::InitSocket()
 {
 	int websock = socket(AF_INET, SOCK_STREAM, 0);
 	if (websock < 0)
@@ -119,10 +117,10 @@ void Server::InitSocket(std::vector<Server>::iterator it)
 		std::cout << "ERROR SOCKET" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	it->AddSocket(websock, false);
+	this->AddSocket(websock, false);
 }
 
-void Server::BindSockets(std::vector<Server>::iterator it)
+void Server::BindSockets(std::vector<Server>::iterator it, int index)
 {
 	struct sockaddr_in infoaddr;
 	std::string port = it->GetPort();
@@ -131,17 +129,17 @@ void Server::BindSockets(std::vector<Server>::iterator it)
 	infoaddr.sin_port = htons(std::atoi(port.c_str()));
 	logger("port = " + port);
 	int opt = 1;
-	setsockopt(it->_sockvec[0].fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
-	if (bind(it->_sockvec[0].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
+	setsockopt(this->_sockvec[index].fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
+	if (bind(this->_sockvec[index].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR bruh" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
 
-void Server::ListenSockets(std::vector<Server>::iterator it)
+void Server::ListenSockets(int index)
 {
-	if (listen(it->_sockvec[0].fd, 5) == -1)
+	if (listen(this->_sockvec[index].fd, 5) == -1)
 	{
 		std::cout << "ERROR LISTEN" << std::endl;
 		exit(EXIT_FAILURE);		
@@ -150,54 +148,53 @@ void Server::ListenSockets(std::vector<Server>::iterator it)
 
 void Server::RunPoll()
 {
+	std::cout << "dsadsadsageagqw: " << this->_ammount_sock << std::endl;
 	while (1)
 	{
-		for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
+		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
+		if (ret < 0)
 		{
-			int ret = poll(it->_sockvec.data(), it->_sockvec.size(), -1);
-			if (ret < 0)
-			{
-				std::cout << "ERROR POLL" << std::endl;
-				exit(EXIT_FAILURE);
-			}
-			if (ret > 0)
-				this->PollEvents(it);
+			std::cout << "ERROR POLL" << std::endl;
+			exit(EXIT_FAILURE);
 		}
+		if (ret > 0)
+			this->PollEvents();
 	}	
 }
 
-void Server::PollEvents(std::vector<Server>::iterator it)
+void Server::PollEvents()
 {
-	for (int index = 0; index < it->_ammount_sock; index++)
+	for (int index = 0; index < this->_ammount_sock; index++)
 	{
+		std::cout << "dsada: " << this->_ammount_sock << std::endl;
 		pollfd temp;
-		temp.fd = it->_sockvec[index].fd;
-		temp.events = it->_sockvec[index].events;
-		temp.revents = it->_sockvec[index].revents;
+		temp.fd = this->_sockvec[index].fd;
+		temp.events = this->_sockvec[index].events;
+		temp.revents = this->_sockvec[index].revents;
 
 		std::cout << "index = " << index << " = ";
-		logger(it->_whatsockvec[index]);
+		logger(this->_whatsockvec[index]);
 		
 		if (temp.revents & POLLIN)
 		{
-			if (it->_whatsockvec[index] == "SERVER")
+			if (this->_whatsockvec[index] == "SERVER")
 			{
-				it->AcceptClient(index, it);
+				this->AcceptClient(index);
 			}
 			else
 			{
-				it->EventsPollin(temp.fd, it);
+				this->EventsPollin(temp.fd);
 			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			it->EventsPollout(temp.fd, index, it);
+			this->EventsPollout(temp.fd, index);
 		}
 		else if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
 			close(temp.fd);
-			it->RmvSocket(index, it);
+			this->RmvSocket(index);
 		}
 		else if (temp.revents & POLLERR)
 		{
@@ -207,24 +204,24 @@ void Server::PollEvents(std::vector<Server>::iterator it)
 	}	
 }
 
-void Server::AcceptClient(int index, std::vector<Server>::iterator it)
+void Server::AcceptClient(int index)
 {
 	logger("attempting connection...");
-	int newsock = accept(it->_sockvec[index].fd, NULL, NULL);
+	int newsock = accept(this->_sockvec[index].fd, NULL, NULL);
 	if (newsock == -1)
 	{
 		std::cout << "ERROR ACCEPT" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	it->AddSocket(newsock, true);
+	this->AddSocket(newsock, true);
 	logger("Connection is accepted!");
 }
 
-void Server::CloseAllFds(std::vector<Server>::iterator it)
+void Server::CloseAllFds()
 {
-	for (int i = 0;  i != it->_ammount_sock; i++)
+	for (int i = 0;  i != this->_ammount_sock; i++)
 	{
-		close(it->_sockvec[i].fd);
+		close(this->_sockvec[i].fd);
 	}
 }
 
