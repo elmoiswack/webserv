@@ -11,7 +11,7 @@
 void Server::EventsPollout(int fd, int index)
 {
 	logger("POLLOUT");
-	if (this->_whatsockvec[index] == "CLIENT")
+	if (this->_response.size() > 0)
 	{
 		logger("sending response to client...");
 		write(fd, this->_response.c_str(), this->_response.size());

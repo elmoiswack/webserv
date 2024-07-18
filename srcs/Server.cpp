@@ -95,7 +95,7 @@ void Server::RmvSocket(int index)
 
 void Server::SetUpServer()
 {
-	std::cout << "FKSAHFKSAHFA = " << this->_serverblocks.size() << std::endl;
+	std::cout << "Ammount serverblocks = " << this->_serverblocks.size() << std::endl;
 	int index = 0;
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
@@ -148,7 +148,7 @@ void Server::ListenSockets(int index)
 
 void Server::RunPoll()
 {
-	std::cout << "dsadsadsageagqw: " << this->_ammount_sock << std::endl;
+	std::cout << "Ammount of listening sockets ready: " << this->_ammount_sock << std::endl;
 	while (1)
 	{
 		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
@@ -164,9 +164,9 @@ void Server::RunPoll()
 
 void Server::PollEvents()
 {
+	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
 	for (int index = 0; index < this->_ammount_sock; index++)
 	{
-		std::cout << "dsada: " << this->_ammount_sock << std::endl;
 		pollfd temp;
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include "../includes/Cgi.hpp"
 
 void Server::EventsPollin(int fd)
 {
@@ -16,36 +17,26 @@ void Server::GetResponse(int fd)
 		this->RecieveMessage(fd);
 	if (this->_donereading == true)
 	{
-		try
+		std::string htmlfile = this->ParseRequest();
+		if (this->_iscgi == false)
 		{
-			std::string htmlfile = this->ParseRequest();
-			if (this->_iscgi == false)
-			{
-				this->_response = 
-				"HTTP/1.1 200 OK\r\n"
-				"Content-Type: text/html\r\n"
-				"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-				"\r\n"
-				+ htmlfile;
-				this->_request.clear();
-			}
-			else if (this->_iscgi == true)
-			{
-				this->_response = htmlfile;
-				this->_iscgi = false;
-				this->_request.clear();
-			}
-			this->_donereading = false;
+			this->_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			"\r\n"
+			+ htmlfile;
+			this->_request.clear();
 		}
-		catch(const std::exception& e)
+		else if (this->_iscgi == true)
 		{
-			std::cerr << e.what() << std::endl;
+			this->_response = htmlfile;
+			this->_iscgi = false;
+			this->_request.clear();
 		}
-
+		this->_donereading = false;
 	}
 }
-
-#include "../includes/Cgi.hpp"
 
 std::string Server::ParseRequest()
 {
@@ -205,6 +196,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
+	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
 	else if (path.find("/status_codes/", 0) != path.npos)
