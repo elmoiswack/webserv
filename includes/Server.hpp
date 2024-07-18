@@ -17,10 +17,11 @@
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
+#include "../includes/Client.hpp"
 
 class Parser;
-
 class Location;
+class Client;
 
 class Server
 {
@@ -35,7 +36,7 @@ private:
 	std::string _response;
 	std::string _method;
 	bool		_donereading;
-	std::vector<int> _allow_methods;
+	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
 
 	int			_recvmax;
@@ -50,7 +51,8 @@ private:
 
 	std::vector<Location> _locations;
 
-	int		_websock;
+	int		_listensock;
+	Client *_client;
 
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
@@ -84,7 +86,7 @@ public:
 
 	///SERVER.CPP
 	void SetUpServer();
-	void InitSocket();
+	void InitSocket(std::vector<Server>::iterator it);
 	void BindSockets(std::vector<Server>::iterator it, int index);
 	void ListenSockets(int index);
 
@@ -113,7 +115,9 @@ public:
 	void EventsPollout(int fd, int index);
 
 
-	
+	void InitClient(int socket, std::vector<Server>::iterator serverblock);
+	std::vector<Server>::iterator GetClientLocationblockIt();
+	int IsMethodAllowed(std::string method, std::vector<std::string>::iterator itmethod, std::vector<Server>::iterator it);
 
 };
 

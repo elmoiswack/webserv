@@ -9,6 +9,7 @@ SRC	:=	main.cpp \
 		utils_rares.cpp \
 		Request.cpp \
 		Response.cpp \
+		Client.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs
@@ -16,7 +17,7 @@ OBJDIR 		:= 	./objs
 OBJS		:= 	$(addprefix $(OBJDIR)/,$(SRC:.cpp=.o))
 SRCS		:= 	$(addprefix $(SRCDIR)/,$(SRC))
 
-CC	:=	c++ -g -fsanitize=address
+CC	:=	c++ -g
 CFLAGS	:= -Wall -Werror -Wextra -std=c++11 #-fsanitize=address -g
 
 HEADERS := -I ./includes

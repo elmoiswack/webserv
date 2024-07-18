@@ -243,13 +243,13 @@ void Server::ValidateAllowMethods(std::vector<std::string>& tokens) {
         }
 
         if (tokens[i] == "GET") {
-            _allow_methods.push_back(GET);
+            _allow_methods.push_back("GET");
         }
 		else if (tokens[i] == "POST") {
-            _allow_methods.push_back(POST);
+            _allow_methods.push_back("POST");
         }
 		else if (tokens[i] == "DELETE") {
-            _allow_methods.push_back(DELETE);
+            _allow_methods.push_back("DELETE");
         } else {
             throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
         }
@@ -325,17 +325,21 @@ std::vector<std::string> Server::GetServerNames() const
 std::vector<std::string> Server::GetAllowMethods() const {
     std::vector<std::string> methods_as_string;
     for (const auto& method : _allow_methods) {
-        switch (method) {
-            case GET:
+            if (method == "GET")
+            {
                 methods_as_string.push_back("GET");
                 break;
-            case POST:
+            }
+            if (method == "POST")
+            {
                 methods_as_string.push_back("POST");
                 break;
-            case DELETE:
+            }
+            if (method == "DELETE")
+            {
                 methods_as_string.push_back("DELETE");
                 break;
-        }
+            }
     }
     return methods_as_string;
 }

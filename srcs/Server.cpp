@@ -1,5 +1,6 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
+#include "../includes/Client.hpp"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,7 +11,7 @@
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
-    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page), _websock(-1) {}
+    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page) {}
 
 
 
@@ -19,13 +20,9 @@ Server::Server(Parser &in)
 	this->_serverblocks = in.GetServerBlocks();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		this->_locationblocks = it->GetLocations();
 		this->_ammount_sock = 0;
-		this->_recvmax = std::atoi(it->_client_max.c_str());
 		this->_donereading = false;
 		this->_iscgi = false;
-		this->_error_page = it->_error_page;
-		this->_root = it->_root;
 	}
 }
 
@@ -49,6 +46,7 @@ Server::~Server()
 		it->_whatsockvec.clear();
 		it->_allow_methods.clear();
 	}
+	delete this->_client;
 	this->_sockvec.clear();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
@@ -101,7 +99,7 @@ void Server::SetUpServer()
 	int index = 0;
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
 	{
-		this->InitSocket();
+		this->InitSocket(it);
 		this->BindSockets(it, index);
 		this->ListenSockets(index);
 		index++;
@@ -111,7 +109,7 @@ void Server::SetUpServer()
 	this->CloseAllFds();
 }
 
-void Server::InitSocket()
+void Server::InitSocket(std::vector<Server>::iterator it)
 {
 	int websock = socket(AF_INET, SOCK_STREAM, 0);
 	if (websock < 0)
@@ -119,6 +117,7 @@ void Server::InitSocket()
 		std::cout << "ERROR SOCKET" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	it->_listensock = websock;
 	this->AddSocket(websock, false);
 }
 
@@ -164,6 +163,11 @@ void Server::RunPoll()
 	}	
 }
 
+void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
+{
+	this->_client = new Client(socket, serverblock);
+}
+
 void Server::PollEvents()
 {
 	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
@@ -182,6 +186,19 @@ void Server::PollEvents()
 			if (this->_whatsockvec[index] == "SERVER")
 			{
 				this->AcceptClient(index);
+				std::vector<Server>::iterator itter = this->_serverblocks.begin();
+				while (itter != this->_serverblocks.end())
+				{
+					if (itter->_listensock == this->_sockvec[index].fd)
+						break ;
+					itter++;
+				}
+				if (itter == this->_serverblocks.end())
+				{
+					logger("fuck servernlock itter shit");
+					exit(EXIT_FAILURE);
+				}
+				this->InitClient(this->_sockvec[index].fd, itter);
 			}
 			else
 			{
@@ -204,6 +221,21 @@ void Server::PollEvents()
 			exit(EXIT_FAILURE);
 		}
 	}	
+}
+
+std::vector<Server>::iterator Server::GetClientLocationblockIt()
+{
+	std::vector<Server>::iterator it = this->_serverblocks.begin();
+	while (it != this->_serverblocks.end() && it->_listensock != this->_client->GetListensock())
+		it++;
+
+	if (it == this->_serverblocks.end())
+	{
+		logger("pls why not serverblock why!");
+		exit(EXIT_FAILURE);
+	}
+
+	return (it);
 }
 
 void Server::AcceptClient(int index)

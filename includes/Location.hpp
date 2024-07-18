@@ -25,7 +25,7 @@ class Location {
 
 	std::vector<std::string> url;
 	bool 					 auto_index;
-	std::vector<int>		 allow_methods;
+	std::vector<std::string> allow_methods;
 	std::string				 index;
 	std::string				 returnredirect;
 	std::vector<std::string> cgi_param;
