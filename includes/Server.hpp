@@ -17,10 +17,13 @@
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
+#include "../includes/Cgi.hpp"
 
 class Parser;
 
 class Location;
+
+class Cgi;
 
 class Server
 {
@@ -51,6 +54,7 @@ private:
 	std::vector<Location> _locations;
 
 	int		_websock;
+	Cgi		*_current_cgi;
 
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
@@ -97,6 +101,7 @@ public:
 	void CloseAllFds();
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
+	void setCgi(Cgi *cgi);
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd);

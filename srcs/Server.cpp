@@ -1,5 +1,6 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
+#include "../includes/Cgi.hpp"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -162,6 +163,48 @@ void Server::RunPoll()
 	}	
 }
 
+// void Server::PollEvents()
+// {
+// 	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
+// 	for (int index = 0; index < this->_ammount_sock; index++)
+// 	{
+// 		pollfd temp;
+// 		temp.fd = this->_sockvec[index].fd;
+// 		temp.events = this->_sockvec[index].events;
+// 		temp.revents = this->_sockvec[index].revents;
+
+// 		std::cout << "index = " << index << " = ";
+// 		logger(this->_whatsockvec[index]);
+		
+// 		if (temp.revents & POLLIN)
+// 		{
+// 			if (this->_whatsockvec[index] == "SERVER")
+// 			{
+// 				this->AcceptClient(index);
+// 			}
+// 			else
+// 			{
+// 				this->EventsPollin(temp.fd);
+// 			}
+// 		}
+// 		else if (temp.revents & POLLOUT)
+// 		{
+// 			this->EventsPollout(temp.fd, index);
+// 		}
+// 		else if (temp.revents & POLLHUP)
+// 		{
+// 			logger("Connection hung up!");
+// 			close(temp.fd);
+// 			this->RmvSocket(index);
+// 		}
+// 		else if (temp.revents & POLLERR)
+// 		{
+// 			logger("Fuck error poll");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 	}	
+// }
+
 void Server::PollEvents()
 {
 	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
@@ -181,10 +224,12 @@ void Server::PollEvents()
 			{
 				this->AcceptClient(index);
 			}
-			else
+			else if (this->_whatsockvec[index] == "CLIENT")
 			{
 				this->EventsPollin(temp.fd);
 			}
+			//CGI!!!
+			// else if (this->_whatsockvec[index] == "SERVER")
 		}
 		else if (temp.revents & POLLOUT)
 		{
@@ -228,4 +273,9 @@ void Server::CloseAllFds()
 void logger(std::string input)
 {
 	std::cout << input << std::endl;
+}
+
+void Server::setCgi(Cgi *cgi)
+{
+	_current_cgi = cgi;
 }

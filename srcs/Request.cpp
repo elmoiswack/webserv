@@ -164,7 +164,7 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path);
+		this->_response = cgi.runCgi(cgi_path, this);
 		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
@@ -192,7 +192,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path);
+		this->_response = cgi.runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}

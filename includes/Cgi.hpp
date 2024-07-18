@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../includes/Server.hpp"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -45,7 +46,7 @@ class Cgi
 		std::string					extractQueryString(const std::string &url);
 		std::string					extractContentType(const std::string &req);
 		std::string					readPipe(int fd);
-		std::string					runCgi(const std::string &cgi_path);
+		std::string					runCgi(const std::string &cgi_path, Server *self);
 		std::vector<std::string>	initCgiEnvVars(const std::string &client_resp, const std::string &url);
 		std::vector<char *>  		initCgiEnvVarsCstyle();
 		void						setPostData(const std::string &post_data);

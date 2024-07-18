@@ -107,6 +107,7 @@ std::string	Cgi::readPipe(int fd)
 	// std::cout << oss.str() << "\n";
 	return (oss.str());
 }
+
 std::string extractBoundary(const std::string &content) {
 
 	std::string boundary_prefix = "boundary=";
@@ -204,8 +205,12 @@ std::string	Cgi::extractContentType(const std::string &req)
     return "";
 }
 
-std::string Cgi::runCgi(const std::string &cgi_path)
+
+
+
+std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
+
     pid_t pid = fork();
     if (pid == -1)
 	{
@@ -230,25 +235,79 @@ std::string Cgi::runCgi(const std::string &cgi_path)
 		_pid = pid; 								// save pid for further processing if needed
 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
-		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         close(_uploadPipe[0]);						// Close read end of upload pipe
-        write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
-        close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
-        int status;
-        pid_t result = waitpid(pid, &status, 0);
-        if (result == -1) {
-            std::cout << "ERROR PARENT PROCESS\n";
-            exit(EXIT_FAILURE);            
-        }
-        if (WIFEXITED(status)) {
-            std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-            return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
-        } else {
-            std::cout << "Child process exited abnormally" << "\n";
-        }
+	
+		server->AddSocket(_responsePipe[0], false);
+		server->AddSocket(_uploadPipe[1], false);
+		
+		server->setCgi(this);
+	
+	
+		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
+        // write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
+        // close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
+        
+		// int status;
+        // pid_t result = waitpid(pid, &status, 0);
+        // if (result == -1) {
+        //     std::cout << "ERROR PARENT PROCESS\n";
+        //     exit(EXIT_FAILURE);            
+        // }
+        // if (WIFEXITED(status)) {
+        //     std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+        //     return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
+        // } else {
+        //     std::cout << "Child process exited abnormally" << "\n";
+        // }
     }
     return "";
 }
+
+// std::string Cgi::runCgi(const std::string &cgi_path)
+// {
+//     pid_t pid = fork();
+//     if (pid == -1)
+// 	{
+//         std::cout << "ERROR CREATING CHILD PROCESS\n";
+//         exit(EXIT_FAILURE);            
+//     }
+// 	else if (pid == 0) 	// Child process
+// 	{
+//         close(_responsePipe[0]); 					// Close read end of response pipe
+//         close(_uploadPipe[1]); 						// Close write end of upload pipe
+//         dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect cgi stdout to write end of response pipe
+//         dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect cgi stdin to read end of upload pipe
+// 	    const char *args[] = {cgi_path.c_str(), NULL};
+//         if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
+// 		{
+//             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
+//             std::exit(EXIT_FAILURE);            
+//         }
+//     }
+// 	else  											// Parent process
+// 	{
+// 		_pid = pid; 								// save pid for further processing if needed
+// 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
+//         close(_responsePipe[1]);					// Close write end of CGI response pipe
+// 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
+//         close(_uploadPipe[0]);						// Close read end of upload pipe
+//         write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
+//         close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
+//         int status;
+//         pid_t result = waitpid(pid, &status, 0);
+//         if (result == -1) {
+//             std::cout << "ERROR PARENT PROCESS\n";
+//             exit(EXIT_FAILURE);            
+//         }
+//         if (WIFEXITED(status)) {
+//             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+//             return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
+//         } else {
+//             std::cout << "Child process exited abnormally" << "\n";
+//         }
+//     }
+//     return "";
+// }
 
 void Cgi::_initPipes()
 {
