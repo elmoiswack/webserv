@@ -79,6 +79,7 @@ std::string Server::ParseRequest()
 	else if (method == "DELETE")
 	{
 		this->_method = "DELETE";
+		MethodDelete();
 	}
 	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
 	logger("sending client back to index.html\n");
@@ -144,6 +145,44 @@ std::string Server::ParsePost(const std::string &content) {
     
     return post_data;
 }
+
+bool Server::CheckPath(const std::string &path) {
+	return (access(path.c_str(), F_OK) != -1);
+}
+
+std::string Server::MethodDelete(std::vector<char>::iterator itreq)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	logger(path);
+
+	std::string fullPath = server.getRoot() + path;
+	if (!CheckPath(fullPath)) { // 204 NO CONTENT status code if the action has been enacted and no further information is to be supplied.
+
+		this->_response = 
+		"HTTP/1.1 204 No Content\r\n"
+		"Content-Length: 0\r\n"
+		"\r\n";
+		return "";
+	}
+	try {
+
+	}
+	if (std::remove(fullPath.c_str()) == 0) { // 200 OK status code if the action has been enacted and the response message includes a representation describing the status.
+		this->_response = 
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Length: 0\r\n"
+		"Content-Type: text/html\r\n"
+		"\r\n";
+	}
+}	
+
+
 
 std::string Server::MethodPost(std::vector<char>::iterator itreq)
 {
