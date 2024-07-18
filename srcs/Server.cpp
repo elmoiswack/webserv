@@ -45,7 +45,7 @@ Server::~Server()
 		it->_server_name.clear();
 		it->_serverindex.clear();
 		it->_whatsockvec.clear();
-		it->_allow_methods = 0;
+		it->_allow_methods.clear();
 	}
 	this->_sockvec.clear();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)

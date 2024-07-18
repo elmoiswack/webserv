@@ -209,7 +209,7 @@ void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
 
 	// erase index token
     tokens.erase( tokens.begin());
-    if (tokens[0] != "/index.html" || (tokens[0] != "/" && tokens[1] != ";")) {
+  	if (!((tokens[0] == "/index.html" && tokens[1] == ";") || (tokens[0] == "/" && tokens[1] == ";"))) {
         throw Parser::InvalidLineConfException("The Index must be '/index.html' or '/' followed by ';'");
 	}
 	
@@ -220,32 +220,50 @@ void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
 }
 
 void Server::ValidateAllowMethods(std::vector<std::string>& tokens) {
-	if (tokens.size() < 3 || tokens[1] == ";") {
+    if (tokens.size() < 3 || tokens[1] == ";") {
         throw Parser::InvalidLineConfException("The Allow Method is Missing!");
-	}
+    }
 
     // erase allow_methods token
     tokens.erase(tokens.begin(), tokens.begin() + 1);
 
+    // Check if the first token is a semicolon, which means no method is provided
     if (tokens[0] == ";") {
         throw Parser::InvalidLineConfException("The Allow Method is Missing!");
-	}
+    }
 
-    if (tokens[1] != ";") {
+    // Loop through the tokens to collect allowed methods
+    size_t i = 0;
+    while (i < tokens.size()) {
+        if (tokens[i] == ";") {
+            if (i == 0) {
+                throw Parser::InvalidLineConfException("The Allow Method is Missing!");
+            }
+            break;
+        }
+
+        if (tokens[i] == "GET") {
+            _allow_methods.push_back(GET);
+        }
+		else if (tokens[i] == "POST") {
+            _allow_methods.push_back(POST);
+        }
+		else if (tokens[i] == "DELETE") {
+            _allow_methods.push_back(DELETE);
+        } else {
+            throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
+        }
+
+        i++;
+    }
+
+    // Check if the last token is not a semicolon
+    if (i == tokens.size() || tokens[i] != ";") {
         throw Parser::InvalidLineConfException("; is Missing!");
     }
 
-    if (tokens[0] == "GET")
-        this->_allow_methods = GET;
-    else if (tokens[0] == "POST")
-        this->_allow_methods = POST;
-    else if (tokens[0] == "DELETE")
-        this->_allow_methods = DELETE;
-    else
-        throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
-
-    // erase allow method and ;
-    tokens.erase(tokens.begin(), tokens.begin() + 2);
+    // erase allow methods and ;
+    tokens.erase(tokens.begin(), tokens.begin() + i + 1);
 }
 
 std::string Server::GetMethod() const
@@ -290,6 +308,7 @@ std::string Server::GetServerIndex() const
 
 std::vector<Location> Server::GetLocations() const {
     return (this->_locationblocks);
+
 }
 
 std::vector<std::string> Server::GetServerNames() const
@@ -299,6 +318,24 @@ std::vector<std::string> Server::GetServerNames() const
     return names;
 }
 
-int Server::GetAllowMethods() const {
-    return _allow_methods;
+// std::vector<std::string> Server::GetAllowMethods() const {
+//     return _allow_methods;
+// }
+
+std::vector<std::string> Server::GetAllowMethods() const {
+    std::vector<std::string> methods_as_string;
+    for (const auto& method : _allow_methods) {
+        switch (method) {
+            case GET:
+                methods_as_string.push_back("GET");
+                break;
+            case POST:
+                methods_as_string.push_back("POST");
+                break;
+            case DELETE:
+                methods_as_string.push_back("DELETE");
+                break;
+        }
+    }
+    return methods_as_string;
 }
