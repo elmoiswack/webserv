@@ -24,6 +24,8 @@ Server::Server(Parser &in)
 		this->_recvmax = std::atoi(it->_client_max.c_str());
 		this->_donereading = false;
 		this->_iscgi = false;
+		this->_error_page = it->_error_page;
+		this->_root = it->_root;
 	}
 }
 

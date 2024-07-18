@@ -198,51 +198,63 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	}
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
-		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
+		return (this->HtmlToString(this->_root + itloc->GetIndex()));
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path));
 	else
-		return (this->HtmlToString("./var/www/status_codes/404.html"));
+		return (this->HtmlToString(this->GetSatusCodeFile(404)));
+}
+
+std::string Server::GetSatusCodeFile(int code)
+{
+	std::unordered_map<int, std::string>::iterator iterr = this->_error_page.begin();
+	while (iterr != this->_error_page.end() && iterr->first != code)
+	{
+		std::cout << iterr->first << std::endl;
+		iterr++;
+	}
+	if (iterr == this->_error_page.end())
+	{
+		return (this->GetSatusCodeFile(404));
+	}
+	std::cout << "itersecond = " << iterr->second << std::endl;
+	std::string statuscode = this->_root + iterr->second;
+	std::cout << "Statuscode = " << statuscode << std::endl;
+	return (this->HtmlToString(statuscode));
 }
 
 std::string Server::GetSatusCodeFile(std::string path)
 {
-	// std::string::iterator begin = path.begin();
-	// while (!std::isdigit(*begin))
-	// 	begin++;
-	// auto end = begin;
-	// while (std::isdigit(*end))
-	// 	end++;
-	// std::string strcode(begin, end);
-	// int code = std::stoi(strcode);
-	// std::cout << "CODE = " << code << std::endl;
+	std::string::iterator begin = path.begin();
+	while (!std::isdigit(*begin))
+		begin++;
+	auto end = begin;
+	while (std::isdigit(*end))
+		end++;
+	std::string strcode(begin, end);
+	int code = std::stoi(strcode);
+	std::cout << "CODE = " << code << std::endl;
 	
-	// std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
-	// while (iterr != it->_error_page.end() && iterr->first != code)
-	// {
-	// 	std::cout << iterr->first << std::endl;
-	// 	iterr++;
-	// }
-	// if (iterr == it->_error_page.end())
-	// {
-	// 	std::cout << "ficledsajda" << std::endl;
-	// 	exit(1);
-	// }
-	// std::cout << "itersecond = " << iterr->second << std::endl;
-	// std::string statuscode = "./var/www" + code;
-	// return (it->HtmlToString(statuscode));
-
-	std::string statuscode = "./var/www" + path;
+	std::unordered_map<int, std::string>::iterator iterr = this->_error_page.begin();
+	while (iterr != this->_error_page.end() && iterr->first != code)
+		iterr++;
+	if (iterr == this->_error_page.end())
+		return (this->GetSatusCodeFile(404));
+	
+	std::cout << "itersecond = " << iterr->second << std::endl;
+	std::string statuscode = this->_root + iterr->second;
+	std::cout << "Statuscode = " << statuscode << std::endl;
 	return (this->HtmlToString(statuscode));
 }
 
 std::string Server::HtmlToString(std::string path)
 {
-	if (access(path.c_str(), F_OK | R_OK) == -1)
+	if (access(path.c_str(), F_OK) == -1)
 	{
-		logger("DENIED ACCES htmltostring");
-		exit(EXIT_FAILURE);
-	}	
+		return (this->GetSatusCodeFile(404));
+	}
+	if (access(path.c_str(), R_OK) == -1)
+		return (this->GetSatusCodeFile(403));
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
