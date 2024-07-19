@@ -215,11 +215,6 @@ void Server::PollEvents()
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
-		else if (temp.revents & POLLERR)
-		{
-			logger("Fuck error poll");
-			exit(EXIT_FAILURE);
-		}
 	}	
 }
 

@@ -65,14 +65,14 @@ std::string Server::ParseRequest()
 	if (method == "GET")
 	{
 		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			exit(EXIT_FAILURE);
+			return (this->GetSatusCodeFile(405));
 		this->_method = "GET";
 		return (this->MethodGet(itfirst));
 	}
 	else if (method == "POST")
 	{
 		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			exit(EXIT_FAILURE);
+			return (this->GetSatusCodeFile(405));
 		this->_method = "POST";
 		std::string bvruhg = this->MethodPost(itfirst);
 		if (bvruhg.size() == 0)
@@ -85,12 +85,11 @@ std::string Server::ParseRequest()
 	else if (method == "DELETE")
 	{
 		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			exit(EXIT_FAILURE);
+			return (this->GetSatusCodeFile(405));
 		this->_method = "DELETE";
 	}
 	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
-	logger("sending client back to index.html\n");
-	return (this->HtmlToString("./var/www/index.html"));
+	return (this->GetSatusCodeFile(501));
 }
 
 int Server::IsMethodAllowed(std::string method, std::vector<std::string>::iterator itmethod, std::vector<Server>::iterator it)
@@ -99,10 +98,11 @@ int Server::IsMethodAllowed(std::string method, std::vector<std::string>::iterat
 	{
 		if (*itmethod == method)
 			break ;
+		itmethod++;
 	}
 	if (itmethod == it->_allow_methods.end())
 	{
-		logger("METHOD GET ISNOT ACCEPTED");
+		logger("METHOD GET IS NOT ACCEPTED!\n");
 		return (-1);
 	}
 	return (1);
@@ -226,7 +226,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path));
 	else
-		return (this->HtmlToString(this->GetSatusCodeFile(404)));
+		return (this->GetSatusCodeFile(404));
 }
 
 std::string Server::GetSatusCodeFile(int code)
