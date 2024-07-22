@@ -88,7 +88,7 @@ std::string Server::ParseRequest()
 			return (this->GetSatusCodeFile(405));
 		this->_method = "DELETE";
 	}
-	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
+	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
 	return (this->GetSatusCodeFile(501));
 }
 
@@ -102,7 +102,7 @@ int Server::IsMethodAllowed(std::string method, std::vector<std::string>::iterat
 	}
 	if (itmethod == it->_allow_methods.end())
 	{
-		logger("METHOD GET IS NOT ACCEPTED!\n");
+		std::cout << "Method: " << method << " isn't allowed!" << std::endl;
 		return (-1);
 	}
 	return (1);
@@ -207,7 +207,6 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	path.assign(itreq, itend);
 	logger(path);
 
-	std::vector<Location>::iterator itloc = it->_locationblocks.begin();
 	if (isCgi(path))
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
@@ -220,6 +219,8 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
+	
+	std::vector<Location>::iterator itloc = it->_locationblocks.begin();	
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString(it->_root + itloc->GetIndex()));
@@ -234,15 +235,11 @@ std::string Server::GetSatusCodeFile(int code)
 	auto it = this->GetClientLocationblockIt();
 	std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
 	while (iterr != it->_error_page.end() && iterr->first != code)
-	{
-		std::cout << iterr->first << std::endl;
 		iterr++;
-	}
+
 	if (iterr == it->_error_page.end())
-	{
 		return (this->GetSatusCodeFile(404));
-	}
-	std::cout << "itersecond = " << iterr->second << std::endl;
+
 	std::string statuscode = it->_root + iterr->second;
 	std::cout << "Statuscode = " << statuscode << std::endl;
 	return (this->HtmlToString(statuscode));
@@ -267,7 +264,6 @@ std::string Server::GetSatusCodeFile(std::string path)
 	if (iterr == it->_error_page.end())
 		return (this->GetSatusCodeFile(404));
 	
-	std::cout << "itersecond = " << iterr->second << std::endl;
 	std::string statuscode = it->_root + iterr->second;
 	std::cout << "Statuscode = " << statuscode << std::endl;
 	return (this->HtmlToString(statuscode));
@@ -276,11 +272,10 @@ std::string Server::GetSatusCodeFile(std::string path)
 std::string Server::HtmlToString(std::string path)
 {
 	if (access(path.c_str(), F_OK) == -1)
-	{
 		return (this->GetSatusCodeFile(404));
-	}
 	if (access(path.c_str(), R_OK) == -1)
 		return (this->GetSatusCodeFile(403));
+	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
@@ -312,7 +307,7 @@ void Server::RecieveMessage(int fd)
 	}
 	std::cout << std::endl;
 	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < it->_recvmax)
+	if (rbytes < it->_recvmax && rbytes != 0)
 	{
 		this->_donereading = true;
 		this->_request.push_back('\0');

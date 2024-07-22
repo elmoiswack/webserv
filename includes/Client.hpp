@@ -27,5 +27,7 @@ public:
 	std::vector<std::string> GetMethods();
 };
 
+std::ostream& operator<<(std::ostream &out, Client *in);
+
 #endif
 

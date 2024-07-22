@@ -166,6 +166,8 @@ void Server::RunPoll()
 void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 {
 	this->_client = new Client(socket, serverblock);
+	logger("New client allocated!");
+	std::cout << this->_client << std::endl;
 }
 
 void Server::PollEvents()
@@ -211,7 +213,25 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLHUP)
 		{
-			logger("Connection hung up!");
+			logger("POLLHUP: Connection hung up!");
+			close(temp.fd);
+			this->RmvSocket(index);
+		}
+		else if (temp.revents & POLLERR)
+		{
+			logger("POLLERR: Connection already has been closed!");
+			close(temp.fd);
+			this->RmvSocket(index);
+		}
+		else if (temp.revents & POLLNVAL)
+		{
+			logger("POLLNVAL: invalid request, closing connection!");
+			close(temp.fd);
+			this->RmvSocket(index);
+		}
+		else if (temp.revents & POLLPRI)
+		{
+			logger("POLLPRI: ???????");
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
@@ -222,7 +242,11 @@ std::vector<Server>::iterator Server::GetClientLocationblockIt()
 {
 	std::vector<Server>::iterator it = this->_serverblocks.begin();
 	while (it != this->_serverblocks.end() && it->_listensock != this->_client->GetListensock())
+	{
+		std::cout << "client listen socket = " << this->_client->GetListensock() << std::endl;
+		std::cout << "serverblock listen sock = " << it->_listensock << std::endl;
 		it++;
+	}
 
 	if (it == this->_serverblocks.end())
 	{
