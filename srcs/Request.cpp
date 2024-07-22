@@ -30,7 +30,7 @@ void Server::GetResponse(int fd)
 		}
 		else if (this->_iscgi == true)
 		{
-			this->_response = htmlfile;
+			// this->_response = htmlfile;
 			this->_iscgi = false;
 			this->_request.clear();
 		}
@@ -80,8 +80,8 @@ std::string Server::ParseRequest()
 	{
 		this->_method = "DELETE";
 	}
-	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
-	logger("sending client back to index.html\n");
+	// logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
+	// logger("sending client back to index.html\n");
 	return (this->HtmlToString("./var/www/index.html"));
 }
 
@@ -158,8 +158,11 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	if (isCgi(path))
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
-		std::string post_data = ParsePost(tmp);
-		Cgi cgi(_method, post_data, path, tmp);
+		// std::string post_data = ParsePost(tmp);
+		this->_post_data = ParsePost(tmp);
+		Cgi cgi(_method, this->_post_data, path, tmp);
+		this->AddSocket(cgi.getWriteEndUploadPipe(), "CGI_WRITE");
+		this->AddSocket(cgi.getReadEndResponsePipe(), "CGI_READ");
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
@@ -188,12 +191,16 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
 		Cgi cgi(_method, path, tmp);
+		this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+		this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
 		this->_response = cgi.runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
+		// for (const std::string& type : this->_whatsockvec) 
+		// 	logger("--Socket type: " + type);
 		return (this->_response);
 	}
 	this->_iscgi = false;

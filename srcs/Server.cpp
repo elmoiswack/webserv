@@ -47,6 +47,7 @@ Server::~Server()
 		it->_serverindex.clear();
 		it->_whatsockvec.clear();
 		it->_allow_methods.clear();
+		it->_post_data.clear();
 	}
 	this->_sockvec.clear();
 	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
@@ -73,6 +74,22 @@ void Server::AddSocket(int fd, bool is_client)
 	}
 	else
 		this->_whatsockvec.push_back("SERVER");
+	this->_ammount_sock += 1;
+}
+
+void Server::AddSocket(int fd, const std::string& type) // for the cgi
+{
+	pollfd temp;
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << "ERROR FCNTL" << std::endl;
+		exit(EXIT_FAILURE);	
+	}
+	temp.fd = fd;
+	temp.events = POLLIN | POLLOUT;
+	temp.revents = 0;
+	this->_sockvec.push_back(temp);
+	this->_whatsockvec.push_back(type);
 	this->_ammount_sock += 1;
 }
 
@@ -205,19 +222,18 @@ void Server::RunPoll()
 // 	}	
 // }
 
+
 void Server::PollEvents()
 {
-	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
+	// std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
 	for (int index = 0; index < this->_ammount_sock; index++)
 	{
 		pollfd temp;
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-
-		std::cout << "index = " << index << " = ";
-		logger(this->_whatsockvec[index]);
-		
+		// std::cout << "index = " << index << " = ";
+		// logger(this->_whatsockvec[index]);
 		if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
@@ -228,12 +244,24 @@ void Server::PollEvents()
 			{
 				this->EventsPollin(temp.fd);
 			}
-			//CGI!!!
-			// else if (this->_whatsockvec[index] == "SERVER")
+			else if (this->_whatsockvec[index] == "CGI_READ")
+			{
+				this->_response = this->readCgiResponse(temp.fd);
+				logger("\n--CGI RESPONSE: \n" + _response);
+				this->RmvSocket(index);
+			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			this->EventsPollout(temp.fd, index);
+			if (this->_whatsockvec[index] == "CGI_WRITE")
+			{
+				this->writeToCgi(temp.fd, index);
+				// write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
+				// this->RmvSocket(index);
+				// this->_response.clear();
+			}
+			else
+				this->EventsPollout(temp.fd, index);
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -275,7 +303,51 @@ void logger(std::string input)
 	std::cout << input << std::endl;
 }
 
-void Server::setCgi(Cgi *cgi)
+void Server::setCgi(Cgi cgi)
 {
-	_current_cgi = cgi;
+	logger("CGI IS SET\n");
+	this->_current_cgi = cgi;
+}
+
+void Server::writeToCgi(int fd, int index)
+{
+	// logger("--METHOD: " + this->_current_cgi.getMethod());
+	// logger("\nAfter Cgi gets destructed: ");
+	// std::cout << _current_cgi.getReadEndResponsePipe() << "\n";
+	// std::cout << _current_cgi.getReadEndUploadPipe() << "\n";
+	// std::cout << _current_cgi.getWriteEndUploadPipe() << "\n";
+
+	// logger("----CGI POLLOUT\n\n");
+	close(this->_current_cgi.getReadEndUploadPipe());
+	// logger("POST DATA: " + _post_data);
+	if (this->_post_data != "")
+	{
+		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+		if (bytes_written < 0)
+		{
+			logger("ERROR WRITE TO CGI");
+			exit(EXIT_FAILURE);
+		}
+		this->RmvSocket(index);
+		this->_response.clear();
+	}
+}
+
+std::string	Server::readCgiResponse(int fd)
+{
+	logger("--CGI POLLIN\n");
+	std::ostringstream oss;
+	char buffer[this->_recvmax];
+	ssize_t bytes_read = -1;
+	// logger("--METHOD: " + this->_current_cgi->getMethod());
+	if (this->_current_cgi.waitForChild() == false)
+	{
+		logger("ERROR CGI PROCESS");
+		exit(EXIT_FAILURE);
+	}
+	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+	// close(fd);
+	// std::cout << oss.str() << "\n";
+	return (oss.str());
 }

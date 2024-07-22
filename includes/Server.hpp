@@ -23,7 +23,7 @@ class Parser;
 
 class Location;
 
-class Cgi;
+// class Cgi;
 
 class Server
 {
@@ -36,6 +36,7 @@ private:
  	int			_ammount_sock;
 	std::vector<char> _request;
 	std::string _response;
+	std::string _post_data;
 	std::string _method;
 	bool		_donereading;
 	std::vector<int> _allow_methods;
@@ -54,8 +55,8 @@ private:
 	std::vector<Location> _locations;
 
 	int		_websock;
-	Cgi		*_current_cgi;
-
+	Cgi		_current_cgi;
+	// std::unique_ptr<Cgi> _current_cgi;
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
@@ -97,11 +98,13 @@ public:
 	
 	void AcceptClient(int index);
 	void AddSocket(int fd, bool is_client);
+	void AddSocket(int fd, const std::string& type);
 	void RmvSocket(int index);
 	void CloseAllFds();
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
-	void setCgi(Cgi *cgi);
+	void setCgi(Cgi cgi);
+	
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd);
@@ -116,6 +119,8 @@ public:
 	///RESPONSE.CPP
 	void EventsPollout(int fd, int index);
 
+	void writeToCgi(int fd, int index);
+	std::string	readCgiResponse(int fd);
 
 	
 

@@ -1,17 +1,8 @@
 #include "../includes/Cgi.hpp"
+#include "../includes/Server.hpp"
 
 bool isCgi(const std::string &url)
 {
-	// std::string extension;
-
-	// std::cout << "URL = " << url << std::endl;
-	// size_t i = url.find("."); 
-	// while (url[i] != ' ' && url[i] != '?')
-	// 	extension.push_back(url[i++]);
-	// std::cout << "aEXTENSION = " << extension << std::endl;
-	// if (extension != ".cgi")
-	// 	return (false);
-	// return (true);
 	if (url.find(".cgi") != url.npos)
 		return (true);
 	return (false);
@@ -40,12 +31,41 @@ Cgi::Cgi(const std::string &method, const std::string &path, const std::string &
 	_initPipes();
 }
 
+Cgi::Cgi(const Cgi& obj) :
+	_method(obj._method),
+	_postData(obj._postData),
+	_cgiEnvVars(obj._cgiEnvVars),
+	// _cgiEnvVarsCstyle(obj._cgiEnvVarsCstyle),
+	_pid(obj._pid)
+{
+	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
+	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+}
+
+Cgi &Cgi::operator=(const Cgi& obj)
+{
+	if (this != &obj)
+	{
+    	_method = obj._method;
+    	_postData = obj._postData;
+    	_cgiEnvVars = obj._cgiEnvVars;
+    	// _cgiEnvVarsCstyle = obj._cgiEnvVarsCstyle;
+    	_pid = obj._pid;
+    	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
+    	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+    }
+    return (*this);
+}
+
+
 // Cgi::Cgi(char *client_resp, const std::string &url) : 
 // 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
 // 	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
 // {
 
 // }
+
+
 
 Cgi::~Cgi()
 {
@@ -96,17 +116,38 @@ std::string Cgi::extractReqUrl(const std::string &url)
 	return (path);
 }
 
-std::string	Cgi::readPipe(int fd)
+// std::string	Cgi::readCgiResponse(int fd)
+// {
+// 	std::ostringstream oss;
+// 	char buffer[1200];
+// 	ssize_t bytes_read = 0;
+// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+// 	close(fd);
+// 	// std::cout << oss.str() << "\n";
+// 	return (oss.str());
+// }
+
+std::string	Cgi::readCgiResponse(int fd)
 {
 	std::ostringstream oss;
 	char buffer[1200];
-	ssize_t bytes_read = 0;
+	ssize_t bytes_read = -1;
 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
 	close(fd);
 	// std::cout << oss.str() << "\n";
 	return (oss.str());
 }
+
+// void Cgi::writeToCgi(int fd)
+// {
+// 	close(this->_uploadPipe[0]);
+// 	logger("----CGI POLLOUT\n\n");
+// 	write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
+// 	this->RmvSocket(index);
+// 	this->_response.clear();
+// }
 
 std::string extractBoundary(const std::string &content) {
 
@@ -150,8 +191,9 @@ std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, cons
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	for (const std::string &env : env_vars)
-		std::cout << env << "\n";
+	// logger("CGI ENV VARS: \n\n");
+	// for (const std::string &env : env_vars)
+	// 	std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -206,11 +248,33 @@ std::string	Cgi::extractContentType(const std::string &req)
 }
 
 
-
+bool Cgi::waitForChild() const
+{
+	int exit_code = 0;
+    pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+    if (result == -1) {
+        std::cout << "ERROR PARENT PROCESS\n";
+		return (false);          
+    }
+	// else if (result == 0)
+	// {
+    //     std::cout << "NO CHILD HAS EXITED YET\n";
+	// }
+    if (WIFEXITED(exit_code))
+	{
+        std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
+        return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
+    }
+	else
+	{
+        std::cout << "Child process exited abnormally" << "\n";
+		return (false);
+	}
+}
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
-
+	(void)server;
     pid_t pid = fork();
     if (pid == -1)
 	{
@@ -232,17 +296,46 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
     }
 	else  											// Parent process
 	{
-		_pid = pid; 								// save pid for further processing if needed
+		this->_pid = pid; 								// save pid for further processing if needed
 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
-        close(_uploadPipe[0]);						// Close read end of upload pipe
-	
-		server->AddSocket(_responsePipe[0], false);
-		server->AddSocket(_uploadPipe[1], false);
-		
-		server->setCgi(this);
-	
-	
+        // close(_uploadPipe[0]);						// Close read end of upload pipe
+		server->setCgi(*this);
+    }
+	return ("");
+}
+
+
+void Cgi::_initPipes()
+{
+    if (pipe(_responsePipe) == -1 || pipe(_uploadPipe) == -1)
+	{
+        std::cout << "ERROR PIPE\n";
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+int Cgi::getReadEndResponsePipe() const
+{
+	return (this->_responsePipe[0]);
+}
+
+int Cgi::getWriteEndUploadPipe() const
+{
+	return (this->_uploadPipe[1]);
+}
+
+int Cgi::getReadEndUploadPipe() const
+{
+	return (this->_uploadPipe[0]);
+}
+
+std::string Cgi::getMethod()
+{
+	return (this->_method);
+}
+
+
 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
         // write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
         // close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
@@ -255,13 +348,10 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
         // }
         // if (WIFEXITED(status)) {
         //     std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-        //     return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
+        //     return (readCgiResponse(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
         // } else {
         //     std::cout << "Child process exited abnormally" << "\n";
         // }
-    }
-    return "";
-}
 
 // std::string Cgi::runCgi(const std::string &cgi_path)
 // {
@@ -301,26 +391,16 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 //         }
 //         if (WIFEXITED(status)) {
 //             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-//             return (readPipe(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
+//             return (readCgiResponse(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
 //         } else {
 //             std::cout << "Child process exited abnormally" << "\n";
 //         }
 //     }
 //     return "";
 // }
-
-void Cgi::_initPipes()
-{
-    if (pipe(_responsePipe) == -1 || pipe(_uploadPipe) == -1)
-	{
-        std::cout << "ERROR PIPE\n";
-        std::exit(EXIT_FAILURE);
-    }
-}
-
-
-
-
+		
+		
+		
 		// std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
     	// std::string post_data = "--" + boundary + "\r\n"
         //                     	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
@@ -387,7 +467,7 @@ void Cgi::_initPipes()
 //         }
 //         if (WIFEXITED(status)) {
 //             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-//             return (readPipe(responsePipeFd[0]));
+//             return (readCgiResponse(responsePipeFd[0]));
 //         } else {
 //             std::cout << "Child process exited abnormally" << "\n";
 //         }
@@ -437,7 +517,7 @@ void Cgi::_initPipes()
 // 		if (WIFEXITED(status))
 // 		{
 // 			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-// 			return (readPipe(pipefd[0]));
+// 			return (readCgiResponse(pipefd[0]));
 // 		}
 // 		else
 // 		{
