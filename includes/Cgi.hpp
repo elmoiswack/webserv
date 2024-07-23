@@ -31,12 +31,12 @@ class Cgi
 		std::string 				_method;
 		std::string 				_postData;
 		std::vector<std::string> 	_cgiEnvVars;
-		std::vector<char *> 		_cgiEnvVarsCstyle;
+		pid_t						_pid;
 		int 						_uploadPipe[2];
 		int 						_responsePipe[2];	
-		pid_t						_pid;
 		void						_initPipes();
 	public:
+		std::vector<char *> 		_cgiEnvVarsCstyle;
 		Cgi();
 		Cgi(const std::string &method, const std::string &post_data, const std::string &path, const std::string &request);
         Cgi(const std::string &method, const std::string &path, const std::string &request);

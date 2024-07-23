@@ -55,9 +55,9 @@ private:
 	std::vector<Location> _locations;
 
 	int		_websock;
-	Cgi		_current_cgi;
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
+	Cgi		_current_cgi;
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);

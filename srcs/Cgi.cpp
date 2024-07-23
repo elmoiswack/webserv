@@ -10,7 +10,7 @@ bool isCgi(const std::string &url)
 
 Cgi::Cgi()
 {
-	std::cout << "CGI CONSTRUCTED\n";
+	std::cout << "--CGI CONSTRUCTED\n";
 	_initPipes();
 }
 
@@ -35,11 +35,11 @@ Cgi::Cgi(const Cgi& obj) :
 	_method(obj._method),
 	_postData(obj._postData),
 	_cgiEnvVars(obj._cgiEnvVars),
-	// _cgiEnvVarsCstyle(obj._cgiEnvVarsCstyle),
 	_pid(obj._pid)
 {
 	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
 	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+	_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
 }
 
 Cgi &Cgi::operator=(const Cgi& obj)
@@ -49,10 +49,10 @@ Cgi &Cgi::operator=(const Cgi& obj)
     	_method = obj._method;
     	_postData = obj._postData;
     	_cgiEnvVars = obj._cgiEnvVars;
-    	// _cgiEnvVarsCstyle = obj._cgiEnvVarsCstyle;
     	_pid = obj._pid;
     	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
     	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+    	_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
     }
     return (*this);
 }
@@ -69,9 +69,9 @@ Cgi &Cgi::operator=(const Cgi& obj)
 
 Cgi::~Cgi()
 {
-	for (char *env : _cgiEnvVarsCstyle)
+	for (const char* env : _cgiEnvVarsCstyle)
 		delete[] env;
-	std::cout << "CGI DESCTRUCTED\n";
+	std::cout << "--CGI DESCTRUCTED\n";
 }
 
 
@@ -274,18 +274,18 @@ bool Cgi::waitForChild() const
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
-	(void)server;
+	// (void)server;
     pid_t pid = fork();
     if (pid == -1)
 	{
         std::cout << "ERROR CREATING CHILD PROCESS\n";
         exit(EXIT_FAILURE);            
     }
-	else if (pid == 0) 	// Child process
+	else if (pid == 0) 								// Child process
 	{
         close(_responsePipe[0]); 					// Close read end of response pipe
-        close(_uploadPipe[1]); 						// Close write end of upload pipe
         dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect cgi stdout to write end of response pipe
+        close(_uploadPipe[1]); 						// Close write end of upload pipe
         dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect cgi stdin to read end of upload pipe
 	    const char *args[] = {cgi_path.c_str(), NULL};
         if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
@@ -296,11 +296,18 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
     }
 	else  											// Parent process
 	{
-		this->_pid = pid; 								// save pid for further processing if needed
+		this->_pid = pid; 							// save pid for further processing if needed
 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
         close(_responsePipe[1]);					// Close write end of CGI response pipe
-        // close(_uploadPipe[0]);						// Close read end of upload pipe
+        // close(_uploadPipe[0]);					// Close read end of upload pipe
+        
+		// write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
+		
 		server->setCgi(*this);
+		// this->_cgiEnvVarsCstyle.clear();
+		// logger("-------------------");
+		// for (const std::string env : server->_current_cgi._cgiEnvVarsCstyle) logger(env);
+		// for (const std::string &env : server->_current_cgi._cgiEnvVars) logger(env);
     }
 	return ("");
 }

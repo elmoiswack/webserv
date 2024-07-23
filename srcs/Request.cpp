@@ -20,6 +20,7 @@ void Server::GetResponse(int fd)
 		std::string htmlfile = this->ParseRequest();
 		if (this->_iscgi == false)
 		{
+			logger("---NO CGI");
 			this->_response = 
 			"HTTP/1.1 200 OK\r\n"
 			"Content-Type: text/html\r\n"
@@ -30,7 +31,23 @@ void Server::GetResponse(int fd)
 		}
 		else if (this->_iscgi == true)
 		{
-			// this->_response = htmlfile;
+			// logger("---IS CGI");
+			if (this->_method == "POST")
+			{
+				logger("---IS POST");
+				// this->_response = this->readCgiResponse(fd);
+				// this->_response = 
+				// "HTTP/1.1 200 OK\r\n"
+				// "Content-Type: text/html\r\n"
+				// "Content-Length: 19\r\n"
+				// "\r\n"
+				// "<!DOCTYPE html>\r\n"
+	    		// "<html>\r\n"
+	    		// "<body>\r\n"
+	    		// "<h1>TEST_TEST_TEST_TEST</h1>\r\n"
+	    		// "</body>\r\n"
+	    		// "</html>\r\n";
+			}
 			this->_iscgi = false;
 			this->_request.clear();
 		}
@@ -69,7 +86,8 @@ std::string Server::ParseRequest()
 	{
 		this->_method = "POST";
 		std::string bvruhg = this->MethodPost(itfirst);
-		if (bvruhg.size() == 0)
+		// if (bvruhg.size() == 0)
+		if (this->_post_data.size() == 0)
 		{
 			logger("BRUH FAILED POST");
 			exit(EXIT_FAILURE);
@@ -160,17 +178,18 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		std::string tmp(this->_request.begin(), this->_request.end());
 		// std::string post_data = ParsePost(tmp);
 		this->_post_data = ParsePost(tmp);
+		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
 		Cgi cgi(_method, this->_post_data, path, tmp);
-		this->AddSocket(cgi.getWriteEndUploadPipe(), "CGI_WRITE");
 		this->AddSocket(cgi.getReadEndResponsePipe(), "CGI_READ");
+		this->AddSocket(cgi.getWriteEndUploadPipe(), "CGI_WRITE");
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path, this);
-		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
-		// std::cout << "RESPONSE: \n\n" << this->_response;
-		return (this->_response);
+		// this->_response = cgi.runCgi(cgi_path, this);
+		cgi.runCgi(cgi_path, this);
+		// std::cout << "RESPONSE: \n\n" << this->_response;f
+		//return (this->_response);
 	}
 	return ("");
 }
@@ -191,13 +210,13 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
 		Cgi cgi(_method, path, tmp);
-		this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+		// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path, this);
+		cgi.runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		// for (const std::string& type : this->_whatsockvec) 
 		// 	logger("--Socket type: " + type);
