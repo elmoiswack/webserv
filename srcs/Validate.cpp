@@ -328,17 +328,17 @@ std::vector<std::string> Server::GetAllowMethods() const {
             if (method == "GET")
             {
                 methods_as_string.push_back("GET");
-                break;
+                // break;
             }
             if (method == "POST")
             {
                 methods_as_string.push_back("POST");
-                break;
+                // break;
             }
             if (method == "DELETE")
             {
                 methods_as_string.push_back("DELETE");
-                break;
+                // break;
             }
     }
     return methods_as_string;

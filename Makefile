@@ -17,7 +17,7 @@ OBJDIR 		:= 	./objs
 OBJS		:= 	$(addprefix $(OBJDIR)/,$(SRC:.cpp=.o))
 SRCS		:= 	$(addprefix $(SRCDIR)/,$(SRC))
 
-CC	:=	c++ -g
+CC	:=	c++
 CFLAGS	:= -Wall -Werror -Wextra -std=c++11 #-fsanitize=address -g
 
 HEADERS := -I ./includes

@@ -170,6 +170,26 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	std::cout << this->_client << std::endl;
 }
 
+void Server::CheckUnusedClients()
+{
+	int count = 0;
+	for (auto it = this->_whatsockvec.begin(); it != this->_whatsockvec.end(); it++)
+	{
+		if (*it == "CLIENT")
+			count++;
+	}
+	if (count != 0)
+	{
+		int index = 0;
+		for (auto it = this->_whatsockvec.begin(); it != this->_whatsockvec.end(); it++)
+		{
+			if (*it == "CLIENT")
+				this->RmvSocket(index);
+			index++;
+		}		
+	}
+}
+
 void Server::PollEvents()
 {
 	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
@@ -204,12 +224,17 @@ void Server::PollEvents()
 			}
 			else
 			{
-				this->EventsPollin(temp.fd);
+				std::cout << this->_client << std::endl;
+				this->EventsPollin(temp.fd, this->_client);
 			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			this->EventsPollout(temp.fd, index);
+			this->EventsPollout(temp.fd);
+			this->RmvSocket(index);
+			delete this->_client;
+			logger("client is deleted!");
+			this->CheckUnusedClients();
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -229,32 +254,7 @@ void Server::PollEvents()
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
-		else if (temp.revents & POLLPRI)
-		{
-			logger("POLLPRI: ???????");
-			close(temp.fd);
-			this->RmvSocket(index);
-		}
 	}	
-}
-
-std::vector<Server>::iterator Server::GetClientLocationblockIt()
-{
-	std::vector<Server>::iterator it = this->_serverblocks.begin();
-	while (it != this->_serverblocks.end() && it->_listensock != this->_client->GetListensock())
-	{
-		std::cout << "client listen socket = " << this->_client->GetListensock() << std::endl;
-		std::cout << "serverblock listen sock = " << it->_listensock << std::endl;
-		it++;
-	}
-
-	if (it == this->_serverblocks.end())
-	{
-		logger("pls why not serverblock why!");
-		exit(EXIT_FAILURE);
-	}
-
-	return (it);
 }
 
 void Server::AcceptClient(int index)

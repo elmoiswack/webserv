@@ -101,24 +101,23 @@ public:
 	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
-	void EventsPollin(int fd);
-	void RecieveMessage(int fd);
-	void GetResponse(int fd);
-	std::string ParseRequest();
-	std::string MethodGet(std::vector<char>::iterator itreq);
+	void EventsPollin(int fd, Client *client);
+	int  RecieveMessage(int fd, Client *client);
+	void GetResponse(int fd, Client *client);
+	std::string ParseRequest(Client *client);
+	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq);
-	std::string HtmlToString(std::string path);
-	std::string GetSatusCodeFile(std::string code);
-	std::string GetSatusCodeFile(int code);
+	std::string HtmlToString(std::string path, Client *clien);
+	std::string GetSatusCodeFile(std::string code, Client *client);
+	std::string GetSatusCodeFile(int code, Client *client);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd, int index);
+	void EventsPollout(int fd);
 
 
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
-	std::vector<Server>::iterator GetClientLocationblockIt();
-	int IsMethodAllowed(std::string method, std::vector<std::string>::iterator itmethod, std::vector<Server>::iterator it);
-
+	int IsMethodAllowed(std::string method, Client *client);
+	void CheckUnusedClients();
 };
 
 void logger(std::string input);

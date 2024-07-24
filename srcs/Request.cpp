@@ -6,18 +6,31 @@
 #include <sys/socket.h>
 #include "../includes/Cgi.hpp"
 
-void Server::EventsPollin(int fd)
+void Server::EventsPollin(int fd, Client *client)
 {
 	logger("POLLIN");
-	this->GetResponse(fd);
+	this->GetResponse(fd, client);
 }
-void Server::GetResponse(int fd)
+void Server::GetResponse(int fd, Client *client)
 {
 	if (this->_donereading == false)
-		this->RecieveMessage(fd);
+	{
+		if (this->RecieveMessage(fd, client) == -1)
+		{
+			std::string errfile = this->GetSatusCodeFile(400, client);
+			this->_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+			"\r\n"
+			+ errfile;
+			this->_request.clear();
+			return ;
+		}
+	}
 	if (this->_donereading == true)
 	{
-		std::string htmlfile = this->ParseRequest();
+		std::string htmlfile = this->ParseRequest(client);
 		if (this->_iscgi == false)
 		{
 			this->_response = 
@@ -38,7 +51,7 @@ void Server::GetResponse(int fd)
 	}
 }
 
-std::string Server::ParseRequest()
+std::string Server::ParseRequest(Client *client)
 {
 	std::vector<char>::iterator itfirst = this->_request.begin();
 	logger("\n\nRequest after reading is done =");
@@ -58,21 +71,18 @@ std::string Server::ParseRequest()
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-
-	auto it = this->GetClientLocationblockIt();
-	std::vector<std::string>::iterator itmethod = it->_allow_methods.begin();
 	
 	if (method == "GET")
 	{
-		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			return (this->GetSatusCodeFile(405));
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->GetSatusCodeFile(405, client));
 		this->_method = "GET";
-		return (this->MethodGet(itfirst));
+		return (this->MethodGet(itfirst, client));
 	}
 	else if (method == "POST")
 	{
-		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			return (this->GetSatusCodeFile(405));
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->GetSatusCodeFile(405, client));
 		this->_method = "POST";
 		std::string bvruhg = this->MethodPost(itfirst);
 		if (bvruhg.size() == 0)
@@ -84,23 +94,26 @@ std::string Server::ParseRequest()
 	}
 	else if (method == "DELETE")
 	{
-		if (this->IsMethodAllowed(method, itmethod, it) == -1)
-			return (this->GetSatusCodeFile(405));
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->GetSatusCodeFile(405, client));
 		this->_method = "DELETE";
 	}
 	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
-	return (this->GetSatusCodeFile(501));
+	return (this->GetSatusCodeFile(501, client));
 }
 
-int Server::IsMethodAllowed(std::string method, std::vector<std::string>::iterator itmethod, std::vector<Server>::iterator it)
+int Server::IsMethodAllowed(std::string method, Client *client)
 {
-	while (itmethod != it->_allow_methods.end())
+	auto begin = client->GetMethodsBegin();
+	auto end = client->GetMethodsEnd();
+	while (begin != end)
 	{
-		if (*itmethod == method)
+		std::cout <<"ALLOWED METHODS: " << *begin << std::endl;
+		if (*begin == method)
 			break ;
-		itmethod++;
+		begin++;
 	}
-	if (itmethod == it->_allow_methods.end())
+	if (begin == end)
 	{
 		std::cout << "Method: " << method << " isn't allowed!" << std::endl;
 		return (-1);
@@ -195,9 +208,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	return ("");
 }
 
-std::string Server::MethodGet(std::vector<char>::iterator itreq)
+std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
-	auto it = this->GetClientLocationblockIt();
 	while (std::isspace(*itreq))
 		itreq++;
 	std::vector<char>::iterator itend = itreq;
@@ -220,34 +232,32 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		return (this->_response);
 	}
 	
-	std::vector<Location>::iterator itloc = it->_locationblocks.begin();	
+	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();	
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
-		return (this->HtmlToString(it->_root + itloc->GetIndex()));
+		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
 	else if (path.find("/status_codes/", 0) != path.npos)
-		return (this->GetSatusCodeFile(path));
+		return (this->GetSatusCodeFile(path, client));
 	else
-		return (this->GetSatusCodeFile(404));
+		return (this->GetSatusCodeFile(404, client));
 }
 
-std::string Server::GetSatusCodeFile(int code)
+std::string Server::GetSatusCodeFile(int code, Client *client)
 {
-	auto it = this->GetClientLocationblockIt();
-	std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
-	while (iterr != it->_error_page.end() && iterr->first != code)
+	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
+	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
 		iterr++;
 
-	if (iterr == it->_error_page.end())
-		return (this->GetSatusCodeFile(404));
+	if (iterr == client->GetErrorpageEnd())
+		return (this->GetSatusCodeFile(404, client));
 
-	std::string statuscode = it->_root + iterr->second;
+	std::string statuscode = client->GetRoot() + iterr->second;
 	std::cout << "Statuscode = " << statuscode << std::endl;
-	return (this->HtmlToString(statuscode));
+	return (this->HtmlToString(statuscode, client));
 }
 
-std::string Server::GetSatusCodeFile(std::string path)
+std::string Server::GetSatusCodeFile(std::string path, Client *client)
 {
-	auto it = this->GetClientLocationblockIt();
 	std::string::iterator begin = path.begin();
 	while (!std::isdigit(*begin))
 		begin++;
@@ -258,23 +268,23 @@ std::string Server::GetSatusCodeFile(std::string path)
 	int code = std::stoi(strcode);
 	std::cout << "CODE = " << code << std::endl;
 	
-	std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
-	while (iterr != it->_error_page.end() && iterr->first != code)
+	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
+	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
 		iterr++;
-	if (iterr == it->_error_page.end())
-		return (this->GetSatusCodeFile(404));
+	if (iterr == client->GetErrorpageEnd())
+		return (this->GetSatusCodeFile(404, client));
 	
-	std::string statuscode = it->_root + iterr->second;
+	std::string statuscode = client->GetRoot() + iterr->second;
 	std::cout << "Statuscode = " << statuscode << std::endl;
-	return (this->HtmlToString(statuscode));
+	return (this->HtmlToString(statuscode, client));
 }
 
-std::string Server::HtmlToString(std::string path)
+std::string Server::HtmlToString(std::string path, Client *client)
 {
 	if (access(path.c_str(), F_OK) == -1)
-		return (this->GetSatusCodeFile(404));
+		return (this->GetSatusCodeFile(404, client));
 	if (access(path.c_str(), R_OK) == -1)
-		return (this->GetSatusCodeFile(403));
+		return (this->GetSatusCodeFile(403, client));
 	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
@@ -287,17 +297,16 @@ std::string Server::HtmlToString(std::string path)
 	return (buffer.str());
 }
 
-void Server::RecieveMessage(int fd)
+int Server::RecieveMessage(int fd, Client *client)
 {
-	auto it = this->GetClientLocationblockIt();
 	logger("Ready to recieve...");
-	std::cout << "maxrecv = " << it->_recvmax << std::endl;
-	char buff[it->_recvmax];
-	int rbytes = recv(fd, &buff, it->_recvmax, 0);
+	std::cout << "maxrecv = " << client->Getrecvmax() << std::endl;
+	char buff[client->Getrecvmax()];
+	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
 	if (rbytes == -1)
 	{
-		std::cout << "ERROR read" << std::endl;
-		exit(EXIT_FAILURE);
+		logger("ERROR: RECV returned -1!");
+		return (-1);
 	}
 	logger("request:");
 	for (int i = 0; i < rbytes; i++)
@@ -307,10 +316,11 @@ void Server::RecieveMessage(int fd)
 	}
 	std::cout << std::endl;
 	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < it->_recvmax && rbytes != 0)
+	if (rbytes < client->Getrecvmax())
 	{
 		this->_donereading = true;
 		this->_request.push_back('\0');
 	}
 	logger("message recieved!");
+	return (1);
 }
