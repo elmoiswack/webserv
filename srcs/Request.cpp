@@ -55,9 +55,9 @@ std::string Server::ParseRequest(Client *client)
 {
 	std::vector<char>::iterator itfirst = this->_request.begin();
 	logger("\n\nRequest after reading is done =");
-	for (std::vector<char>::iterator bruh = this->_request.begin(); bruh != this->_request.end(); bruh++)
+	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
 	{
-		std::cout << *bruh;
+		std::cout << *print;
 	}
 	std::cout << std::endl;
 	logger("\n\n");
@@ -84,8 +84,8 @@ std::string Server::ParseRequest(Client *client)
 		if (this->IsMethodAllowed(method, client) == -1)
 			return (this->GetSatusCodeFile(405, client));
 		this->_method = "POST";
-		std::string bvruhg = this->MethodPost(itfirst);
-		return (bvruhg);
+		std::string response = this->MethodPost(itfirst);
+		return (response);
 	}
 	else if (method == "DELETE")
 	{
