@@ -63,6 +63,13 @@ std::string Server::ParseRequest(Client *client)
 	logger("\n\n");
 	char arr[7];
 	int index = 0;
+	if (std::isspace(*itfirst))
+	{
+		while (std::isspace(*itfirst))
+			itfirst++;
+	}
+	if (itfirst == this->_request.end())
+		return (this->GetSatusCodeFile(400, client));
 	while (!std::isspace(*itfirst))
 	{
 		arr[index] = *itfirst;

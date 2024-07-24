@@ -125,7 +125,7 @@ void Server::BindSockets(std::vector<Server>::iterator it, int index)
 	setsockopt(this->_sockvec[index].fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
 	if (bind(this->_sockvec[index].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
-		std::cout << "ERROR bruh" << std::endl;
+		std::cout << "ERROR BIND" << std::endl;
 		throw(Server::BindErrorException());
 	}
 }
