@@ -79,6 +79,7 @@ void Server::AddSocket(int fd, bool is_client)
 
 void Server::AddSocket(int fd, const std::string& type) // for the cgi
 {
+	logger("CGI SOCKET ADDED");
 	pollfd temp;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
@@ -238,26 +239,29 @@ void Server::PollEvents()
 		{
 			if (this->_whatsockvec[index] == "SERVER")
 			{
-				// logger("-----------------------------");
+				logger("-----------------------------");
 				this->AcceptClient(index);
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
 				this->EventsPollin(temp.fd);
-				logger("++++++++++++++++++++++++++++");
+				// logger("++++++++++++++++++++++++++++");
 
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
+				logger("--CGI POLLIN");
 				this->_response = this->readCgiResponse(temp.fd);
-				logger("\n--CGI RESPONSE: \n" + _response);
+				// logger("\n--CGI RESPONSE: \n" + _response);
 				this->RmvSocket(index);
 			}
 		}
-		else if (temp.revents & POLLOUT)
+		if (temp.revents & POLLOUT)
 		{
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
+				// logger("--CGI POLLOUT");
+
 				this->writeToCgi(temp.fd, index);
 				// write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
 				// this->RmvSocket(index);
@@ -314,7 +318,7 @@ void Server::setCgi(Cgi cgi)
 
 void Server::writeToCgi(int fd, int index)
 {
-	(void)fd;
+	// (void)fd;
 	logger("----CGI POLLOUT\n\n");
 	// logger("--METHOD: " + this->_current_cgi.getMethod());
 	// logger("\nAfter Cgi gets destructed: ");
@@ -324,24 +328,24 @@ void Server::writeToCgi(int fd, int index)
 	// for (const std::string env : _current_cgi._cgiEnvVarsCstyle) logger(env);
 	// logger("-------------------");
 	// for (const std::string &env : _current_cgi._cgiEnvVars) logger(env);
-	close(this->_current_cgi.getReadEndUploadPipe());
+	std::cout << "READ END UPLOAD PIPE: " << this->_current_cgi.getReadEndUploadPipe();
+	close(this->_current_cgi.getReadEndUploadPipe()); // NEED TO SOMEHOW GET ACCESS TO IT AFTER CGI IS DESTRUCTED
 	logger("\n---POST DATA: " + _post_data);
 	if (!this->_post_data.empty())
 	{
-		ssize_t bytes_written = write(this->_current_cgi.getWriteEndUploadPipe(), this->_post_data.c_str(), this->_post_data.size());
+		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
 		if (bytes_written < 0)
 		{
 			logger("ERROR WRITE TO CGI");
 			exit(EXIT_FAILURE);
 		}
 		this->RmvSocket(index);
-		// this->_response.clear();
 	}
 }
 
 std::string	Server::readCgiResponse(int fd)
 {
-	logger("--CGI POLLIN\n");
+	// logger("--CGI POLLIN\n");
 	std::ostringstream oss;
 	char buffer[this->_recvmax];
 	ssize_t bytes_read;
@@ -355,7 +359,7 @@ std::string	Server::readCgiResponse(int fd)
 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
 	if (bytes_read == -1)
 		logger("ERROR READING FROM CGI PIPE");
-	close(fd);
+	// close(fd);
 	// std::cout << oss.str() << "\n";
 	return (oss.str());
 }

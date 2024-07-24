@@ -37,21 +37,23 @@ Cgi::Cgi(const Cgi& obj) :
 	_cgiEnvVars(obj._cgiEnvVars),
 	_pid(obj._pid)
 {
-	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
-	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+	// _initPipes();
+	// std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
+	// std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
 	_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
 }
 
 Cgi &Cgi::operator=(const Cgi& obj)
 {
+	// _initPipes();
 	if (this != &obj)
 	{
     	_method = obj._method;
     	_postData = obj._postData;
     	_cgiEnvVars = obj._cgiEnvVars;
     	_pid = obj._pid;
-    	std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
-    	std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
+    	// std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
+    	// std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
     	_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
     }
     return (*this);
@@ -116,29 +118,29 @@ std::string Cgi::extractReqUrl(const std::string &url)
 	return (path);
 }
 
-// std::string	Cgi::readCgiResponse(int fd)
-// {
-// 	std::ostringstream oss;
-// 	char buffer[1200];
-// 	ssize_t bytes_read = 0;
-// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
-// 	close(fd);
-// 	// std::cout << oss.str() << "\n";
-// 	return (oss.str());
-// }
-
 std::string	Cgi::readCgiResponse(int fd)
 {
 	std::ostringstream oss;
 	char buffer[1200];
-	ssize_t bytes_read = -1;
+	ssize_t bytes_read = 0;
 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
 	close(fd);
 	// std::cout << oss.str() << "\n";
 	return (oss.str());
 }
+
+// std::string	Cgi::readCgiResponse(int fd)
+// {
+// 	std::ostringstream oss;
+// 	char buffer[1200];
+// 	ssize_t bytes_read = -1;
+// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+// 	close(fd);
+// 	// std::cout << oss.str() << "\n";
+// 	return (oss.str());
+// }
 
 // void Cgi::writeToCgi(int fd)
 // {
@@ -296,18 +298,47 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
     }
 	else  											// Parent process
 	{
-		this->_pid = pid; 							// save pid for further processing if needed
-		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-        close(_responsePipe[1]);					// Close write end of CGI response pipe
-        // close(_uploadPipe[0]);					// Close read end of upload pipe
-        
-		// write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
-		
+		_pid = pid; 								// save pid for further processing if needed
 		server->setCgi(*this);
-		// this->_cgiEnvVarsCstyle.clear();
-		// logger("-------------------");
-		// for (const std::string env : server->_current_cgi._cgiEnvVarsCstyle) logger(env);
-		// for (const std::string &env : server->_current_cgi._cgiEnvVars) logger(env);
+        close(_responsePipe[1]);	
+
+		// Close write end of CGI response pipe
+		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
+        // if (_method == "POST")
+		// {
+		// 	close(_uploadPipe[0]);						// Close read end of upload pipe
+        // 	write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
+        // 	close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
+		// }
+        // int status;
+        // pid_t result = waitpid(pid, &status, 0);
+        // if (result == -1) {
+        //     std::cout << "ERROR PARENT PROCESS\n";
+        //     exit(EXIT_FAILURE);            
+        // }
+        // if (WIFEXITED(status)) {
+        //     std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
+        //     return (readCgiResponse(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
+        // } else {
+        //     std::cout << "Child process exited abnormally" << "\n";
+        // }
+	
+		
+		// this->_pid = pid; 							// save pid for further processing if needed
+		// // std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
+        // close(_responsePipe[1]);					// Close write end of CGI response pipe
+        
+		// if (this->_method == "POST")
+		// {
+		// 	logger("PPPPPPPP");
+        // 	close(_uploadPipe[0]);					// Close read end of upload pipe
+		// 	write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
+		// }
+		
+		// // this->_cgiEnvVarsCstyle.clear();
+		// // logger("-------------------");
+		// // for (const std::string env : server->_current_cgi._cgiEnvVarsCstyle) logger(env);
+		// // for (const std::string &env : server->_current_cgi._cgiEnvVars) logger(env);
     }
 	return ("");
 }
