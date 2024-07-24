@@ -118,6 +118,41 @@ public:
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
 	void CheckUnusedClients();
+
+	class BindErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class InitErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class ListenErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class PollErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class AcceptErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class FcntlErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class ServerblockErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
 };
 
 void logger(std::string input);

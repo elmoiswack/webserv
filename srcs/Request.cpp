@@ -85,11 +85,6 @@ std::string Server::ParseRequest(Client *client)
 			return (this->GetSatusCodeFile(405, client));
 		this->_method = "POST";
 		std::string bvruhg = this->MethodPost(itfirst);
-		if (bvruhg.size() == 0)
-		{
-			logger("BRUH FAILED POST");
-			exit(EXIT_FAILURE);
-		}
 		return (bvruhg);
 	}
 	else if (method == "DELETE")
@@ -207,7 +202,6 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	}
 	return ("");
 }
-//jsahfksahfjkwhwahkjfwahjkfhwakjfwa
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
@@ -291,7 +285,7 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	if (!file.good())
 	{
 		std::cout << "Failed to read file!\n" << std::endl;
-		std::exit(EXIT_FAILURE);
+		return (this->GetSatusCodeFile(404, client));
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();

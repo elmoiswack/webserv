@@ -11,47 +11,39 @@
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
-    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page) {}
+    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page){
+		this->_ammount_sock = 0;
+		this->_client = NULL;
+		this->_donereading = false;
+		this->_iscgi = false;
+		this->_listensock = 0;
+	}
 
 
 
 Server::Server(Parser &in)
 {
 	this->_serverblocks = in.GetServerBlocks();
-	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
-	{
-		this->_ammount_sock = 0;
-		this->_donereading = false;
-		this->_iscgi = false;
-	}
+	this->_ammount_sock = 0;
+	this->_client = NULL;
+	this->_donereading = false;
+	this->_iscgi = false;
+	this->_listensock = 0;
+	this->_request.clear();
+	this->_response.clear();
 }
 
 Server::~Server()
 {
-	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
-	{
-		it->_whatsockvec.clear();
-		it->_client_max.clear();
-		it->_error_page.clear();
-		it->_index.clear();
-		it->_ip.clear();
-		it->_locationblocks.clear();
-		it->_locations.clear();
-		it->_port.clear();
-		it->_request.clear();
-		it->_response.clear();
-		it->_root.clear();
-		it->_server_name.clear();
-		it->_serverindex.clear();
-		it->_whatsockvec.clear();
-		it->_allow_methods.clear();
-	}
+	this->CloseAllFds();
+	this->_whatsockvec.clear();
+	this->_error_page.clear();
+	this->_locationblocks.clear();
+	this->_locations.clear();
+	this->_request.clear();
 	delete this->_client;
 	this->_sockvec.clear();
-	for (std::vector<Server>::iterator it = this->_serverblocks.begin(); it != this->_serverblocks.end(); it++)
-	{
-		this->_serverblocks.clear();
-	}
+	this->_serverblocks.clear();
 }
 
 void Server::AddSocket(int fd, bool is_client)
@@ -60,7 +52,7 @@ void Server::AddSocket(int fd, bool is_client)
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cout << "ERROR FCNTL" << std::endl;
-		exit(EXIT_FAILURE);	
+		throw(Server::FcntlErrorException());
 	}
 	temp.fd = fd;
 	temp.events = POLLIN | POLLOUT;
@@ -115,7 +107,7 @@ void Server::InitSocket(std::vector<Server>::iterator it)
 	if (websock < 0)
 	{
 		std::cout << "ERROR SOCKET" << std::endl;
-		exit(EXIT_FAILURE);
+		throw(Server::InitErrorException());
 	}
 	it->_listensock = websock;
 	this->AddSocket(websock, false);
@@ -134,7 +126,7 @@ void Server::BindSockets(std::vector<Server>::iterator it, int index)
 	if (bind(this->_sockvec[index].fd, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
 	{
 		std::cout << "ERROR bruh" << std::endl;
-		exit(EXIT_FAILURE);
+		throw(Server::BindErrorException());
 	}
 }
 
@@ -143,7 +135,7 @@ void Server::ListenSockets(int index)
 	if (listen(this->_sockvec[index].fd, 5) == -1)
 	{
 		std::cout << "ERROR LISTEN" << std::endl;
-		exit(EXIT_FAILURE);		
+		throw(Server::ListenErrorException());	
 	}
 }
 
@@ -156,7 +148,7 @@ void Server::RunPoll()
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
-			exit(EXIT_FAILURE);
+			throw(Server::PollErrorException());
 		}
 		if (ret > 0)
 			this->PollEvents();
@@ -218,14 +210,15 @@ void Server::PollEvents()
 				if (itter == this->_serverblocks.end())
 				{
 					logger("fuck servernlock itter shit");
-					exit(EXIT_FAILURE);
+					throw(Server::ServerblockErrorException());
 				}
 				this->InitClient(this->_sockvec[index].fd, itter);
 			}
 			else
 			{
-				std::cout << this->_client << std::endl;
 				this->EventsPollin(temp.fd, this->_client);
+				if (this->_response.size() == 0)
+					this->CheckUnusedClients();
 			}
 		}
 		else if (temp.revents & POLLOUT)
@@ -234,7 +227,6 @@ void Server::PollEvents()
 			this->RmvSocket(index);
 			delete this->_client;
 			logger("client is deleted!");
-			this->CheckUnusedClients();
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -264,7 +256,7 @@ void Server::AcceptClient(int index)
 	if (newsock == -1)
 	{
 		std::cout << "ERROR ACCEPT" << std::endl;
-		exit(EXIT_FAILURE);
+		throw(Server::AcceptErrorException());
 	}
 	this->AddSocket(newsock, true);
 	logger("Connection is accepted!");
@@ -281,4 +273,39 @@ void Server::CloseAllFds()
 void logger(std::string input)
 {
 	std::cout << input << std::endl;
+}
+
+const char *Server::FcntlErrorException::what() const throw()
+{
+	return ("function fctnl in Addsocket failed! Shutting down server!");
+}
+
+const char *Server::InitErrorException::what() const throw()
+{
+	return ("function socket inside initsocket failed! Shutting down server!");
+}
+
+const char *Server::BindErrorException::what() const throw()
+{
+	return ("function bind failed! Shutting down server!");
+}
+
+const char *Server::ListenErrorException::what() const throw()
+{
+	return ("function listen failed! Shutting down server!");
+}
+
+const char *Server::PollErrorException::what() const throw()
+{
+	return ("function poll failed! Shutting down server!");
+}
+
+const char *Server::ServerblockErrorException::what() const throw()
+{
+	return ("server block not found while it should be there in poll! Shutting down server!");
+}
+
+const char *Server::AcceptErrorException::what() const throw()
+{
+	return ("function accept failed! Shutting down server!");
 }
