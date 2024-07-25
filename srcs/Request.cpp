@@ -210,6 +210,10 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	return ("");
 }
 
+std::string listDirectoryContents(const std::string &directoryPath) {
+
+}
+
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
 	while (std::isspace(*itreq))
@@ -233,8 +237,19 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
-	
-	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();	
+	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();
+
+	std::string tmp;
+
+	tmp = itloc->GetIndex();
+	if (tmp.size() == 0) {
+		if (itloc->GetAutoIndex() == true) {
+			std::string dirPath = client->GetRoot() + path;
+			return (listDirectoryContents(dirPath));
+		}
+		if (itloc->GetAutoIndex() == false)
+			return (this->HtmlToString(this->GetHardCPathCode(403), client));
+	}
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
