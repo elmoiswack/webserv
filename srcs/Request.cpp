@@ -30,7 +30,7 @@ void Server::GetResponse(int fd, Client *client)
 		}
 		else if (ret == 0)
 		{
-			this->_connectionclosed = true;
+			this->_recvzero = true;
 			this->_donereading = false;
 			return ;
 		}

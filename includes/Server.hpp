@@ -42,7 +42,7 @@ private:
 	bool		_donereading;
 	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
-	bool		_connectionclosed;
+	bool		_recvzero;
 
 	int			_recvmax;
 	std::string _port;
