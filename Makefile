@@ -9,6 +9,7 @@ SRC	:=	main.cpp \
 		utils_rares.cpp \
 		Request.cpp \
 		Response.cpp \
+		Client.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs

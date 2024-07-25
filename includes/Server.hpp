@@ -17,14 +17,15 @@
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
+#include "../includes/Client.hpp"
 
 typedef enum e_autoindex{
 	EMPTY = 0,
 } t_autoindex;
 
 class Parser;
-
 class Location;
+class Client;
 
 class Server
 {
@@ -39,7 +40,7 @@ private:
 	std::string _response;
 	std::string _method;
 	bool		_donereading;
-	std::vector<int> _allow_methods;
+	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
 
 	int			_recvmax;
@@ -50,11 +51,13 @@ private:
 	std::string _root;
 	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
+	std::unordered_map<int, std::string> _hcerr_page;
 	std::string _index;
 
 	std::vector<Location> _locations;
 
-	int		_websock;
+	int		_listensock;
+	Client *_client;
 
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
@@ -88,7 +91,7 @@ public:
 
 	///SERVER.CPP
 	void SetUpServer();
-	void InitSocket();
+	void InitSocket(std::vector<Server>::iterator it);
 	void BindSockets(std::vector<Server>::iterator it, int index);
 	void ListenSockets(int index);
 
@@ -103,21 +106,59 @@ public:
 	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
-	void EventsPollin(int fd);
-	void RecieveMessage(int fd);
-	void GetResponse(int fd);
-	std::string ParseRequest();
-	std::string MethodGet(std::vector<char>::iterator itreq);
+	void EventsPollin(int fd, Client *client);
+	int  RecieveMessage(int fd, Client *client);
+	void GetResponse(int fd, Client *client);
+	std::string ParseRequest(Client *client);
+	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq);
-	std::string HtmlToString(std::string path);
-	std::string GetSatusCodeFile(std::string code);
+	std::string HtmlToString(std::string path, Client *clien);
+	std::string GetSatusCodeFile(std::string code, Client *client);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd, int index);
+	void EventsPollout(int fd);
 
 
-	
+	void InitHardcodedError();
+	std::string GetHardCPathCode(int code);
+	void InitClient(int socket, std::vector<Server>::iterator serverblock);
+	int IsMethodAllowed(std::string method, Client *client);
+	void CheckUnusedClients();
 
+	class BindErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class InitErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class ListenErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class PollErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class AcceptErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class FcntlErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class ServerblockErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
 };
 
 void logger(std::string input);

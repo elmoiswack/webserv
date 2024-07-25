@@ -6,18 +6,31 @@
 #include <sys/socket.h>
 #include "../includes/Cgi.hpp"
 
-void Server::EventsPollin(int fd)
+void Server::EventsPollin(int fd, Client *client)
 {
 	logger("POLLIN");
-	this->GetResponse(fd);
+	this->GetResponse(fd, client);
 }
-void Server::GetResponse(int fd)
+void Server::GetResponse(int fd, Client *client)
 {
 	if (this->_donereading == false)
-		this->RecieveMessage(fd);
+	{
+		if (this->RecieveMessage(fd, client) == -1)
+		{
+			std::string errfile = this->HtmlToString(this->GetHardCPathCode(400), client);
+			this->_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+			"\r\n"
+			+ errfile;
+			this->_request.clear();
+			return ;
+		}
+	}
 	if (this->_donereading == true)
 	{
-		std::string htmlfile = this->ParseRequest();
+		std::string htmlfile = this->ParseRequest(client);
 		if (this->_iscgi == false)
 		{
 			this->_response = 
@@ -38,19 +51,26 @@ void Server::GetResponse(int fd)
 	}
 }
 
-std::string Server::ParseRequest()
+std::string Server::ParseRequest(Client *client)
 {
 	std::vector<char>::iterator itfirst = this->_request.begin();
 	logger("\n\nRequest after reading is done =");
-	for (std::vector<char>::iterator bruh = this->_request.begin(); bruh != this->_request.end(); bruh++)
+	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
 	{
-		std::cout << *bruh;
+		std::cout << *print;
 	}
 	std::cout << std::endl;
 	logger("\n\n");
 	char arr[7];
 	int index = 0;
-	while (!std::isspace(*itfirst))
+	if (std::isspace(*itfirst))
+	{
+		while (std::isspace(*itfirst))
+			itfirst++;
+	}
+	if (itfirst == this->_request.end())
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+	while (!std::isspace(*itfirst) && index < 7)
 	{
 		arr[index] = *itfirst;
 		index++;
@@ -61,27 +81,46 @@ std::string Server::ParseRequest()
 
 	if (method == "GET")
 	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "GET";
-		return (this->MethodGet(itfirst));
+		return (this->MethodGet(itfirst, client));
 	}
 	else if (method == "POST")
 	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "POST";
-		std::string bvruhg = this->MethodPost(itfirst);
-		if (bvruhg.size() == 0)
-		{
-			logger("BRUH FAILED POST");
-			exit(EXIT_FAILURE);
-		}
-		return (bvruhg);
+		std::string response = this->MethodPost(itfirst);
+		return (response);
 	}
 	else if (method == "DELETE")
 	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "DELETE";
 	}
-	logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
-	logger("sending client back to index.html\n");
-	return (this->HtmlToString("./var/www/index.html"));
+	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
+	return (this->HtmlToString(this->GetHardCPathCode(501), client));
+}
+
+int Server::IsMethodAllowed(std::string method, Client *client)
+{
+	auto begin = client->GetMethodsBegin();
+	auto end = client->GetMethodsEnd();
+	while (begin != end)
+	{
+		std::cout <<"ALLOWED METHODS: " << *begin << std::endl;
+		if (*begin == method)
+			break ;
+		begin++;
+	}
+	if (begin == end)
+	{
+		std::cout << "Method: " << method << " isn't allowed!" << std::endl;
+		return (-1);
+	}
+	return (1);
 }
 
 std::string Server::ExtractBoundary(const std::string &content) {
@@ -171,7 +210,7 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	return ("");
 }
 
-std::string Server::MethodGet(std::vector<char>::iterator itreq)
+std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
 	while (std::isspace(*itreq))
 		itreq++;
@@ -182,7 +221,6 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	path.assign(itreq, itend);
 	logger(path);
 
-	std::vector<Location>::iterator itloc = this->_locationblocks.begin();
 	if (isCgi(path))
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
@@ -195,74 +233,98 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		return (this->_response);
 	}
+	
+	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();	
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
-		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
+		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
 	else if (path.find("/status_codes/", 0) != path.npos)
-		return (this->GetSatusCodeFile(path));
+		return (this->GetSatusCodeFile(path, client));
 	else
-		return (this->HtmlToString("./var/www/status_codes/404.html"));
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 }
 
-std::string Server::GetSatusCodeFile(std::string path)
+std::string Server::GetHardCPathCode(int code)
 {
-	// std::string::iterator begin = path.begin();
-	// while (!std::isdigit(*begin))
-	// 	begin++;
-	// auto end = begin;
-	// while (std::isdigit(*end))
-	// 	end++;
-	// std::string strcode(begin, end);
-	// int code = std::stoi(strcode);
-	// std::cout << "CODE = " << code << std::endl;
-	
-	// std::unordered_map<int, std::string>::iterator iterr = it->_error_page.begin();
-	// while (iterr != it->_error_page.end() && iterr->first != code)
-	// {
-	// 	std::cout << iterr->first << std::endl;
-	// 	iterr++;
-	// }
-	// if (iterr == it->_error_page.end())
-	// {
-	// 	std::cout << "ficledsajda" << std::endl;
-	// 	exit(1);
-	// }
-	// std::cout << "itersecond = " << iterr->second << std::endl;
-	// std::string statuscode = "./var/www" + code;
-	// return (it->HtmlToString(statuscode));
-
-	std::string statuscode = "./var/www" + path;
-	return (this->HtmlToString(statuscode));
-}
-
-std::string Server::HtmlToString(std::string path)
-{
-	if (access(path.c_str(), F_OK | R_OK) == -1)
+	logger("GETTING HARDCODED PATH TO ERRORFILE!");
+	std::cout << "Getting " << code << " html file!" << std::endl;
+	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
+	while (it != this->_hcerr_page.end())
 	{
-		logger("DENIED ACCES htmltostring");
-		exit(EXIT_FAILURE);
-	}	
+		if (it->first == code)
+			break ;
+		it++;
+	}
+	if (it == this->_hcerr_page.end())
+	{
+		logger("Code passed isn't valid! Internal server error!");
+		for (auto iterr = this->_hcerr_page.begin(); iterr != this->_hcerr_page.end(); iterr++)
+		{
+			if (iterr->first == 500)
+				return (iterr->second);
+		}
+	}
+	return (it->second);
+}
+
+std::string Server::GetSatusCodeFile(std::string path, Client *client)
+{
+	std::string::iterator begin = path.begin();
+	while (begin != path.end() && !std::isdigit(*begin))
+		begin++;
+	if (begin == path.end())
+	{
+		logger("jdksa\n");
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	}
+	auto end = begin;
+	while (std::isdigit(*end))
+		end++;
+	std::string strcode(begin, end);
+	int code = std::stoi(strcode);
+	std::cout << "CODE = " << code << std::endl;
+
+	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
+	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
+		iterr++;
+	if (iterr == client->GetErrorpageEnd())
+	{
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	}
+	
+	std::string statuscode = client->GetRoot() + iterr->second;
+	std::cout << "Statuscode = " << statuscode << std::endl;
+	return (this->HtmlToString(statuscode, client));
+}
+
+std::string Server::HtmlToString(std::string path, Client *client)
+{
+	if (access(path.c_str(), F_OK) == -1)
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	if (access(path.c_str(), R_OK) == -1)
+		return (this->HtmlToString(this->GetHardCPathCode(403), client));
+	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
 		std::cout << "Failed to read file!\n" << std::endl;
-		std::exit(EXIT_FAILURE);
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	return (buffer.str());
 }
 
-void Server::RecieveMessage(int fd)
+int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	std::cout << "maxrecv = " << this->_recvmax << std::endl;
-	char buff[this->_recvmax];
-	int rbytes = recv(fd, &buff, this->_recvmax, 0);
+	std::cout << "maxrecv = " << client->Getrecvmax() << std::endl;
+	char buff[client->Getrecvmax()];
+	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
 	if (rbytes == -1)
 	{
-		std::cout << "ERROR read" << std::endl;
-		exit(EXIT_FAILURE);
+		logger("ERROR: RECV returned -1!");
+		return (-1);
 	}
 	logger("request:");
 	for (int i = 0; i < rbytes; i++)
@@ -272,10 +334,11 @@ void Server::RecieveMessage(int fd)
 	}
 	std::cout << std::endl;
 	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < this->_recvmax)
+	if (rbytes < client->Getrecvmax())
 	{
 		this->_donereading = true;
 		this->_request.push_back('\0');
 	}
 	logger("message recieved!");
+	return (1);
 }

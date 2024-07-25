@@ -81,13 +81,13 @@ void Location::Validate_AllowMethods(std::vector<std::string>& tokens) {
         }
 
         if (tokens[i] == "GET") {
-            allow_methods.push_back(GET);
+            allow_methods.push_back("GET");
         }
 		else if (tokens[i] == "POST") {
-            allow_methods.push_back(POST);
+            allow_methods.push_back("POST");
         }
 		else if (tokens[i] == "DELETE") {
-            allow_methods.push_back(DELETE);
+            allow_methods.push_back("DELETE");
         } else {
             throw Parser::InvalidLineConfException("Incorrect Allow Method, it should be GET, POST or DELETE!");
         }
@@ -283,17 +283,21 @@ bool    Location::GetAutoIndex(void) const {
 std::vector<std::string> Location::Get_AllowMethods() const {
     std::vector<std::string> methods_as_string;
     for (const auto& method : allow_methods) {
-        switch (method) {
-            case GET:
+            if (method == "GET")
+            {
                 methods_as_string.push_back("GET");
                 break;
-            case POST:
+            }
+            if (method == "POST")
+            {
                 methods_as_string.push_back("POST");
                 break;
-            case DELETE:
+            }
+            if (method == "DELETE")
+            {
                 methods_as_string.push_back("DELETE");
                 break;
-        }
+            }
     }
     return methods_as_string;
 }

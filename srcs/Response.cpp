@@ -8,7 +8,7 @@
 #include<string>
 #include <sstream>
 
-void Server::EventsPollout(int fd, int index)
+void Server::EventsPollout(int fd)
 {
 	logger("POLLOUT");
 	if (this->_response.size() > 0)
@@ -19,6 +19,5 @@ void Server::EventsPollout(int fd, int index)
 		close(fd);
 		logger("fd is closed and removed!");
 		this->_response.clear();
-		this->RmvSocket(index);
 	}
 }
