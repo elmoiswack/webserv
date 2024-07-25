@@ -17,7 +17,7 @@ void Server::GetResponse(int fd, Client *client)
 	{
 		if (this->RecieveMessage(fd, client) == -1)
 		{
-			std::string errfile = this->GetSatusCodeFile(400, client);
+			std::string errfile = this->HtmlToString(this->GetHardCPathCode(400), client);
 			this->_response = 
 			"HTTP/1.1 200 OK\r\n"
 			"Content-Type: text/html\r\n"
@@ -69,8 +69,8 @@ std::string Server::ParseRequest(Client *client)
 			itfirst++;
 	}
 	if (itfirst == this->_request.end())
-		return (this->GetSatusCodeFile(400, client));
-	while (!std::isspace(*itfirst))
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+	while (!std::isspace(*itfirst) && index < 7)
 	{
 		arr[index] = *itfirst;
 		index++;
@@ -78,18 +78,18 @@ std::string Server::ParseRequest(Client *client)
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-	
+
 	if (method == "GET")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->GetSatusCodeFile(405, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "GET";
 		return (this->MethodGet(itfirst, client));
 	}
 	else if (method == "POST")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->GetSatusCodeFile(405, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "POST";
 		std::string response = this->MethodPost(itfirst);
 		return (response);
@@ -97,11 +97,11 @@ std::string Server::ParseRequest(Client *client)
 	else if (method == "DELETE")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->GetSatusCodeFile(405, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "DELETE";
 	}
 	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
-	return (this->GetSatusCodeFile(501, client));
+	return (this->HtmlToString(this->GetHardCPathCode(501), client));
 }
 
 int Server::IsMethodAllowed(std::string method, Client *client)
@@ -241,40 +241,56 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path, client));
 	else
-		return (this->GetSatusCodeFile(404, client));
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 }
 
-std::string Server::GetSatusCodeFile(int code, Client *client)
+std::string Server::GetHardCPathCode(int code)
 {
-	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
-	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
-		iterr++;
-
-	if (iterr == client->GetErrorpageEnd())
-		return (this->GetSatusCodeFile(404, client));
-
-	std::string statuscode = client->GetRoot() + iterr->second;
-	std::cout << "Statuscode = " << statuscode << std::endl;
-	return (this->HtmlToString(statuscode, client));
+	logger("GETTING HARDCODED PATH TO ERRORFILE!");
+	std::cout << "Getting " << code << " html file!" << std::endl;
+	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
+	while (it != this->_hcerr_page.end())
+	{
+		if (it->first == code)
+			break ;
+		it++;
+	}
+	if (it == this->_hcerr_page.end())
+	{
+		logger("Code passed isn't valid! Internal server error!");
+		for (auto iterr = this->_hcerr_page.begin(); iterr != this->_hcerr_page.end(); iterr++)
+		{
+			if (iterr->first == 500)
+				return (iterr->second);
+		}
+	}
+	return (it->second);
 }
 
 std::string Server::GetSatusCodeFile(std::string path, Client *client)
 {
 	std::string::iterator begin = path.begin();
-	while (!std::isdigit(*begin))
+	while (begin != path.end() && !std::isdigit(*begin))
 		begin++;
+	if (begin == path.end())
+	{
+		logger("jdksa\n");
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	}
 	auto end = begin;
 	while (std::isdigit(*end))
 		end++;
 	std::string strcode(begin, end);
 	int code = std::stoi(strcode);
 	std::cout << "CODE = " << code << std::endl;
-	
+
 	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
 	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
 		iterr++;
 	if (iterr == client->GetErrorpageEnd())
-		return (this->GetSatusCodeFile(404, client));
+	{
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	}
 	
 	std::string statuscode = client->GetRoot() + iterr->second;
 	std::cout << "Statuscode = " << statuscode << std::endl;
@@ -284,15 +300,15 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 std::string Server::HtmlToString(std::string path, Client *client)
 {
 	if (access(path.c_str(), F_OK) == -1)
-		return (this->GetSatusCodeFile(404, client));
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	if (access(path.c_str(), R_OK) == -1)
-		return (this->GetSatusCodeFile(403, client));
+		return (this->HtmlToString(this->GetHardCPathCode(403), client));
 	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
 		std::cout << "Failed to read file!\n" << std::endl;
-		return (this->GetSatusCodeFile(404, client));
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();

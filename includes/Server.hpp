@@ -47,6 +47,7 @@ private:
 	std::string _root;
 	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
+	std::unordered_map<int, std::string> _hcerr_page;
 	std::string _index;
 
 	std::vector<Location> _locations;
@@ -109,12 +110,13 @@ public:
 	std::string MethodPost(std::vector<char>::iterator itreq);
 	std::string HtmlToString(std::string path, Client *clien);
 	std::string GetSatusCodeFile(std::string code, Client *client);
-	std::string GetSatusCodeFile(int code, Client *client);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd);
 
 
+	void InitHardcodedError();
+	std::string GetHardCPathCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
 	void CheckUnusedClients();

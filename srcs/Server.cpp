@@ -17,6 +17,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_donereading = false;
 		this->_iscgi = false;
 		this->_listensock = 0;
+		this->InitHardcodedError();
 	}
 
 
@@ -24,6 +25,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 Server::Server(Parser &in)
 {
 	this->_serverblocks = in.GetServerBlocks();
+	this->InitHardcodedError();
 	this->_ammount_sock = 0;
 	this->_client = NULL;
 	this->_donereading = false;
@@ -44,6 +46,17 @@ Server::~Server()
 	delete this->_client;
 	this->_sockvec.clear();
 	this->_serverblocks.clear();
+	this->_hcerr_page.clear();
+}
+
+void Server::InitHardcodedError()
+{
+	this->_hcerr_page[400] = "./var/www/status_codes/400.html";
+	this->_hcerr_page[403] = "./var/www/status_codes/403.html";
+	this->_hcerr_page[404] = "./var/www/status_codes/404.html";
+	this->_hcerr_page[405] = "./var/www/status_codes/405.html";
+	this->_hcerr_page[500] = "./var/www/status_codes/500.html";
+	this->_hcerr_page[501] = "./var/www/status_codes/501.html";
 }
 
 void Server::AddSocket(int fd, bool is_client)
@@ -217,8 +230,8 @@ void Server::PollEvents()
 			else
 			{
 				this->EventsPollin(temp.fd, this->_client);
-				if (this->_response.size() == 0)
-					this->CheckUnusedClients();
+				// if (this->_response.size() == 0)
+				// 	this->CheckUnusedClients();
 			}
 		}
 		else if (temp.revents & POLLOUT)

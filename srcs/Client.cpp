@@ -85,11 +85,13 @@ std::ostream& operator<<(std::ostream &out, Client *in)
 	out << "Client root = " << in->GetRoot() << std::endl;
 	for (auto it = in->GetErrorpageBegin(); it != in->GetErrorpageEnd(); it++)
 	{
-		out << it->first << std::endl;
+		out << it->first << " ";
 	}
+	out << std::endl;
 	for (auto it = in->GetMethodsBegin(); it != in->GetMethodsEnd(); it++)
 	{
-		out << *it << std::endl;
+		out << *it << " ";
 	}
+	out << std::endl;
 	return (out);
 }
