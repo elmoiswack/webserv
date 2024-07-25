@@ -15,7 +15,8 @@ void Server::GetResponse(int fd, Client *client)
 {
 	if (this->_donereading == false)
 	{
-		if (this->RecieveMessage(fd, client) == -1)
+		int ret = this->RecieveMessage(fd, client);
+		if (ret == -1)
 		{
 			std::string errfile = this->HtmlToString(this->GetHardCPathCode(400), client);
 			this->_response = 
@@ -25,6 +26,12 @@ void Server::GetResponse(int fd, Client *client)
 			"\r\n"
 			+ errfile;
 			this->_request.clear();
+			return ;
+		}
+		else if (ret == 0)
+		{
+			this->_connectionclosed = true;
+			this->_donereading = false;
 			return ;
 		}
 	}
@@ -49,6 +56,38 @@ void Server::GetResponse(int fd, Client *client)
 		}
 		this->_donereading = false;
 	}
+}
+
+int Server::RecieveMessage(int fd, Client *client)
+{
+	logger("Ready to recieve...");
+	char buff[client->Getrecvmax()];
+	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
+	if (rbytes == -1)
+	{
+		logger("ERROR: RECV returned -1!");
+		return (-1);
+	}
+	if (rbytes == 0)
+	{
+		logger("RECV returned 0, connection closed!");
+		return (0);
+	}
+	logger("request:");
+	for (int i = 0; i < rbytes; i++)
+	{
+		std::cout << buff[i];
+		this->_request.push_back(buff[i]);
+	}
+	std::cout << std::endl;
+	std::cout << "Bytes recv = " << rbytes << std::endl;
+	if (rbytes < client->Getrecvmax())
+	{
+		this->_donereading = true;
+		this->_request.push_back('\0');
+	}
+	logger("message recieved!");
+	return (1);
 }
 
 std::string Server::ParseRequest(Client *client)
@@ -315,30 +354,3 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	return (buffer.str());
 }
 
-int Server::RecieveMessage(int fd, Client *client)
-{
-	logger("Ready to recieve...");
-	std::cout << "maxrecv = " << client->Getrecvmax() << std::endl;
-	char buff[client->Getrecvmax()];
-	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
-	if (rbytes == -1)
-	{
-		logger("ERROR: RECV returned -1!");
-		return (-1);
-	}
-	logger("request:");
-	for (int i = 0; i < rbytes; i++)
-	{
-		std::cout << buff[i];
-		this->_request.push_back(buff[i]);
-	}
-	std::cout << std::endl;
-	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < client->Getrecvmax())
-	{
-		this->_donereading = true;
-		this->_request.push_back('\0');
-	}
-	logger("message recieved!");
-	return (1);
-}

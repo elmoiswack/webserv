@@ -42,6 +42,7 @@ private:
 	bool		_donereading;
 	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
+	bool		_connectionclosed;
 
 	int			_recvmax;
 	std::string _port;
@@ -102,28 +103,27 @@ public:
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
 	void CloseAllFds();
-	std::string ExtractBoundary(const std::string &content);
-	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd, Client *client);
 	int  RecieveMessage(int fd, Client *client);
 	void GetResponse(int fd, Client *client);
 	std::string ParseRequest(Client *client);
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
 	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq);
 	std::string HtmlToString(std::string path, Client *clien);
 	std::string GetSatusCodeFile(std::string code, Client *client);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd);
+	void EventsPollout(int fd, Client *client);
 
 
 	void InitHardcodedError();
 	std::string GetHardCPathCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
-	void CheckUnusedClients();
 
 	class BindErrorException : public std::exception
 	{
@@ -156,6 +156,11 @@ public:
 	};
 
 	class ServerblockErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	class WriteErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
