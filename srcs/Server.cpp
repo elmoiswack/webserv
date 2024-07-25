@@ -1,13 +1,6 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
 #include "../includes/Client.hpp"
-#include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <vector>
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
@@ -17,6 +10,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_donereading = false;
 		this->_iscgi = false;
 		this->_recvzero = false;
+		this->_firstread = true;
 		this->_listensock = 0;
 		this->InitHardcodedError();
 }
@@ -32,6 +26,7 @@ Server::Server(Parser &in)
 	this->_donereading = false;
 	this->_iscgi = false;
 	this->_recvzero = false;
+	this->_firstread = true;
 	this->_listensock = 0;
 	this->_request.clear();
 	this->_response.clear();

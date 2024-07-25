@@ -10,9 +10,11 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <unordered_map>
-
-#include "Parser.hpp"
+#include <fcntl.h>
 #include <vector>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <poll.h>
 
 #include "../includes/Parser.hpp"
@@ -43,6 +45,7 @@ private:
 	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
 	bool		_recvzero;
+	bool		_firstread;
 
 	int			_recvmax;
 	std::string _port;
@@ -115,6 +118,7 @@ public:
 	std::string MethodPost(std::vector<char>::iterator itreq);
 	std::string HtmlToString(std::string path, Client *clien);
 	std::string GetSatusCodeFile(std::string code, Client *client);
+	long	GetContentLenght(char *buff);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd, Client *client);

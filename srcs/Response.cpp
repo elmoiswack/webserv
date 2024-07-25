@@ -1,12 +1,4 @@
 #include "../includes/Server.hpp"
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include<fstream>
-#include<string>
-#include <sstream>
 
 void Server::EventsPollout(int fd, Client *client)
 {

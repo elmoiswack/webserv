@@ -1,9 +1,4 @@
 #include "../includes/Server.hpp"
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include "../includes/Cgi.hpp"
 
 void Server::EventsPollin(int fd, Client *client)
@@ -58,21 +53,62 @@ void Server::GetResponse(int fd, Client *client)
 	}
 }
 
+long Server::GetContentLenght(char *buff)
+{
+	std::string tmp(buff);
+
+	int begin = tmp.find("Content-Length:", 0);
+	if (begin == -1)
+		return (0);
+	while (!std::isspace(tmp[begin]))
+		begin++;
+	begin++;
+	int end = begin;
+	while (std::isdigit(tmp[end]))
+		end++;
+
+	std::string numb = tmp.substr(begin, end - begin);
+	std::cout << "Contenlenght = " << numb << std::endl;
+	long body = std::stol(numb);
+	begin = tmp.find("Priority:", 0);
+	while (tmp[begin] && tmp[begin] != '-')
+		begin++;
+	
+	if ((size_t)begin == tmp.size())
+	{
+		logger("FOR FUCK SAKE!!!!!!!!!!!!!");
+		exit(EXIT_FAILURE);
+	}
+	
+	numb = tmp.substr(0, begin);
+	std::string strhead = std::to_string(numb.size());
+	std::cout << "dfsadsa: " << strhead << std::endl;
+	long head = std::stol(strhead);
+	return (head + body);
+}
+
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
 	char buff[client->Getrecvmax()];
 	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
+	std::cout << "Bytes recv = " << rbytes << std::endl;
 	if (rbytes == -1)
 	{
 		logger("ERROR: RECV returned -1!");
 		return (-1);
 	}
-	if (rbytes == 0)
+	if (this->_firstread == true)
 	{
-		logger("RECV returned 0, connection closed!");
-		return (0);
+		this->_firstread = false;
+		client->SetContentLenght(this->GetContentLenght(buff));
+		std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
 	}
+	// if (rbytes == 0)
+	// {
+	// 	logger("RECV returned 0, connection closed!");
+	// 	return (0);
+	// }
 	logger("request:");
 	for (int i = 0; i < rbytes; i++)
 	{
@@ -80,15 +116,17 @@ int Server::RecieveMessage(int fd, Client *client)
 		this->_request.push_back(buff[i]);
 	}
 	std::cout << std::endl;
-	std::cout << "Bytes recv = " << rbytes << std::endl;
-	if (rbytes < client->Getrecvmax())
+	if (this->_request.size() > (size_t)client->GetContentLenght())
 	{
 		this->_donereading = true;
+		this->_firstread = true;
 		this->_request.push_back('\0');
 	}
 	logger("message recieved!");
 	return (1);
 }
+// dus moet de content-lenght van de eerste read opslaan, die moet ik uit buffer halen.
+// dan door lezen tot dat mn request de size heeft van content-lenght
 
 std::string Server::ParseRequest(Client *client)
 {
