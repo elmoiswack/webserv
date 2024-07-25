@@ -59,7 +59,6 @@ std::string Server::ParseRequest()
 	arr[index] = '\0';
 	std::string method(arr);
 
-
 	if (method == "GET")
 	{
 		this->_method = "GET";
