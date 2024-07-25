@@ -18,6 +18,10 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 
+typedef enum e_autoindex{
+	EMPTY = 0,
+} t_autoindex;
+
 class Parser;
 
 class Location;
