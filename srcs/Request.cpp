@@ -96,7 +96,7 @@ std::string Server::ParseRequest()
 		// if (bvruhg.size() == 0)
 		if (this->_post_data.size() == 0)
 		{
-			logger("BRUH FAILED POST");
+			logger("POST FAILED");
 			exit(EXIT_FAILURE);
 		}
 		return (bvruhg);
@@ -186,20 +186,41 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		// std::string post_data = ParsePost(tmp);
 		this->_post_data = ParsePost(tmp);
 		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
-		Cgi cgi(_method, this->_post_data, path, tmp);
-		this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
-		this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
-		std::cout << "ORIGINAL READ END RESPONSE PIPE: " << cgi.getReadEndResponsePipe() << "\n";
-		std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << cgi.getReadEndUploadPipe() << "\n";
+		// Cgi cgi(_method, this->_post_data, path, tmp);
+		this->_cgi = new Cgi(_method, this->_post_data, path, tmp);
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
+		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+		// std::cout << "ORIGINAL READ END RESPONSE PIPE: " << _cgi->getReadEndResponsePipe() << "\n";
+		// std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << _cgi->getReadEndUploadPipe() << "\n";
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
-		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path, this);
+		std::string cgi_path = _cgi->constructCgiPath(path);
+		_cgi->runCgi(cgi_path, this);
 		// cgi.runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;f
 		return (this->_response);
 	}
+	// if (isCgi(path))
+	// {
+	// 	std::string tmp(this->_request.begin(), this->_request.end());
+	// 	// std::string post_data = ParsePost(tmp);
+	// 	this->_post_data = ParsePost(tmp);
+	// 	// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
+	// 	Cgi cgi(_method, this->_post_data, path, tmp);
+	// 	this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
+	// 	this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+	// 	std::cout << "ORIGINAL READ END RESPONSE PIPE: " << cgi.getReadEndResponsePipe() << "\n";
+	// 	std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << cgi.getReadEndUploadPipe() << "\n";
+	// 	this->_iscgi = true;
+	// 	if (this->_response.size() > 0)
+	// 		this->_response.clear();
+	// 	std::string cgi_path = cgi.constructCgiPath(path);
+	// 	this->_response = cgi.runCgi(cgi_path, this);
+	// 	// cgi.runCgi(cgi_path, this);
+	// 	// std::cout << "RESPONSE: \n\n" << this->_response;f
+	// 	return (this->_response);
+	// }
 	return ("");
 }
 
@@ -218,19 +239,35 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	if (isCgi(path))
 	{
 		std::string tmp(this->_request.begin(), this->_request.end());
-		Cgi cgi(_method, path, tmp);
+		this->_cgi = new Cgi(_method, path, tmp);
 		// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
-		this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
-		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path, this);
+		std::string cgi_path = _cgi->constructCgiPath(path);
+		_cgi->runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		// for (const std::string& type : this->_whatsockvec) 
 		// 	logger("--Socket type: " + type);
 		return (this->_response);
 	}
+	// if (isCgi(path))
+	// {
+	// 	std::string tmp(this->_request.begin(), this->_request.end());
+	// 	Cgi cgi(_method, path, tmp);
+	// 	// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+	// 	this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
+	// 	this->_iscgi = true;
+	// 	if (this->_response.size() > 0)
+	// 		this->_response.clear();
+	// 	std::string cgi_path = cgi.constructCgiPath(path);
+	// 	this->_response = cgi.runCgi(cgi_path, this);
+	// 	// std::cout << "RESPONSE: \n\n" << this->_response;
+	// 	// for (const std::string& type : this->_whatsockvec) 
+	// 	// 	logger("--Socket type: " + type);
+	// 	return (this->_response);
+	// }
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString("./var/www" + itloc->GetIndex()));
@@ -303,7 +340,7 @@ void Server::RecieveMessage(int fd)
 	logger("request:");
 	for (int i = 0; i < rbytes; i++)
 	{
-		// std::cout << buff[i];
+		std::cout << buff[i];
 		this->_request.push_back(buff[i]);
 	}
 	std::cout << std::endl;

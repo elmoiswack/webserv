@@ -118,17 +118,17 @@ std::string Cgi::extractReqUrl(const std::string &url)
 	return (path);
 }
 
-std::string	Cgi::readCgiResponse(int fd)
-{
-	std::ostringstream oss;
-	char buffer[1200];
-	ssize_t bytes_read = 0;
-	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-		oss.write(buffer, bytes_read); // -> append read data to the output string stream
-	close(fd);
-	// std::cout << oss.str() << "\n";
-	return (oss.str());
-}
+// std::string	Cgi::readCgiResponse(int fd)
+// {
+// 	std::ostringstream oss;
+// 	char buffer[1200];
+// 	ssize_t bytes_read = 0;
+// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+// 	close(fd);
+// 	// std::cout << oss.str() << "\n";
+// 	return (oss.str());
+// }
 
 // std::string	Cgi::readCgiResponse(int fd)
 // {
@@ -276,7 +276,7 @@ bool Cgi::waitForChild() const
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
-	// (void)server;
+	(void)server;
     pid_t pid = fork();
     if (pid == -1)
 	{
@@ -298,8 +298,8 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
     }
 	else  											// Parent process
 	{
-		_pid = pid; 								// save pid for further processing if needed
-		server->setCgi(*this);
+		this->_pid = pid; 								// save pid for further processing if needed
+		// server->setCgi(*this);
         close(_responsePipe[1]);	
 
 		// Close write end of CGI response pipe
@@ -372,6 +372,13 @@ std::string Cgi::getMethod()
 {
 	return (this->_method);
 }
+
+void Cgi::appendResponse(std::string responseToAdd)
+{
+	this->_response += responseToAdd;
+}
+
+
 
 
 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!

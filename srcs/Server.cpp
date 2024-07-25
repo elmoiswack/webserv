@@ -11,7 +11,7 @@
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
-    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page), _websock(-1) {}
+    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page), _websock(-1), _cgi(nullptr) {}
 
 
 
@@ -239,7 +239,7 @@ void Server::PollEvents()
 		{
 			if (this->_whatsockvec[index] == "SERVER")
 			{
-				logger("-----------------------------");
+				// logger("-----------------------------");
 				this->AcceptClient(index);
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
@@ -250,17 +250,19 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
-				logger("--CGI POLLIN");
+				logger("\n--CGI POLLIN\n");
 				this->_response = this->readCgiResponse(temp.fd);
 				// logger("\n--CGI RESPONSE: \n" + _response);
 				this->RmvSocket(index);
+				//if (this->_cgi)
+				// delete this->_cgi;
 			}
 		}
 		if (temp.revents & POLLOUT)
 		{
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
-				// logger("--CGI POLLOUT");
+				logger("\n--CGI POLLOUT\n");
 
 				this->writeToCgi(temp.fd, index);
 				// write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
@@ -319,7 +321,6 @@ void Server::setCgi(Cgi cgi)
 void Server::writeToCgi(int fd, int index)
 {
 	// (void)fd;
-	logger("----CGI POLLOUT\n\n");
 	// logger("--METHOD: " + this->_current_cgi.getMethod());
 	// logger("\nAfter Cgi gets destructed: ");
 	// std::cout << _current_cgi.getReadEndResponsePipe() << "\n";
@@ -328,8 +329,9 @@ void Server::writeToCgi(int fd, int index)
 	// for (const std::string env : _current_cgi._cgiEnvVarsCstyle) logger(env);
 	// logger("-------------------");
 	// for (const std::string &env : _current_cgi._cgiEnvVars) logger(env);
-	std::cout << "READ END UPLOAD PIPE: " << this->_current_cgi.getReadEndUploadPipe();
-	close(this->_current_cgi.getReadEndUploadPipe()); // NEED TO SOMEHOW GET ACCESS TO IT AFTER CGI IS DESTRUCTED
+	// std::cout << "WRITE END UPLOAD PIPE WHEN WRITE TO CGI: " << this->_cgi->getReadEndUploadPipe();
+	
+	close(this->_cgi->getReadEndUploadPipe());
 	logger("\n---POST DATA: " + _post_data);
 	if (!this->_post_data.empty())
 	{
@@ -350,13 +352,17 @@ std::string	Server::readCgiResponse(int fd)
 	char buffer[this->_recvmax];
 	ssize_t bytes_read;
 	// logger("--METHOD: " + this->_current_cgi->getMethod());
-	if (this->_current_cgi.waitForChild() == false)
+	if (this->_cgi->waitForChild() == false)
 	{
 		logger("ERROR CGI PROCESS");
 		exit(EXIT_FAILURE);
 	}
 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+	
+	// bytes_read = read(fd, buffer, sizeof(buffer));
+	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
+	
 	if (bytes_read == -1)
 		logger("ERROR READING FROM CGI PIPE");
 	// close(fd);

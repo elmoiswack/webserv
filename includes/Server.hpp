@@ -55,6 +55,7 @@ private:
 	std::vector<Location> _locations;
 
 	int		_websock;
+	Cgi*		_cgi;
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
 	Cgi		_current_cgi;

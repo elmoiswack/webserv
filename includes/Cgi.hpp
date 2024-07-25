@@ -29,6 +29,7 @@ class Cgi
 {
 	private:
 		std::string 				_method;
+		std::string 				_response;
 		std::string 				_postData;
 		std::vector<std::string> 	_cgiEnvVars;
 		pid_t						_pid;
@@ -49,8 +50,8 @@ class Cgi
 		std::string 				extractReqUrl(const std::string &url);
 		std::string					extractQueryString(const std::string &url);
 		std::string					extractContentType(const std::string &req);
-		std::string					readCgiResponse(int fd);
-		void 						writeToCgi(int fd);
+		// std::string					readCgiResponse(int fd);
+		// void 						writeToCgi(int fd);
 		std::string					runCgi(const std::string &cgi_path, Server *self);
 		// void						runCgi(const std::string &cgi_path, Server *self);
 		std::vector<std::string>	initCgiEnvVars(const std::string &client_resp, const std::string &url);
@@ -65,6 +66,7 @@ class Cgi
 		int 						getWriteEndUploadPipe() const;
 		int 						getReadEndUploadPipe() const;
 		bool 						waitForChild() const;
+		void 						appendResponse(std::string responseToAdd);
 
 
 };
