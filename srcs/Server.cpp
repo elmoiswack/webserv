@@ -251,9 +251,12 @@ void Server::PollEvents()
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				logger("\n--CGI POLLIN\n");
-				this->_response.append(this->readCgiResponse(temp.fd));
+				// this->_response.append(this->readCgiResponse(temp.fd));
+				if (this->_cgi_donereading == false)
+					this->readCgiResponse(temp.fd, index);
 				// logger("\n--CGI RESPONSE: \n" + _response);
-				this->RmvSocket(index);
+				// if ()
+				// this->RmvSocket(index);
 				//if (this->_cgi)
 				// delete this->_cgi;
 			}
@@ -320,17 +323,6 @@ void Server::setCgi(Cgi cgi)
 
 void Server::writeToCgi(int fd, int index)
 {
-	// (void)fd;
-	// logger("--METHOD: " + this->_current_cgi.getMethod());
-	// logger("\nAfter Cgi gets destructed: ");
-	// std::cout << _current_cgi.getReadEndResponsePipe() << "\n";
-	// std::cout << _current_cgi.getReadEndUploadPipe() << "\n";
-	// std::cout << _current_cgi.getWriteEndUploadPipe() << "\n";
-	// for (const std::string env : _current_cgi._cgiEnvVarsCstyle) logger(env);
-	// logger("-------------------");
-	// for (const std::string &env : _current_cgi._cgiEnvVars) logger(env);
-	// std::cout << "WRITE END UPLOAD PIPE WHEN WRITE TO CGI: " << this->_cgi->getReadEndUploadPipe();
-	
 	close(this->_cgi->getReadEndUploadPipe());
 	logger("\n---POST DATA: " + _post_data);
 	if (!this->_post_data.empty())
@@ -345,43 +337,67 @@ void Server::writeToCgi(int fd, int index)
 	}
 }
 
-std::string	Server::readCgiResponse(int fd)
+std::string Server::readCgiResponse(int fd, int index)
 {
-	// logger("--CGI POLLIN\n");
-	//std::ostringstream oss;
-	char buffer[this->_recvmax];
-	ssize_t bytes_read;
-	std::string read_data;
-	// logger("--METHOD: " + this->_current_cgi->getMethod());
-	if (this->_cgi->waitForChild() == false)
-	{
-		logger("ERROR CGI PROCESS");
-		exit(EXIT_FAILURE);
-	}
-	// while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-	// 	oss.write(buffer, bytes_read); // -> append read data to the output string stream
-	
-	bytes_read = read(fd, buffer, sizeof(buffer));
-	read_data = std::string(buffer, buffer + bytes_read);
-	std::cout << "READ DATA:\n" << read_data << "\n";
-	// oss.write(buffer, bytes_read); // -> append read data to the output string stream
-
-	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
-	
-	while (true)
-	if (bytes_read == -1)
-	{
-		logger("ERROR READING FROM CGI PIPE");
-		if (errno == EAGAIN)
-			logger("errno: EAGAIN");
-		if (errno == EWOULDBLOCK)
-			logger("errno: EWOULDBLOCK");
-		std::cout << "ERRNO: " << errno << "\n";
-	}
+    char buffer[this->_recvmax];
+    ssize_t bytes_read;
+    if (this->_cgi->waitForChild() == false)
+    {
+        logger("ERROR CGI PROCESS");
+        std::exit(EXIT_FAILURE);
+    }
+    bytes_read = read(fd, buffer, sizeof(buffer));
+	for (int i = 0; i < bytes_read; ++i)
+		this->_cgi_response.push_back(buffer[i]);
+	// logger("--CGI RESPONSE:\n" + this->_response);
+	for (char c : this->_cgi_response)
+		std::cout << c;
 	if (bytes_read == 0)
-		logger("REACHED EOF");
-
-	// close(fd);
-	// std::cout << oss.str() << "\n";
-	return (read_data);
+    {
+        logger("REACHED EOF");
+		this->RmvSocket(index);
+    }
+    else if (bytes_read < 0)
+	{
+        logger("ERROR READING FROM CGI PIPE (read returned -1)");
+		std::exit(EXIT_FAILURE);
+	}
+	if (bytes_read < this->_recvmax)
+    {
+        logger("CGI PIPE FULLY READ");
+		for (char c : this->_cgi_response)
+			this->_response.push_back(c);
+		this->_response.push_back('\0');
+		this->_cgi_response.clear();
+		this->_cgi_donereading = true;
+		delete this->_cgi;
+		this->RmvSocket(index);
+	}
+    return "";
 }
+
+// std::string	Server::readCgiResponse(int fd)
+// {
+// 	// logger("--CGI POLLIN\n");
+// 	std::ostringstream oss;
+// 	char buffer[this->_recvmax];
+// 	ssize_t bytes_read;
+// 	// logger("--METHOD: " + this->_current_cgi->getMethod());
+// 	if (this->_cgi->waitForChild() == false)
+// 	{
+// 		logger("ERROR CGI PROCESS");
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+	
+// 	// bytes_read = read(fd, buffer, sizeof(buffer));
+// 	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
+	
+// 	if (bytes_read == -1)
+// 		logger("ERROR READING FROM CGI PIPE");
+// 	// close(fd);
+// 	// std::cout << oss.str() << "\n";
+// 	return (oss.str());
+// }
+

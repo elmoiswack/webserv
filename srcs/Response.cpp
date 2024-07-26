@@ -21,8 +21,6 @@ void Server::EventsPollout(int fd, int index)
 		logger("fd is closed and removed!");
 		this->_response.clear();
 		this->RmvSocket(index);
-		// if (this->_cgi)
-		// 	delete this->_cgi;
 	}
 }
 

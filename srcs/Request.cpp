@@ -65,12 +65,12 @@ void Server::GetResponse(int fd)
 std::string Server::ParseRequest()
 {
 	std::vector<char>::iterator itfirst = this->_request.begin();
-	// logger("\n\nRequest after reading is done =");
-	// for (std::vector<char>::iterator bruh = this->_request.begin(); bruh != this->_request.end(); bruh++)
-	// {
-	// 	std::cout << *bruh;
-	// }
-	// std::cout << std::endl;
+	logger("\n\nRequest after reading is done =");
+	for (std::vector<char>::iterator bruh = this->_request.begin(); bruh != this->_request.end(); bruh++)
+	{
+		std::cout << *bruh;
+	}
+	std::cout << std::endl;
 	// logger("\n\n");
 	char arr[7];
 	int index = 0;
@@ -182,6 +182,7 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	logger(path);
 	if (isCgi(path))
 	{
+		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		// std::string post_data = ParsePost(tmp);
 		this->_post_data = ParsePost(tmp);
@@ -238,6 +239,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 	std::vector<Location>::iterator itloc = this->_locationblocks.begin();
 	if (isCgi(path))
 	{
+		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		this->_cgi = new Cgi(_method, path, tmp);
 		// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
@@ -329,7 +331,7 @@ std::string Server::HtmlToString(std::string path)
 void Server::RecieveMessage(int fd)
 {
 	//logger("Ready to recieve...");
-	//std::cout << "maxrecv = " << this->_recvmax << std::endl;
+	std::cout << "maxrecv = " << this->_recvmax << std::endl;
 	char buff[this->_recvmax];
 	int rbytes = recv(fd, &buff, this->_recvmax, 0);
 	if (rbytes == -1)
@@ -340,7 +342,7 @@ void Server::RecieveMessage(int fd)
 	//logger("request:");
 	for (int i = 0; i < rbytes; i++)
 	{
-		//std::cout << buff[i];
+		// std::cout << buff[i];
 		this->_request.push_back(buff[i]);
 	}
 	//std::cout << std::endl;

@@ -35,10 +35,12 @@ private:
 	std::vector<std::string> _whatsockvec;
  	int			_ammount_sock;
 	std::vector<char> _request;
+	std::vector<char> _cgi_response;
 	std::string _response;
 	std::string _post_data;
 	std::string _method;
 	bool		_donereading;
+	bool		_cgi_donereading;
 	std::vector<int> _allow_methods;
 	bool		_iscgi;
 
@@ -121,7 +123,7 @@ public:
 	void EventsPollout(int fd, int index);
 
 	void writeToCgi(int fd, int index);
-	std::string	readCgiResponse(int fd);
+	std::string	readCgiResponse(int fd, int index);
 
 	
 
