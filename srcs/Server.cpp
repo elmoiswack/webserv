@@ -79,7 +79,7 @@ void Server::AddSocket(int fd, bool is_client)
 
 void Server::AddSocket(int fd, const std::string& type) // for the cgi
 {
-	logger("CGI SOCKET ADDED");
+	logger("\nCGI SOCKET ADDED -> " + type);
 	pollfd temp;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
@@ -251,7 +251,7 @@ void Server::PollEvents()
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				logger("\n--CGI POLLIN\n");
-				this->_response = this->readCgiResponse(temp.fd);
+				this->_response.append(this->readCgiResponse(temp.fd));
 				// logger("\n--CGI RESPONSE: \n" + _response);
 				this->RmvSocket(index);
 				//if (this->_cgi)
@@ -348,24 +348,40 @@ void Server::writeToCgi(int fd, int index)
 std::string	Server::readCgiResponse(int fd)
 {
 	// logger("--CGI POLLIN\n");
-	std::ostringstream oss;
+	//std::ostringstream oss;
 	char buffer[this->_recvmax];
 	ssize_t bytes_read;
+	std::string read_data;
 	// logger("--METHOD: " + this->_current_cgi->getMethod());
 	if (this->_cgi->waitForChild() == false)
 	{
 		logger("ERROR CGI PROCESS");
 		exit(EXIT_FAILURE);
 	}
-	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+	// while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+	// 	oss.write(buffer, bytes_read); // -> append read data to the output string stream
 	
-	// bytes_read = read(fd, buffer, sizeof(buffer));
+	bytes_read = read(fd, buffer, sizeof(buffer));
+	read_data = std::string(buffer, buffer + bytes_read);
+	std::cout << "READ DATA:\n" << read_data << "\n";
+	// oss.write(buffer, bytes_read); // -> append read data to the output string stream
+
 	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
 	
+	while (true)
 	if (bytes_read == -1)
+	{
 		logger("ERROR READING FROM CGI PIPE");
+		if (errno == EAGAIN)
+			logger("errno: EAGAIN");
+		if (errno == EWOULDBLOCK)
+			logger("errno: EWOULDBLOCK");
+		std::cout << "ERRNO: " << errno << "\n";
+	}
+	if (bytes_read == 0)
+		logger("REACHED EOF");
+
 	// close(fd);
 	// std::cout << oss.str() << "\n";
-	return (oss.str());
+	return (read_data);
 }

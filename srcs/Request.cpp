@@ -328,8 +328,8 @@ std::string Server::HtmlToString(std::string path)
 
 void Server::RecieveMessage(int fd)
 {
-	logger("Ready to recieve...");
-	std::cout << "maxrecv = " << this->_recvmax << std::endl;
+	//logger("Ready to recieve...");
+	//std::cout << "maxrecv = " << this->_recvmax << std::endl;
 	char buff[this->_recvmax];
 	int rbytes = recv(fd, &buff, this->_recvmax, 0);
 	if (rbytes == -1)
@@ -337,13 +337,13 @@ void Server::RecieveMessage(int fd)
 		std::cout << "ERROR read" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	logger("request:");
+	//logger("request:");
 	for (int i = 0; i < rbytes; i++)
 	{
-		std::cout << buff[i];
+		//std::cout << buff[i];
 		this->_request.push_back(buff[i]);
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 	std::cout << "Bytes recv = " << rbytes << std::endl;
 	if (rbytes < this->_recvmax)
 	{
