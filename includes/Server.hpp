@@ -45,7 +45,8 @@ private:
 	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
 	bool		_recvzero;
-	bool		_firstread;
+	bool		_isbody;
+	bool		_iffirstread;
 
 	int			_recvmax;
 	std::string _port;

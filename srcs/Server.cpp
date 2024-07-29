@@ -10,8 +10,9 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_donereading = false;
 		this->_iscgi = false;
 		this->_recvzero = false;
-		this->_firstread = true;
+		this->_isbody = true;
 		this->_listensock = 0;
+		this->_iffirstread = true;
 		this->InitHardcodedError();
 }
 
@@ -26,8 +27,9 @@ Server::Server(Parser &in)
 	this->_donereading = false;
 	this->_iscgi = false;
 	this->_recvzero = false;
-	this->_firstread = true;
+	this->_isbody = true;
 	this->_listensock = 0;
+	this->_iffirstread = true;
 	this->_request.clear();
 	this->_response.clear();
 }
@@ -220,10 +222,13 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			this->EventsPollout(temp.fd, this->_client);
-			this->RmvSocket(index);
-			delete this->_client;
-			logger("client is deleted!");
+			if (this->_donereading == true)
+			{
+				this->EventsPollout(temp.fd, this->_client);
+				this->RmvSocket(index);
+				delete this->_client;
+				logger("client is deleted!");
+			}
 		}
 		else if (temp.revents & POLLHUP)
 		{

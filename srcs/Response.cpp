@@ -24,5 +24,7 @@ void Server::EventsPollout(int fd, Client *client)
 		close(fd);
 		logger("fd is closed and removed!");
 		this->_response.clear();
+		this->_donereading = false;
+		this->_iffirstread = true;
 	}
 }

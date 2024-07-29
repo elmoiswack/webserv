@@ -27,6 +27,7 @@ void Server::GetResponse(int fd, Client *client)
 		{
 			this->_recvzero = true;
 			this->_donereading = false;
+			this->_request.clear();
 			return ;
 		}
 	}
@@ -49,7 +50,7 @@ void Server::GetResponse(int fd, Client *client)
 			this->_iscgi = false;
 			this->_request.clear();
 		}
-		this->_donereading = false;
+		logger("response created!");
 	}
 }
 
@@ -58,6 +59,8 @@ long Server::GetContentLenght(char *buff)
 	std::string tmp(buff);
 
 	int begin = tmp.find("Content-Length:", 0);
+	if ((size_t)begin == tmp.npos)
+		return (-1);
 	if (begin == -1)
 		return (0);
 	while (!std::isspace(tmp[begin]))
@@ -98,17 +101,25 @@ int Server::RecieveMessage(int fd, Client *client)
 		logger("ERROR: RECV returned -1!");
 		return (-1);
 	}
-	if (this->_firstread == true)
+	else if (rbytes == 0)
 	{
-		this->_firstread = false;
-		client->SetContentLenght(this->GetContentLenght(buff));
-		std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+		logger("RECV returned 0, connection closed!");
+		return (0);
 	}
-	// if (rbytes == 0)
-	// {
-	// 	logger("RECV returned 0, connection closed!");
-	// 	return (0);
-	// }
+	if (this->_iffirstread == true)
+	{
+		this->_iffirstread = false;
+		if (this->GetContentLenght(buff) != -1)
+		{
+			this->_isbody = true;
+			client->SetContentLenght(this->GetContentLenght(buff));
+			std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+		}
+		else
+		{
+			this->_isbody = false;
+		}
+	}
 	logger("request:");
 	for (int i = 0; i < rbytes; i++)
 	{
@@ -116,17 +127,21 @@ int Server::RecieveMessage(int fd, Client *client)
 		this->_request.push_back(buff[i]);
 	}
 	std::cout << std::endl;
-	if (this->_request.size() > (size_t)client->GetContentLenght())
+	if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
 	{
 		this->_donereading = true;
-		this->_firstread = true;
 		this->_request.push_back('\0');
+		logger("Done reading post");
+	}
+	else if (this->_isbody == false && rbytes < client->Getrecvmax())
+	{
+		this->_donereading = true;
+		this->_request.push_back('\0');
+		logger("Done reading get");
 	}
 	logger("message recieved!");
 	return (1);
 }
-// dus moet de content-lenght van de eerste read opslaan, die moet ik uit buffer halen.
-// dan door lezen tot dat mn request de size heeft van content-lenght
 
 std::string Server::ParseRequest(Client *client)
 {
