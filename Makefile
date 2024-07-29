@@ -10,6 +10,8 @@ SRC	:=	main.cpp \
 		Request.cpp \
 		Response.cpp \
 		Client.cpp \
+		Method.cpp \
+		Html.cpp \
 
 SRCDIR 		:= 	./srcs
 OBJDIR 		:= 	./objs

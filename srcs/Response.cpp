@@ -28,3 +28,56 @@ void Server::EventsPollout(int fd, Client *client)
 		this->_iffirstread = true;
 	}
 }
+
+void Server::BuildResponse(Client *client)
+{
+	std::string htmlfile = this->ParseRequest(client);
+	if (this->_iscgi == false)
+	{
+		this->_response = 
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+		"\r\n"
+		+ htmlfile;
+		this->_request.clear();
+	}
+	else if (this->_iscgi == true)
+	{
+		this->_response = htmlfile;
+		this->_iscgi = false;
+		this->_request.clear();
+	}
+	logger("response created!");	
+}
+
+std::string Server::ParseRequest(Client *client)
+{
+	std::vector<char>::iterator itfirst = this->_request.begin();
+	logger("\n\nRequest after reading is done =");
+	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
+	{
+		std::cout << *print;
+	}
+	std::cout << std::endl;
+	logger("\n\n");
+	char arr[7];
+	int index = 0;
+	if (std::isspace(*itfirst))
+	{
+		while (std::isspace(*itfirst))
+			itfirst++;
+	}
+	if (itfirst == this->_request.end())
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+	while (!std::isspace(*itfirst) && index < 7)
+	{
+		arr[index] = *itfirst;
+		index++;
+		itfirst++;
+	}
+	arr[index] = '\0';
+	std::string method(arr);
+	
+	return (this->WhichMethod(client, method, itfirst));
+}

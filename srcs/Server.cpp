@@ -211,7 +211,7 @@ void Server::PollEvents()
 				this->EventsPollin(temp.fd, this->_client);
 				if (this->_recvzero == true)
 				{
-					logger("Removing client!");
+					logger("Client closed connection!");
 					close(temp.fd);
 					this->RmvSocket(index);
 					delete this->_client;

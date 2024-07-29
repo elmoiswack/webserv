@@ -120,10 +120,14 @@ public:
 	std::string HtmlToString(std::string path, Client *clien);
 	std::string GetSatusCodeFile(std::string code, Client *client);
 	long	GetContentLenght(char *buff);
+	void InitRequest(int fd, Client *client);
+	void BuildResponse(Client *client);
+	void IsFirstRead(Client *client, char *buff);
+	void IsDoneRead(Client *client, int rbytes);
+	std::string WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd, Client *client);
-
 
 	void InitHardcodedError();
 	std::string GetHardCPathCode(int code);
