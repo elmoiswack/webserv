@@ -13,6 +13,7 @@ void Server::EventsPollout(int fd, int index)
 	// logger("POLLOUT");
 	if (this->_response.size() > 0)
 	{
+		logger("\n\nRESPONSE at POLLOUT: \n" + this->_response + "\n\n");
 		// logger("sending response to client...");
 		// logger("\n--RESPONSE: \n" + this->_response);
 		write(fd, this->_response.c_str(), this->_response.size());

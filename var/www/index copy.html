@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Server</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>HTTP Server</h1>
+    <h2>You can:</h2>
+    <ul>
+        <li>
+            <p>ENTER NAME:
+                <form action="/cgi-bin/submit_name.cgi" method="get">
+                    First Name: <input type="text" name="first_name" required><br>
+                    Last Name: <input type="text" name="last_name" required><br>
+                    <input type="submit" value="Submit">
+                </form>
+            </p>
+        </li>
+        <li>
+            <p>UPLOAD FILE:
+                <form action="/cgi-bin/upload_file.cgi" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file">
+                    <input type="submit" value="Upload">
+                </form>
+            </p>
+        </li>
+        <li>
+            <p>DELETE FILE:
+                <form id="deleteForm" action="/cgi-bin/delete_file.cgi" method="delete">
+                    <select name="filename" id="fileDropdown">
+                        <!-- Options will be filled dynamically -->
+                    </select>
+                    <input type="submit" value="Delete">
+                </form>
+            </p>
+        </li>
+        <li><a href="/cgi-bin/view_files.cgi">View uploaded files</a></li>
+        <li><a href="imaginary.html">Test non-existing html page</a></li>
+        <li><a href="/status_codes/404.html">404 Not Found</a></li>
+        <li><a href="/status_codes/307.html">307 Temporary Redirect</a></li>
+        <li><a href="/status_codes/403.html">403 Forbidden</a></li>
+        <li><a href="/status_codes/401.html">401 Unauthorized</a></li>
+    </ul>
+
+    <script>
+        // Function to fetch files and populate the dropdown
+        async function fetchFiles() {
+            try {
+                const response = await fetch('cgi-bin/list_files.cgi');
+                const files = await response.json();
+                const dropdown = document.getElementById('fileDropdown');
+
+                dropdown.innerHTML = ''; // Clear existing options
+
+                files.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file;
+                    option.textContent = file;
+                    dropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
+
+        // Populate dropdown on page load
+        window.onload = fetchFiles;
+    </script>
+</body>
+</html>

@@ -27,34 +27,11 @@ void Server::GetResponse(int fd)
 			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 			"\r\n"
 			+ htmlfile;
+			// logger("\n\nRESPONSE IN GetResponse(): \n" +  _response + "\n\n");
 			this->_request.clear();
 		}
 		else if (this->_iscgi == true)
 		{
-			// logger("---IS CGI");
-			// if (this->_method == "POST")
-			// {
-				// logger("---IS POST");
-				// this->_response = this->readCgiResponse(fd);
-				// this->_response = 
-				// "HTTP/1.1 200 OK\r\n"
-				// "Content-Type: text/html\r\n"
-				// "Content-Length: 19\r\n"
-				// "\r\n"
-				// "<!DOCTYPE html>\r\n"
-	    		// "<html>\r\n"
-	    		// "<body>\r\n"
-	    		// "<h1>TEST_TEST_TEST_TEST</h1>\r\n"
-	    		// "</body>\r\n"
-	    		// "</html>\r\n";
-				// return;
-			// }
-			// if (_method == "POST")
-			// {
-			// 	logger("IS POST!");
-			// 	// this->_response = htmlfile;
-			// }
-
 			this->_iscgi = false;
 			this->_request.clear();
 		}
@@ -82,8 +59,6 @@ std::string Server::ParseRequest()
 	}
 	arr[index] = '\0';
 	std::string method(arr);
-
-
 	if (method == "GET")
 	{
 		this->_method = "GET";
@@ -97,18 +72,21 @@ std::string Server::ParseRequest()
 		if (this->_post_data.size() == 0)
 		{
 			logger("POST FAILED");
-			exit(EXIT_FAILURE);
+			// exit(EXIT_FAILURE);
 		}
 		return (bvruhg);
 	}
 	else if (method == "DELETE")
 	{
+		logger("\nDELETE BABY\n");
 		this->_method = "DELETE";
+		return (this->MethodDelete(itfirst));
 	}
 	// logger("\nMETHOD IS NOT ACCEPTED OR DOENS'T EXIST!\n");
 	// logger("sending client back to index.html\n");
 	return (this->HtmlToString("./var/www/index.html"));
 }
+
 
 std::string Server::ExtractBoundary(const std::string &content) {
 
@@ -169,6 +147,32 @@ std::string Server::ParsePost(const std::string &content) {
     
     return post_data;
 }
+
+std::string Server::MethodDelete(std::vector<char>::iterator itreq)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(++itreq, itend);
+	logger(path);
+
+	// const char* filePath = "var/www/uploads/test.txt";
+	std::string response;
+	if (std::remove(path.c_str()) == 0)
+	{
+		logger("FILE DELETED!");
+		response = this->HtmlToString("./var/www/file_deleted.html");
+		return (response);
+	}
+	logger("ERROR DELETING FILE!");
+	response = this->HtmlToString("./var/www/status_codes/404.html");
+	// logger("\n\nRESPONSE IN MethodDelete(): \n" +  response + "\n\n");
+	return (response);
+}
+
 
 std::string Server::MethodPost(std::vector<char>::iterator itreq)
 {
