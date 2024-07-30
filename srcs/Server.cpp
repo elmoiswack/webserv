@@ -343,7 +343,7 @@ std::string Server::readCgiResponse(int fd, int index)
     ssize_t bytes_read;
     if (this->_cgi->waitForChild() == false)
     {
-        logger("ERROR CGI PROCESS");
+        logger("\n\n\nERROR CGI PROCESS\n\n\n");
         std::exit(EXIT_FAILURE);
     }
     bytes_read = read(fd, buffer, sizeof(buffer));

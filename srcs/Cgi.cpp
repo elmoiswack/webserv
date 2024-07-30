@@ -178,8 +178,8 @@ std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, cons
 	std::vector<std::string> env_vars = 
 	{	
     	"CONTENT_LENGTH=",
-   		"CONTENT_TYPE=multipart/form-data; boundary=" + extractBoundary(client_resp),
-   		// "CONTENT_TYPE=" + this->extractContentType(client_resp),
+   		// "CONTENT_TYPE=multipart/form-data; boundary=" + extractBoundary(client_resp),
+   		"CONTENT_TYPE=" + this->extractContentType(client_resp),
 		"GATEWAY_INTERFACE=CGI/1.1",
 		"QUERY_STRING=" + this->extractQueryString(url),
 		"UPLOAD_FILENAME=test.txt",
@@ -193,9 +193,9 @@ std::vector<std::string>Cgi::initCgiEnvVars(const std::string &client_resp, cons
     	"HTTP_COOKIE=",
     	// "REMOTE_ADDR", "192.168.1.100"
 	};
-	// logger("CGI ENV VARS: \n\n");
-	// for (const std::string &env : env_vars)
-	// 	std::cout << env << "\n";
+	logger("CGI ENV VARS: \n\n");
+	for (const std::string &env : env_vars)
+		std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -250,29 +250,107 @@ std::string	Cgi::extractContentType(const std::string &req)
 }
 
 
+// bool Cgi::waitForChild() const
+// {
+// 	int exit_code = 0;
+//     pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+//     if (result == -1) {
+//         std::cout << "ERROR PARENT PROCESS\n";
+// 		return (false);          
+//     }
+// 	else if (result == 0)
+// 	{
+//         std::cout << "NO CHILD HAS EXITED YET\n";
+// 		return (false);
+// 	}
+//     if (WIFEXITED(exit_code))
+// 	{
+//         std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
+//         return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
+//     }
+// 	else
+// 	{
+//         std::cout << "Child process exited abnormally" << "\n";
+// 		return (false);
+// 	}
+// }
+
+// bool Cgi::waitForChild() const
+// {
+//     int exit_code = 0;  // Initialize exit_code to 0
+//     pid_t result;
+
+//     // while (true)
+// 	//{
+//         result = waitpid(this->_pid, &exit_code, WNOHANG);
+        
+//         std::cout << "waitpid result: " << result << ", exit_code: " << exit_code << "\n";
+        
+//         if (result == -1)
+// 		{
+//             std::cout << "ERROR PARENT PROCESS\n";
+//             return false;
+//         }
+// 		// else if (result == 0)
+// 		// {
+//         //     // No child process has exited yet, sleep for a short period
+//         //     std::cout << "NO CHILD HAS EXITED YET\n";
+//         //   	// usleep(10000);
+//         //     continue;
+//         // }
+//         if (WIFEXITED(exit_code))
+// 		{
+//             std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
+//             return WEXITSTATUS(exit_code) == EXIT_SUCCESS;
+//         } 
+// 		else
+// 		{
+//             std::cout << "Child process exited abnormally\n";
+//             return false;
+//         }
+//     // }
+// }
+
+
+// bool Cgi::waitForChild() const
+// {
+// 	int cgiExitCode = -1;
+// 	waitpid(this->_pid, &cgiExitCode, WNOHANG);
+//     if (cgiExitCode == EXIT_SUCCESS)
+//         return true;
+//     else
+//         return false;
+// }
+
 bool Cgi::waitForChild() const
 {
-	int exit_code = 0;
+    int exit_code = 0;
+	// std::cout << "\n\nCOPIED PID: " << this->_pid << "\n\n";
+
     pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+    
     if (result == -1) {
-        std::cout << "ERROR PARENT PROCESS\n";
-		return (false);          
+        std::cerr << "ERROR: waitpid failed\n";
+        return false;
     }
-	// else if (result == 0)
-	// {
-    //     std::cout << "NO CHILD HAS EXITED YET\n";
-	// }
-    if (WIFEXITED(exit_code))
-	{
+    if (WIFEXITED(exit_code)) {
         std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
         return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
+    } 
+    else if (WIFSIGNALED(exit_code)) {
+        std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
+        return false;
     }
-	else
-	{
-        std::cout << "Child process exited abnormally" << "\n";
-		return (false);
-	}
+    else if (WIFSTOPPED(exit_code)) {
+        std::cerr << "Child process is stopped by signal: " << WSTOPSIG(exit_code) << "\n";
+        return false;
+    }
+    else {
+        std::cerr << "Child process terminated abnormally\n";
+        return false;
+    }
 }
+
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
@@ -298,47 +376,9 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
     }
 	else  											// Parent process
 	{
+		// std::cout << "\n\nORIGINAL PID: " << pid << "\n\n";
 		this->_pid = pid; 								// save pid for further processing if needed
-		// server->setCgi(*this);
         close(_responsePipe[1]);	
-
-		// Close write end of CGI response pipe
-		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
-        // if (_method == "POST")
-		// {
-		// 	close(_uploadPipe[0]);						// Close read end of upload pipe
-        // 	write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
-        // 	close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
-		// }
-        // int status;
-        // pid_t result = waitpid(pid, &status, 0);
-        // if (result == -1) {
-        //     std::cout << "ERROR PARENT PROCESS\n";
-        //     exit(EXIT_FAILURE);            
-        // }
-        // if (WIFEXITED(status)) {
-        //     std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-        //     return (readCgiResponse(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
-        // } else {
-        //     std::cout << "Child process exited abnormally" << "\n";
-        // }
-	
-		
-		// this->_pid = pid; 							// save pid for further processing if needed
-		// // std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-        // close(_responsePipe[1]);					// Close write end of CGI response pipe
-        
-		// if (this->_method == "POST")
-		// {
-		// 	logger("PPPPPPPP");
-        // 	close(_uploadPipe[0]);					// Close read end of upload pipe
-		// 	write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
-		// }
-		
-		// // this->_cgiEnvVarsCstyle.clear();
-		// // logger("-------------------");
-		// // for (const std::string env : server->_current_cgi._cgiEnvVarsCstyle) logger(env);
-		// // for (const std::string &env : server->_current_cgi._cgiEnvVars) logger(env);
     }
 	return ("");
 }
