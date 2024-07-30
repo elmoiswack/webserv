@@ -210,7 +210,7 @@ void    Server::ValidateServerIndex(std::vector<std::string> &tokens)
 	// erase index token
     tokens.erase( tokens.begin());
 	if (tokens[0] == ";") {
-		this->_serverindex = EMPTY;
+		this->_serverindex = "EMPTY";
 		tokens.erase(tokens.begin(), tokens.begin() + 1); // erase ;
 		return;
 	}

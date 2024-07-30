@@ -210,8 +210,62 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	return ("");
 }
 
-std::string listDirectoryContents(const std::string &directoryPath) {
+std::string listDirectoryContents(const std::string &directoryPath, const Server &server) {
+	std::__fs::filesystem::path rootPath = server.GetRoot(); // get root directory
+    std::__fs::filesystem::path fullPath = rootPath / directoryPath; // concatenate paths
 
+	std::string message_body; // empty string to store 
+
+	// Check if the index file exists and use it if available
+	std::string indexFileName = server.GetServerIndex();
+	if (!indexFileName.empty()) {
+		std::ifstream indexFile(server.GetRoot() + indexFileName);
+		if (indexFile.is_open()) // if it can be opened it is read
+		{
+			std::ostringstream ss;
+			ss << indexFile.rdbuf();
+			message_body = ss.str();
+			return (message_body);
+		}
+		else
+		{
+			std::cerr << "Error opening index file: " << indexFileName << "\n";
+		}
+	}
+
+    // Build directory listing if no index file is used
+    message_body = "<html>\n<title>" + directoryPath + "</title>\n";
+    message_body += "<body><h1>Index of " + directoryPath + "</h1>\n";
+    message_body += "<table><tr><th>Name</th></tr>\n";
+
+    try
+    {
+        for (const auto& entry : std::__fs::filesystem::directory_iterator(fullPath)) { // iterate through directory
+            if (entry.path().filename() == ".") // current directory
+                continue;
+
+            std::string filePath = directoryPath;
+            if (directoryPath.back() != '/') // if it doesn't have slash add one
+                filePath += '/';
+            filePath += entry.path().filename().string();
+
+            message_body += "<tr><td><a href=\"" + filePath;
+            if (std::__fs::filesystem::is_directory(entry.status()))
+                message_body += "/";
+            message_body += "\">" + entry.path().filename().string();
+            if (std::__fs::filesystem::is_directory(entry.status()))
+                message_body += "/";
+            message_body += "</a></td></tr>\n";
+        }
+    }
+    catch (const std::__fs::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Filesystem error: " << e.what() << "\n";
+    }
+
+    message_body += "</table></body>\n</html>\n"; // close html
+
+	return (message_body);
 }
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
@@ -242,10 +296,10 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 	std::string tmp;
 
 	tmp = itloc->GetIndex();
-	if (tmp.size() == 0) {
+	if (tmp == "EMPTY") {
 		if (itloc->GetAutoIndex() == true) {
 			std::string dirPath = client->GetRoot() + path;
-			return (listDirectoryContents(dirPath));
+			return (listDirectoryContents(dirPath, *this));
 		}
 		if (itloc->GetAutoIndex() == false)
 			return (this->HtmlToString(this->GetHardCPathCode(403), client));

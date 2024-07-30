@@ -20,10 +20,6 @@
 #include "../includes/Location.hpp"
 #include "../includes/Client.hpp"
 
-typedef enum e_autoindex{
-	EMPTY = 0,
-} t_autoindex;
-
 class Parser;
 class Location;
 class Client;
