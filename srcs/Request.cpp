@@ -211,8 +211,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 }
 
 std::string listDirectoryContents(const std::string &directoryPath, const Server &server) {
-	std::__fs::filesystem::path rootPath = server.GetRoot(); // get root directory
-    std::__fs::filesystem::path fullPath = rootPath / directoryPath; // concatenate paths
+	std::filesystem::path rootPath = server.GetRoot(); // get root directory
+    std::filesystem::path fullPath = rootPath / directoryPath; // concatenate paths
 
 	std::string message_body; // empty string to store 
 
@@ -240,7 +240,7 @@ std::string listDirectoryContents(const std::string &directoryPath, const Server
 
     try
     {
-        for (const auto& entry : std::__fs::filesystem::directory_iterator(fullPath)) { // iterate through directory
+        for (const auto& entry : std::filesystem::directory_iterator(fullPath)) { // iterate through directory
             if (entry.path().filename() == ".") // current directory
                 continue;
 
@@ -250,15 +250,15 @@ std::string listDirectoryContents(const std::string &directoryPath, const Server
             filePath += entry.path().filename().string();
 
             message_body += "<tr><td><a href=\"" + filePath;
-            if (std::__fs::filesystem::is_directory(entry.status()))
+            if (std::filesystem::is_directory(entry.status()))
                 message_body += "/";
             message_body += "\">" + entry.path().filename().string();
-            if (std::__fs::filesystem::is_directory(entry.status()))
+            if (std::filesystem::is_directory(entry.status()))
                 message_body += "/";
             message_body += "</a></td></tr>\n";
         }
     }
-    catch (const std::__fs::filesystem::filesystem_error& e)
+    catch (const std::filesystem::filesystem_error& e)
     {
         std::cerr << "Filesystem error: " << e.what() << "\n";
     }

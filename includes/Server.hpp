@@ -11,6 +11,9 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 #include "Parser.hpp"
 #include <vector>

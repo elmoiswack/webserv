@@ -207,7 +207,7 @@ void Server::PollEvents()
 
 		std::cout << "index = " << index << " = ";
 		logger(this->_whatsockvec[index]);
-		
+			
 		if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
