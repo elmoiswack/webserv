@@ -156,21 +156,18 @@ std::string Server::MethodDelete(std::vector<char>::iterator itreq)
 	while (!std::isspace(*itend))
 		itend++;
 	std::string path;
-	path.assign(++itreq, itend);
-	logger(path);
+	path.assign(itreq, itend);
+	path.insert(0, "var/www");
+	logger("PATH: " + path);
 
 	// const char* filePath = "var/www/uploads/test.txt";
-	std::string response;
 	if (std::remove(path.c_str()) == 0)
 	{
 		logger("FILE DELETED!");
-		response = this->HtmlToString("./var/www/file_deleted.html");
-		return (response);
+		return (this->HtmlToString("./var/www/file_deleted.html"));
 	}
 	logger("ERROR DELETING FILE!");
-	response = this->HtmlToString("./var/www/status_codes/404.html");
-	// logger("\n\nRESPONSE IN MethodDelete(): \n" +  response + "\n\n");
-	return (response);
+	return (this->HtmlToString("./var/www/status_codes/404.html"));
 }
 
 

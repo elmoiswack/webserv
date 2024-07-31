@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTTP Server</title>
 	<link rel="stylesheet" href="styles.css">
+	<script>src="/sendDeleteRequest.js"</script>
 </head>
 <body>
     <h1>HTTP Server</h1>
@@ -24,6 +25,10 @@
 			</form>
 		</p></li>
         <li><a href="/cgi-bin/view_files.cgi">View uploaded files</a></li>
+		<li><p>DELETE FILE:
+            <input type="text" id="deleteFileName" placeholder="Enter file name">
+            <button onclick="deleteFile()">Delete</button>
+        </p></li>
 		<li><a href="imaginary.html"> Test non-existing html page </a> </li>
 		<li><a href="/status_codes/404.html"> 404 Not Found </a> </li>
 		<li><a href="/status_codes/307.html"> 307 Temporary Redirect </a> </li>
