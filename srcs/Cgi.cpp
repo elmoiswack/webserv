@@ -258,11 +258,11 @@ std::string	Cgi::extractContentType(const std::string &req)
 //         std::cout << "ERROR PARENT PROCESS\n";
 // 		return (false);          
 //     }
-// 	else if (result == 0)
-// 	{
-//         std::cout << "NO CHILD HAS EXITED YET\n";
-// 		return (false);
-// 	}
+// 	// else if (result == 0)
+// 	// {
+//     //     std::cout << "NO CHILD HAS EXITED YET\n";
+// 	// 	return (false);
+// 	// }
 //     if (WIFEXITED(exit_code))
 // 	{
 //         std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
@@ -280,8 +280,8 @@ std::string	Cgi::extractContentType(const std::string &req)
 //     int exit_code = 0;  // Initialize exit_code to 0
 //     pid_t result;
 
-//     // while (true)
-// 	//{
+//     while (true)
+// 	{
 //         result = waitpid(this->_pid, &exit_code, WNOHANG);
         
 //         std::cout << "waitpid result: " << result << ", exit_code: " << exit_code << "\n";
@@ -291,13 +291,13 @@ std::string	Cgi::extractContentType(const std::string &req)
 //             std::cout << "ERROR PARENT PROCESS\n";
 //             return false;
 //         }
-// 		// else if (result == 0)
-// 		// {
-//         //     // No child process has exited yet, sleep for a short period
-//         //     std::cout << "NO CHILD HAS EXITED YET\n";
-//         //   	// usleep(10000);
-//         //     continue;
-//         // }
+// 		else if (result == 0)
+// 		{
+//             // No child process has exited yet, sleep for a short period
+//             std::cout << "NO CHILD HAS EXITED YET\n";
+//           	// usleep(10000);
+//             continue;
+//         }
 //         if (WIFEXITED(exit_code))
 // 		{
 //             std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
@@ -308,7 +308,7 @@ std::string	Cgi::extractContentType(const std::string &req)
 //             std::cout << "Child process exited abnormally\n";
 //             return false;
 //         }
-//     // }
+//     }
 // }
 
 
@@ -321,6 +321,9 @@ std::string	Cgi::extractContentType(const std::string &req)
 //     else
 //         return false;
 // }
+
+// #include <chrono>
+// #include <thread>
 
 bool Cgi::waitForChild() const
 {
@@ -437,265 +440,3 @@ void Cgi::appendResponse(std::string responseToAdd)
         // } else {
         //     std::cout << "Child process exited abnormally" << "\n";
         // }
-
-// std::string Cgi::runCgi(const std::string &cgi_path)
-// {
-//     pid_t pid = fork();
-//     if (pid == -1)
-// 	{
-//         std::cout << "ERROR CREATING CHILD PROCESS\n";
-//         exit(EXIT_FAILURE);            
-//     }
-// 	else if (pid == 0) 	// Child process
-// 	{
-//         close(_responsePipe[0]); 					// Close read end of response pipe
-//         close(_uploadPipe[1]); 						// Close write end of upload pipe
-//         dup2(_responsePipe[1], STDOUT_FILENO); 		// Redirect cgi stdout to write end of response pipe
-//         dup2(_uploadPipe[0], STDIN_FILENO); 		// Redirect cgi stdin to read end of upload pipe
-// 	    const char *args[] = {cgi_path.c_str(), NULL};
-//         if (execve(cgi_path.c_str(), const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
-// 		{
-//             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
-//             std::exit(EXIT_FAILURE);            
-//         }
-//     }
-// 	else  											// Parent process
-// 	{
-// 		_pid = pid; 								// save pid for further processing if needed
-// 		// std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-//         close(_responsePipe[1]);					// Close write end of CGI response pipe
-// 		// !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!
-//         close(_uploadPipe[0]);						// Close read end of upload pipe
-//         write(_uploadPipe[1], this->_postData.c_str(), this->_postData.size()); // Write POST data to CGI via upload pipe
-//         close(_uploadPipe[1]);						// Close write end of upload pipe after writing to cgi
-//         int status;
-//         pid_t result = waitpid(pid, &status, 0);
-//         if (result == -1) {
-//             std::cout << "ERROR PARENT PROCESS\n";
-//             exit(EXIT_FAILURE);            
-//         }
-//         if (WIFEXITED(status)) {
-//             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-//             return (readCgiResponse(_responsePipe[0])); 	// !!HAS TO BE RAN THROUGH POLL!!
-//         } else {
-//             std::cout << "Child process exited abnormally" << "\n";
-//         }
-//     }
-//     return "";
-// }
-		
-		
-		
-		// std::string boundary = "----WebKitFormBoundaryRSs5b6yEDT0Vouq9";
-    	// std::string post_data = "--" + boundary + "\r\n"
-        //                     	"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-        //                     	"Content-Type: text/plain\r\n\r\n"
-        //                     	"TEST\r\n"
-        //                     	"TEST\r\n"
-        //                     	"TEST\r\n"
-        //                     	"--" + boundary + "--\r\n";
-
-
-// std::string Cgi::runCgi(const std::string &cgi_path)
-// {
-// 	int responsePipeFd[2];
-//     int uploadPipeFd[2];
-
-//     if (pipe(responsePipeFd) == -1 || pipe(uploadPipeFd) == -1) {
-//         std::cout << "ERROR PIPE\n";
-//         std::exit(EXIT_FAILURE);
-//     }
-
-//     pid_t pid = fork();
-//     if (pid == -1)
-// 	{
-//         std::cout << "ERROR CREATING CHILD PROCESS\n";
-//         exit(EXIT_FAILURE);            
-//     }
-// 	else if (pid == 0)
-// 	{ // Child process
-//         close(responsePipeFd[0]); // Close read end of response pipe
-//         dup2(responsePipeFd[1], STDOUT_FILENO); // Redirect stdout to write end of response pipe
-
-//         close(uploadPipeFd[1]); // Close write end of upload pipe
-//         dup2(uploadPipeFd[0], STDIN_FILENO); // Redirect stdin to read end of upload pipe
-	
-//         const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-//         if (execve("/usr/bin/python3", const_cast<char**>(args), nullptr) == -1) {
-//             std::cout << "ERROR EXECUTING CGI SCRIPT\n";
-//             std::exit(EXIT_FAILURE);            
-//         }
-//     }
-// 	else
-// 	{ // Parent process
-	
-//         std::string post_data = "------WebKitFormBoundaryRSs5b6yEDT0Vouq9\r\n"
-// 								"Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-// 								"Content-Type: text/plain\r\n\r\n"
-// 								"TEST\r\n"
-// 								"TEST\r\n"
-// 								"TEST\r\n"
-// 								"TEST\r\n"
-//                                 "------WebKitFormBoundaryRSs5b6yEDT0Vouq9--\r\n";
-// 		std::cout << "\n\nPOST size: " << post_data.size() << "\n\n";
-//         close(responsePipeFd[1]); // Close write end of response pipe
-
-//         close(uploadPipeFd[0]); // Close read end of upload pipe
-//         write(uploadPipeFd[1], post_data.c_str(), post_data.size()); // Write POST data to upload pipe
-//         close(uploadPipeFd[1]); // Close write end of upload pipe after writing
-
-//         int status;
-//         pid_t result = waitpid(pid, &status, 0);
-//         if (result == -1) {
-//             std::cout << "ERROR PARENT PROCESS\n";
-//             exit(EXIT_FAILURE);            
-//         }
-//         if (WIFEXITED(status)) {
-//             std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-//             return (readCgiResponse(responsePipeFd[0]));
-//         } else {
-//             std::cout << "Child process exited abnormally" << "\n";
-//         }
-//     }
-//     return "";
-// }
-
-
-// std::string Cgi::runCgi(const std::string &cgi_path)
-// {
-// 	int	pipefd[2];
-
-// 	if (pipe(pipefd) == -1)
-// 	{
-// 		std::cout << "ERROR PIPE\n";
-// 		std::exit(EXIT_FAILURE);
-// 	}
-// 	pid_t pid = fork();
-// 	if (pid == -1)
-// 	{
-// 		std::cout << "ERROR CREATING CHILD PROCESS\n";
-//         exit(EXIT_FAILURE);			
-// 	}
-// 	else if (pid == 0)											//-> child process
-// 	{
-// 		//std::cout << "\n\n+++++++++++++++\n\n";
-// 		close(pipefd[0]); 										// -> close read end of pipe, only need to write
-// 		dup2(pipefd[1], STDOUT_FILENO); 						// -> redirect stdout to write end of pipe
-// 		const char *args[] = {"/usr/bin/python3", cgi_path.c_str(), NULL};
-// 		if (execve("/usr/bin/python3", const_cast<char**>(args), _cgiEnvVarsCstyle.data()) == -1)
-// 		{
-// 			std::cout << "ERROR EXECUTING CGI SCRIPT\n";
-//         	std::exit(EXIT_FAILURE);			
-// 		}
-// 	}
-// 	else														//-> parent process
-// 	{
-// 		close(pipefd[1]); 										// -> close write end of pipe, only need to read
-// 		int status;
-// 		pid_t result = waitpid(pid, &status, 0);
-// 		if (result == -1)
-// 		{
-// 			std::cout << "ERROR PARENT PROCESS\n";
-//             exit(EXIT_FAILURE);			
-
-// 		}
-// 		if (WIFEXITED(status))
-// 		{
-// 			std::cout << "Child process exited with status: " << WEXITSTATUS(status) << "\n";
-// 			return (readCgiResponse(pipefd[0]));
-// 		}
-// 		else
-// 		{
-//             std::cout << "Child process exited abnormally" << "\n";
-// 		}
-// 	}
-// 	return (nullptr);
-// }
-
-
-// bool isCgi(const std::string &url)
-// {
-// 	std::string extension;
-
-// 	size_t i = url.find("."); 
-// 	while (url[i] != ' ' && url[i] != '?')
-// 		extension.push_back(url[i++]);
-// 	if (extension != ".cgi")
-// 		return (false);
-// 	return (true);
-// }
-
-// ------OLD SERVER------//
-// void Server::StartServer()
-// {
-// 	this->_websock = socket(AF_INET, SOCK_STREAM, 0);
-// 	if (this->_websock < 0)
-// 	{
-// 		std::cout << "ERROR" << std::endl;
-// 		exit(EXIT_FAILURE);
-// 	}
-
-// 	struct sockaddr_in infoaddr;
-// 	memset(&infoaddr, '\0', sizeof(infoaddr));
-// 	infoaddr.sin_family = AF_INET;
-// 	infoaddr.sin_addr.s_addr = INADDR_ANY;
-// 	infoaddr.sin_port = htons(std::atoi(this->_port.c_str()));	
-// 	if (bind(this->_websock, (struct sockaddr *)&infoaddr, sizeof(infoaddr)) == -1)
-// 	{
-// 		std::cout << "ERROR BIND" << std::endl;
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	if (listen(this->_websock, 5) == -1)
-// 	{
-// 		std::cout << "ERROR LISTEN" << std::endl;
-// 		exit(EXIT_FAILURE);		
-// 	}
-
-// 	// keeps it running
-// 	long newsock;
-// 	while (true)
-//     {
-// 		struct sockaddr_in client_addr;
-//   		int client_addr_len = sizeof(client_addr);
-
-//        	newsock = accept(this->_websock, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
-//         if (newsock == -1)
-//         {
-//             std::cout << "ERROR ACCEPT" << std::endl;
-//             exit(EXIT_FAILURE);			
-//         }
-		 
-// 		char buffer[1024] = { 0 }; 
-// 		recv(newsock, buffer, sizeof(buffer), 0); 
-// 		std::string response;		
-// 		std::string html_file = readFile("./var/www/index.html");
-// 		response =
-// 		"HTTP/1.1 200 OK\r\n"
-// 		"Content-Type: text/html\r\n"
-// 		"Content-Length: " + std::to_string(html_file.length()) + "\r\n"
-// 		"\r\n"
-// 		+ html_file;
-//        	 	// Send the blank HTML page response again for new connections
-//     		// write(newsock, response.c_str(), response.size());
-// 		// }
-//     	//write(newsock, response.c_str(), response.size());
-// 		if (isCgi(std::string(buffer)))
-// 		{
-// 			Cgi cgi;
-// 			response.clear();
-// 			std::string req_url = cgi.extractReqUrl(buffer);
-// 			std::string cgi_path = cgi.constructCgiPath(req_url);
-// 			cgi.setCgiEnvVars(cgi.initCgiEnvVars(buffer, req_url));
-// 			cgi.setCgiEnvVarsCstyle(cgi.initCgiEnvVarsCstyle());
-// 			// std::cout << "\nREQUEST URL: " << req_url << "\n";
-// 			// std::cout << "\nCGI PATH: " << cgi_path << "\n\n";
-// 			// std::cout << "\n---QUERY_STRING: " << cgi.extractQueryString(req_url) << "\n\n\n";
-// 			response = cgi.runCgi(cgi_path);
-// 			std::cout << "\n--------------------------\n";
-// 			std::cout << "RESPONSE: \n\n" << response;
-// 			std::cout << "--------------------------\n";
-// 		}
-//     	write(newsock, response.c_str(), response.size());
-//         close(newsock);
-//     }
-// }
