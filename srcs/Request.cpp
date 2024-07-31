@@ -3,10 +3,6 @@
 void Server::EventsPollin(int fd, Client *client)
 {
 	logger("POLLIN");
-	this->GetResponse(fd, client);
-}
-void Server::GetResponse(int fd, Client *client)
-{
 	if (this->_donereading == false)
 	{
 		this->InitRequest(fd, client);
@@ -48,7 +44,6 @@ int Server::RecieveMessage(int fd, Client *client)
 	char buff[client->Getrecvmax()];
 	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
-	
 	if (rbytes == -1)
 	{
 		logger("ERROR: RECV returned -1!");
@@ -61,13 +56,6 @@ int Server::RecieveMessage(int fd, Client *client)
 	}
 	
 	this->IsFirstRead(client, buff);
-	logger("request:");
-	for (int i = 0; i < rbytes; i++)
-	{
-		std::cout << buff[i];
-		this->_request.push_back(buff[i]);
-	}
-	std::cout << std::endl;
 	this->IsDoneRead(client, rbytes);
 	logger("message recieved!");
 	return (1);

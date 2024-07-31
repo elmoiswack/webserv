@@ -111,7 +111,6 @@ public:
 	///REQUEST.CPP
 	void EventsPollin(int fd, Client *client);
 	int  RecieveMessage(int fd, Client *client);
-	void GetResponse(int fd, Client *client);
 	std::string ParseRequest(Client *client);
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);

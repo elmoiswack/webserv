@@ -201,7 +201,7 @@ void Server::PollEvents()
 				}
 				if (itter == this->_serverblocks.end())
 				{
-					logger("fuck servernlock itter shit");
+					logger("Serverblock has not been found! Something went wrong.");
 					throw(Server::ServerblockErrorException());
 				}
 				this->InitClient(this->_sockvec[index].fd, itter);

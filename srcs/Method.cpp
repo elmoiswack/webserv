@@ -34,7 +34,6 @@ int Server::IsMethodAllowed(std::string method, Client *client)
 	auto end = client->GetMethodsEnd();
 	while (begin != end)
 	{
-		std::cout <<"ALLOWED METHODS: " << *begin << std::endl;
 		if (*begin == method)
 			break ;
 		begin++;

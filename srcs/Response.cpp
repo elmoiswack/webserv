@@ -8,7 +8,7 @@ void Server::EventsPollout(int fd, Client *client)
 		logger("sending response to client...");
 		if (write(fd, this->_response.c_str(), this->_response.size()) == -1)
 		{
-			logger("ERROR WRITE: failed to send response!");
+			logger("ERROR WRITE: failed to send response! Trying to send 500!");
 			this->_response.clear();
 			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
 			this->_response = 

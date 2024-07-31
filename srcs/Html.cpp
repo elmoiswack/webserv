@@ -13,7 +13,7 @@ std::string Server::GetHardCPathCode(int code)
 	}
 	if (it == this->_hcerr_page.end())
 	{
-		logger("Code passed isn't valid! Internal server error!");
+		logger("Code passed isn't valid! Internal server error! Sending 500!");
 		for (auto iterr = this->_hcerr_page.begin(); iterr != this->_hcerr_page.end(); iterr++)
 		{
 			if (iterr->first == 500)
@@ -30,7 +30,7 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 		begin++;
 	if (begin == path.end())
 	{
-		logger("jdksa\n");
+		logger("Invalid path to errorpage! Sending 404!\n");
 		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	}
 	auto end = begin;
@@ -45,6 +45,7 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 		iterr++;
 	if (iterr == client->GetErrorpageEnd())
 	{
+		logger("Error page not found! Sending 404!\n");
 		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	}
 	
@@ -56,14 +57,20 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 std::string Server::HtmlToString(std::string path, Client *client)
 {
 	if (access(path.c_str(), F_OK) == -1)
+	{
+		std::cout << "Path: " << path << " doens't exist, sending 404!" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	}
 	if (access(path.c_str(), R_OK) == -1)
+	{
+		std::cout << "Path: " << path << " has no reading rights, sending 403!" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(403), client));
+	}
 	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
-		std::cout << "Failed to read file!\n" << std::endl;
+		std::cout << "Failed to read file! Sending 404!\n" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 	}
 	std::stringstream buffer;
