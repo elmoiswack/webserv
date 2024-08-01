@@ -14,6 +14,7 @@
 #include "Parser.hpp"
 #include <vector>
 #include <poll.h>
+#include <chrono>
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
@@ -58,9 +59,11 @@ private:
 
 	int		_websock;
 	Cgi*		_cgi;
+	std::chrono::time_point<std::chrono::system_clock> _start;
+	bool	_cgi_running;
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
-	Cgi		_current_cgi;
+	// Cgi		_current_cgi;
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);
@@ -107,6 +110,8 @@ public:
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
 	void setCgi(Cgi cgi);
+	void checkCgiTimer();
+	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
 	
 	
 	///REQUEST.CPP

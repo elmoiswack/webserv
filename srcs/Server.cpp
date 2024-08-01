@@ -124,6 +124,7 @@ void Server::SetUpServer()
 		index++;
 	}
 	logger("Server is initialized!");
+	this->_cgi_running = false;
 	this->RunPoll();
 	this->CloseAllFds();
 }
@@ -177,7 +178,9 @@ void Server::RunPoll()
 			exit(EXIT_FAILURE);
 		}
 		if (ret > 0)
+		{
 			this->PollEvents();
+		}
 	}	
 }
 
@@ -226,6 +229,7 @@ void Server::RunPoll()
 
 void Server::PollEvents()
 {
+	std::chrono::time_point<std::chrono::system_clock> now;
 	// std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
 	for (int index = 0; index < this->_ammount_sock; index++)
 	{
@@ -233,32 +237,22 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		// std::cout << "index = " << index << " = ";
-		// logger("TYPE: " + this->_whatsockvec[index]);
+		// this->checkCgiTimer();
 		if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
 			{
-				// logger("-----------------------------");
 				this->AcceptClient(index);
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
 				this->EventsPollin(temp.fd);
-				// logger("++++++++++++++++++++++++++++");
-
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				logger("\n--CGI POLLIN\n");
-				// this->_response.append(this->readCgiResponse(temp.fd));
 				if (this->_cgi_donereading == false)
 					this->readCgiResponse(temp.fd, index);
-				// logger("\n--CGI RESPONSE: \n" + _response);
-				// if ()
-				// this->RmvSocket(index);
-				//if (this->_cgi)
-				// delete this->_cgi;
 			}
 		}
 		if (temp.revents & POLLOUT)
@@ -266,9 +260,7 @@ void Server::PollEvents()
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
 				logger("\n--CGI POLLOUT\n");
-
 				this->writeToCgi(temp.fd, index);
-				// write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
 				// this->RmvSocket(index);
 				// this->_response.clear();
 			}
@@ -278,6 +270,11 @@ void Server::PollEvents()
 		else if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
+			if (this->_whatsockvec[index] == "CGI_READ")
+			{
+				logger("\nCGI ERROR!");
+				delete(this->_cgi);
+			}
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
@@ -315,16 +312,16 @@ void logger(std::string input)
 	std::cout << input << std::endl;
 }
 
-void Server::setCgi(Cgi cgi)
-{
-	logger("CGI IS SET\n");
-	this->_current_cgi = cgi;
-}
+// void Server::setCgi(Cgi cgi)
+// {
+// 	logger("CGI IS SET\n");
+// 	this->_current_cgi = cgi;
+// }
 
 void Server::writeToCgi(int fd, int index)
 {
 	close(this->_cgi->getReadEndUploadPipe());
-	logger("\n---POST DATA: " + _post_data);
+	// logger("\n---POST DATA: " + _post_data);
 	if (!this->_post_data.empty())
 	{
 		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
@@ -370,11 +367,48 @@ std::string Server::readCgiResponse(int fd, int index)
 		this->_response.push_back('\0');
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
+		this->_cgi_running = false;
 		delete this->_cgi;
 		this->RmvSocket(index);
 	}
     return "";
 }
+
+void Server::checkCgiTimer()
+{
+	std::chrono::time_point<std::chrono::system_clock> now;
+	if (this->_cgi_running)
+			{
+				now = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_seconds = now - this->_start;
+				// std::cout << elapsed_seconds.count() << "s\n";
+				if (elapsed_seconds > std::chrono::seconds(5))
+				{
+					
+					logger("\n\nREQUEST EXCEEDED 5 SECONDS\n");
+					this->_cgi->killCgi();
+					this->_cgi_running = false;
+					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
+					this->_response = 
+					"HTTP/1.1 200 OK\r\n"
+					"Content-Type: text/html\r\n"
+					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
+					"\r\n"
+					+ this->HtmlToString("./var/www/status_codes/500.html");
+					// close(temp.fd);
+					// RmvSocket(index);
+					// exit(EXIT_FAILURE);
+				}
+				// else
+				// 	logger("\n\nREQUEST OK\n");
+			}
+}
+
+void Server::setStartTime (std::chrono::time_point<std::chrono::system_clock> start)
+{
+	this->_start = start;
+}
+
 
 // std::string	Server::readCgiResponse(int fd)
 // {

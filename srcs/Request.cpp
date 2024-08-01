@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <chrono>
 #include "../includes/Cgi.hpp"
 
 void Server::EventsPollin(int fd)
@@ -17,6 +18,7 @@ void Server::GetResponse(int fd)
 		this->RecieveMessage(fd);
 	if (this->_donereading == true)
 	{
+		// this->_start = std::chrono::system_clock::now();
 		std::string htmlfile = this->ParseRequest();
 		if (this->_iscgi == false)
 		{
@@ -198,6 +200,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = _cgi->constructCgiPath(path);
+		// this->_start = std::chrono::system_clock::now();
+		// this->_cgi_running = true;
 		_cgi->runCgi(cgi_path, this);
 		// cgi.runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;f
@@ -243,12 +247,14 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		this->_cgi = new Cgi(_method, path, tmp);
-		// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = _cgi->constructCgiPath(path);
+		// logger("\nBEFORE CGI\n");
+		// this->_start = std::chrono::system_clock::now();
+		this->_cgi_running = true;
 		_cgi->runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		// for (const std::string& type : this->_whatsockvec) 
