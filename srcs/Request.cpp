@@ -70,8 +70,7 @@ std::string Server::ParseRequest(Client *client)
 	}
 	if (itfirst == this->_request.end())
 		return (this->HtmlToString(this->GetHardCPathCode(400), client));
-	while (!std::isspace(*itfirst) && index < 7)
-	{
+	while (itfirst != this->_request.end() && !std::isspace(*itfirst) && index < 7) {
 		arr[index] = *itfirst;
 		index++;
 		itfirst++;

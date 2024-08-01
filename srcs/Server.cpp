@@ -238,7 +238,10 @@ void Server::PollEvents()
 		{
 			this->EventsPollout(temp.fd);
 			this->RmvSocket(index);
-			delete this->_client;
+			if (this->_client != nullptr) {
+				delete this->_client;
+				this->_client = nullptr;
+			}
 			logger("client is deleted!");
 		}
 		else if (temp.revents & POLLHUP)
