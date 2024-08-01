@@ -14,6 +14,7 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 	this->_error_page = serverblock->GetErrorPage();
 	this->_allow_methods = serverblock->GetAllowMethods();
 	std::vector<std::string> tmp = serverblock->GetAllowMethods();
+	this->_contentlenght = 0;
 	std::cout << "CLIENT CREATED AND VARS SET!" << std::endl;
 }
 
@@ -76,6 +77,16 @@ std::vector<std::string>::iterator Client::GetMethodsEnd()
 std::vector<std::string> Client::GetMethods()
 {
 	return (this->_allow_methods);
+}
+
+void Client::SetContentLenght(long contentlen)
+{
+	this->_contentlenght = contentlen;
+}
+
+long Client::GetContentLenght()
+{
+	return (this->_contentlenght);
 }
 
 std::ostream& operator<<(std::ostream &out, Client *in)
