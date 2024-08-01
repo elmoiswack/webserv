@@ -54,7 +54,10 @@ int Server::RecieveMessage(int fd, Client *client)
 		logger("RECV returned 0, connection closed!");
 		return (0);
 	}
-	
+	for (int index = 0; index < rbytes; index++)
+	{
+		this->_request.push_back(buff[index]);
+	}
 	this->IsFirstRead(client, buff);
 	this->IsDoneRead(client, rbytes);
 	logger("message recieved!");
@@ -129,3 +132,33 @@ void Server::IsDoneRead(Client *client, int rbytes)
 	}
 }
 
+std::string Server::ParseRequest(Client *client)
+{
+	std::vector<char>::iterator itfirst = this->_request.begin();
+	logger("\n\nRequest after reading is done =");
+	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
+	{
+		std::cout << *print;
+	}
+	std::cout << std::endl;
+	logger("\n\n");
+	char arr[7];
+	int index = 0;
+	if (std::isspace(*itfirst))
+	{
+		while (std::isspace(*itfirst))
+			itfirst++;
+	}
+	if (itfirst == this->_request.end())
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+	while ((itfirst != this->_request.end()) && (!std::isspace(*itfirst)) && (index < 7))
+	{
+		arr[index] = *itfirst;
+		index++;
+		itfirst++;
+	}
+	arr[index] = '\0';
+	std::string method(arr);
+	
+	return (this->WhichMethod(client, method, itfirst));
+}

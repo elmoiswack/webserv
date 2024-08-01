@@ -47,6 +47,7 @@ private:
 	bool		_recvzero;
 	bool		_isbody;
 	bool		_iffirstread;
+	bool		_autoinfile;
 
 	int			_recvmax;
 	std::string _port;
@@ -132,6 +133,9 @@ public:
 	std::string GetHardCPathCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
+
+	std::string listDirectoryContents(const std::string &directoryPath);
+	std::string GetFileFromPath(std::string path, Client *client);
 
 	class BindErrorException : public std::exception
 	{

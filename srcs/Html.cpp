@@ -70,8 +70,8 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
-		std::cout << "Failed to read file! Sending 404!\n" << std::endl;
-		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+		std::cout << "Failed to read file! Sending 500!\n" << std::endl;
+		return (this->HtmlToString(this->GetHardCPathCode(500), client));
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();
