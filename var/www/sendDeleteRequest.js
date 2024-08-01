@@ -1,4 +1,3 @@
-'using strict'
 
 function deleteFile() {
 	const fileName = document.getElementById('deleteFileName').value;
