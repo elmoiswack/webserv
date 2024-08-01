@@ -14,11 +14,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <fcntl.h>
+
+#include "Parser.hpp"
 #include <vector>
-#include <fstream>
-#include <string>
-#include <sstream>
 #include <poll.h>
 
 #include "../includes/Parser.hpp"
@@ -44,9 +42,6 @@ private:
 	bool		_donereading;
 	std::vector<std::string> _allow_methods;
 	bool		_iscgi;
-	bool		_recvzero;
-	bool		_isbody;
-	bool		_iffirstread;
 
 	int			_recvmax;
 	std::string _port;
@@ -107,31 +102,28 @@ public:
 	void AddSocket(int fd, bool is_client);
 	void RmvSocket(int index);
 	void CloseAllFds();
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd, Client *client);
 	int  RecieveMessage(int fd, Client *client);
+	void GetResponse(int fd, Client *client);
 	std::string ParseRequest(Client *client);
-	std::string ExtractBoundary(const std::string &content);
-	std::string ParsePost(const std::string &content);
 	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq);
 	std::string HtmlToString(std::string path, Client *clien);
 	std::string GetSatusCodeFile(std::string code, Client *client);
-	long	GetContentLenght(char *buff);
-	void InitRequest(int fd, Client *client);
-	void BuildResponse(Client *client);
-	void IsFirstRead(Client *client, char *buff);
-	void IsDoneRead(Client *client, int rbytes);
-	std::string WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd, Client *client);
+	void EventsPollout(int fd);
+
 
 	void InitHardcodedError();
 	std::string GetHardCPathCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
+	void CheckUnusedClients();
 
 	class BindErrorException : public std::exception
 	{
@@ -164,11 +156,6 @@ public:
 	};
 
 	class ServerblockErrorException : public std::exception
-	{
-		const char *what() const throw();
-	};
-
-	class WriteErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};

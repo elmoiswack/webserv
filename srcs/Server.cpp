@@ -1,6 +1,13 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
 #include "../includes/Client.hpp"
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <vector>
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
@@ -9,12 +16,9 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_client = NULL;
 		this->_donereading = false;
 		this->_iscgi = false;
-		this->_recvzero = false;
-		this->_isbody = true;
 		this->_listensock = 0;
-		this->_iffirstread = true;
 		this->InitHardcodedError();
-}
+	}
 
 
 
@@ -26,10 +30,7 @@ Server::Server(Parser &in)
 	this->_client = NULL;
 	this->_donereading = false;
 	this->_iscgi = false;
-	this->_recvzero = false;
-	this->_isbody = true;
 	this->_listensock = 0;
-	this->_iffirstread = true;
 	this->_request.clear();
 	this->_response.clear();
 }
@@ -174,6 +175,26 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	std::cout << this->_client << std::endl;
 }
 
+void Server::CheckUnusedClients()
+{
+	int count = 0;
+	for (auto it = this->_whatsockvec.begin(); it != this->_whatsockvec.end(); it++)
+	{
+		if (*it == "CLIENT")
+			count++;
+	}
+	if (count != 0)
+	{
+		int index = 0;
+		for (auto it = this->_whatsockvec.begin(); it != this->_whatsockvec.end(); it++)
+		{
+			if (*it == "CLIENT")
+				this->RmvSocket(index);
+			index++;
+		}		
+	}
+}
+
 void Server::PollEvents()
 {
 	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
@@ -201,7 +222,7 @@ void Server::PollEvents()
 				}
 				if (itter == this->_serverblocks.end())
 				{
-					logger("Serverblock has not been found! Something went wrong.");
+					logger("fuck servernlock itter shit");
 					throw(Server::ServerblockErrorException());
 				}
 				this->InitClient(this->_sockvec[index].fd, itter);
@@ -209,15 +230,8 @@ void Server::PollEvents()
 			else
 			{
 				this->EventsPollin(temp.fd, this->_client);
-				if (this->_recvzero == true)
-				{
-					logger("Client closed connection!");
-					close(temp.fd);
-					this->RmvSocket(index);
-					delete this->_client;
-					logger("client is deleted!");
-					this->_recvzero = false;
-				}
+				// if (this->_response.size() == 0)
+				// 	this->CheckUnusedClients();
 			}
 		}
 		else if (temp.revents & POLLOUT)
@@ -225,17 +239,10 @@ void Server::PollEvents()
 			this->EventsPollout(temp.fd);
 			this->RmvSocket(index);
 			if (this->_client != nullptr) {
-				delete this->_client;
-				this->_client = nullptr;
-			}
+       	 	delete this->_client;
+        	this->_client = nullptr;
+   			}
 			logger("client is deleted!");
-			if (this->_donereading == true)
-			{
-				this->EventsPollout(temp.fd, this->_client);
-				this->RmvSocket(index);
-				delete this->_client;
-				logger("client is deleted!");
-			}
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -317,9 +324,4 @@ const char *Server::ServerblockErrorException::what() const throw()
 const char *Server::AcceptErrorException::what() const throw()
 {
 	return ("function accept failed! Shutting down server!");
-}
-
-const char *Server::WriteErrorException::what() const throw()
-{
-	return ("function write failed for the second time! Shutting down server!");
 }

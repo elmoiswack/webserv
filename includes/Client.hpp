@@ -13,7 +13,6 @@ private:
 	std::unordered_map<int, std::string> _error_page;
 	std::string		_root;
 	std::vector<std::string> _allow_methods;
-	long		_contentlenght;
 
 public:
 	Client();
@@ -30,8 +29,6 @@ public:
 	std::vector<std::string>::iterator GetMethodsBegin();
 	std::vector<std::string>::iterator GetMethodsEnd();
 	std::vector<std::string> GetMethods();
-	void SetContentLenght(long contentlen);
-	long GetContentLenght();
 
 };
 
