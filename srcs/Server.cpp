@@ -188,7 +188,7 @@ void Server::PollEvents()
 
 		std::cout << "index = " << index << " = ";
 		logger(this->_whatsockvec[index]);
-		
+			
 		if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
@@ -228,6 +228,13 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLOUT)
 		{
+			this->EventsPollout(temp.fd);
+			this->RmvSocket(index);
+			if (this->_client != nullptr) {
+				delete this->_client;
+				this->_client = nullptr;
+			}
+			logger("client is deleted!");
 			if (this->_donereading == true)
 			{
 				this->EventsPollout(temp.fd, this->_client);

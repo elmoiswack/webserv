@@ -15,6 +15,51 @@ void Server::EventsPollin(int fd, Client *client)
 
 void Server::InitRequest(int fd, Client *client)
 {
+	std::vector<char>::iterator itfirst = this->_request.begin();
+	logger("\n\nRequest after reading is done =");
+	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
+	{
+		std::cout << *print;
+	}
+	std::cout << std::endl;
+	logger("\n\n");
+	char arr[7];
+	int index = 0;
+	if (std::isspace(*itfirst))
+	{
+		while (std::isspace(*itfirst))
+			itfirst++;
+	}
+	if (itfirst == this->_request.end())
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+	while (itfirst != this->_request.end() && !std::isspace(*itfirst) && index < 7) {
+		arr[index] = *itfirst;
+		index++;
+		itfirst++;
+	}
+	arr[index] = '\0';
+	std::string method(arr);
+
+	if (method == "GET")
+	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
+		this->_method = "GET";
+		return (this->MethodGet(itfirst, client));
+	}
+	else if (method == "POST")
+	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
+		this->_method = "POST";
+		std::string response = this->MethodPost(itfirst);
+		return (response);
+	}
+	else if (method == "DELETE")
+	{
+		if (this->IsMethodAllowed(method, client) == -1)
+			return (this->HtmlToString(this->GetHardCPathCode(405), client));
+		this->_method = "DELETE";
 	int ret = this->RecieveMessage(fd, client);
 	if (ret == -1)
 	{
@@ -51,6 +96,122 @@ int Server::RecieveMessage(int fd, Client *client)
 	}
 	else if (rbytes == 0)
 	{
+		std::string tmp(this->_request.begin(), this->_request.end());
+		std::string post_data = ParsePost(tmp);
+		Cgi cgi(_method, post_data, path, tmp);
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
+		std::string cgi_path = cgi.constructCgiPath(path);
+		this->_response = cgi.runCgi(cgi_path);
+		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
+		// std::cout << "RESPONSE: \n\n" << this->_response;
+		return (this->_response);
+	}
+	return ("");
+}
+
+std::string listDirectoryContents(const std::string &directoryPath, const Server &server) {
+	std::filesystem::path rootPath = server.GetRoot(); // get root directory
+    std::filesystem::path fullPath = rootPath / directoryPath; // concatenate paths
+
+	std::string message_body; // empty string to store 
+
+	// Check if the index file exists and use it if available
+	std::string indexFileName = server.GetServerIndex();
+	if (!indexFileName.empty()) {
+		std::ifstream indexFile(server.GetRoot() + indexFileName);
+		if (indexFile.is_open()) // if it can be opened it is read
+		{
+			std::ostringstream ss;
+			ss << indexFile.rdbuf();
+			message_body = ss.str();
+			return (message_body);
+		}
+		else
+		{
+			std::cerr << "Error opening index file: " << indexFileName << "\n";
+		}
+	}
+
+    // Build directory listing if no index file is used
+    message_body = "<html>\n<title>" + directoryPath + "</title>\n";
+    message_body += "<body><h1>Index of " + directoryPath + "</h1>\n";
+    message_body += "<table><tr><th>Name</th></tr>\n";
+
+    try
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(fullPath)) { // iterate through directory
+            if (entry.path().filename() == ".") // current directory
+                continue;
+
+            std::string filePath = directoryPath;
+            if (directoryPath.back() != '/') // if it doesn't have slash add one
+                filePath += '/';
+            filePath += entry.path().filename().string();
+
+            message_body += "<tr><td><a href=\"" + filePath;
+            if (std::filesystem::is_directory(entry.status()))
+                message_body += "/";
+            message_body += "\">" + entry.path().filename().string();
+            if (std::filesystem::is_directory(entry.status()))
+                message_body += "/";
+            message_body += "</a></td></tr>\n";
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Filesystem error: " << e.what() << "\n";
+    }
+
+    message_body += "</table></body>\n</html>\n"; // close html
+
+	return (message_body);
+}
+
+std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	logger(path);
+
+	if (isCgi(path))
+	{
+		std::string tmp(this->_request.begin(), this->_request.end());
+		Cgi cgi(_method, path, tmp);
+		this->_iscgi = true;
+		if (this->_response.size() > 0)
+			this->_response.clear();
+		std::string cgi_path = cgi.constructCgiPath(path);
+		this->_response = cgi.runCgi(cgi_path);
+		// std::cout << "RESPONSE: \n\n" << this->_response;
+		return (this->_response);
+	}
+	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();
+
+	std::string tmp;
+
+	tmp = itloc->GetIndex();
+	if (tmp == "EMPTY") {
+		if (itloc->GetAutoIndex() == true) {
+			std::string dirPath = client->GetRoot() + path;
+			return (listDirectoryContents(dirPath, *this));
+		}
+		if (itloc->GetAutoIndex() == false)
+			return (this->HtmlToString(this->GetHardCPathCode(403), client));
+	}
+	this->_iscgi = false;
+	if (path == "/" || path == itloc->GetIndex())
+		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
+	else if (path.find("/status_codes/", 0) != path.npos)
+		return (this->GetSatusCodeFile(path, client));
+	else
+		return (this->HtmlToString(this->GetHardCPathCode(404), client));
 		logger("RECV returned 0, connection closed!");
 		return (0);
 	}
