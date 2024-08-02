@@ -10,10 +10,6 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <unordered_map>
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <fcntl.h>
 #include <vector>
 #include <fstream>
@@ -24,6 +20,10 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 #include "../includes/Client.hpp"
+
+typedef enum e_autoindex{
+	EMPTY = 0,
+} t_autoindex;
 
 class Parser;
 class Location;

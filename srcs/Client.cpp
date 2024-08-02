@@ -20,12 +20,12 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 
 Client::~Client()
 {
-	// this->_allow_methods.clear();
-	// this->_error_page.clear();
-	// this->_locationblocks.clear();
-	// this->_recvmax = 0;
-	// this->_listensocket = 0;
-	// this->_root.clear();
+	this->_allow_methods.clear();
+	this->_error_page.clear();
+	this->_locationblocks.clear();
+	this->_recvmax = 0;
+	this->_listensocket = 0;
+	this->_root.clear();
 	std::cout << "client is about to get deleted!" << std::endl;
 }
 
