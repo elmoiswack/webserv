@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTTP Server</title>
 	<link rel="stylesheet" href="styles.css">
+	<script>
+		function deleteFile() {
+	const fileName = document.getElementById('deleteFileName').value;
+	if (fileName) {
+		fetch(`/uploads/${fileName}`, {
+			method: 'DELETE'
+		})
+		.then(response => {
+			if (response.ok) {
+				console.log('File deleted successfully.');
+			} else {
+				console.log('File deletion failed.');
+			}
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			console.log('File deletion failed.');
+		});
+	} else {
+		console.log('Please enter a file name.');
+	}
+}
+
+	</script>
 </head>
 <body>
     <h1>HTTP Server</h1>
@@ -23,12 +47,12 @@
 				<input type="submit" value="Upload">
 			</form>
 		</p></li>
-		<!-- <li>
-            <form action="/cgi-bin/view_files.cgi" method="get">
-                <input type="submit" value="View Uploaded Files">
-            </form>
-        </li> -->
         <li><a href="/cgi-bin/view_files.cgi">View uploaded files</a></li>
+		<li><p>DELETE FILE:
+			<input type="text" id="deleteFileName" placeholder="Enter file name">
+            <button onclick="deleteFile()">Delete</button>
+        </p></li>
+		<li><a href="/cgi-bin/infinite_loop.cgi">Test cgi infinite loop</a></li>
 		<li><a href="imaginary.html"> Test non-existing html page </a> </li>
 		<li><a href="/status_codes/404.html"> 404 Not Found </a> </li>
 		<li><a href="/status_codes/307.html"> 307 Temporary Redirect </a> </li>

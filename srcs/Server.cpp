@@ -4,7 +4,7 @@
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
-    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page){
+    : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page), _cgi(nullptr){
 		this->_ammount_sock = 0;
 		this->_client = NULL;
 		this->_donereading = false;
@@ -36,6 +36,7 @@ Server::Server(Parser &in)
 	this->_isstatuscode = false;
 	this->_request.clear();
 	this->_response.clear();
+	this->_cgi = nullptr;
 }
 
 Server::~Server()
@@ -83,6 +84,23 @@ void Server::AddSocket(int fd, bool is_client)
 	this->_ammount_sock += 1;
 }
 
+void Server::AddSocket(int fd, const std::string& type) // for the cgi
+{
+	logger("\nCGI SOCKET ADDED -> " + type);
+	pollfd temp;
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << "ERROR FCNTL" << std::endl;
+		exit(EXIT_FAILURE);	
+	}
+	temp.fd = fd;
+	temp.events = POLLIN | POLLOUT;
+	temp.revents = 0;
+	this->_sockvec.push_back(temp);
+	this->_whatsockvec.push_back(type);
+	this->_ammount_sock += 1;
+}
+
 void Server::RmvSocket(int index)
 {
 	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
@@ -113,6 +131,7 @@ void Server::SetUpServer()
 		index++;
 	}
 	logger("Server is initialized!");
+	this->_cgi_running = false;
 	this->RunPoll();
 	this->CloseAllFds();
 }
@@ -167,7 +186,9 @@ void Server::RunPoll()
 			throw(Server::PollErrorException());
 		}
 		if (ret > 0)
+		{
 			this->PollEvents();
+		}
 	}	
 }
 
@@ -180,17 +201,15 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 
 void Server::PollEvents()
 {
-	std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
+	// std::chrono::time_point<std::chrono::system_clock> now;
+	// std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
 	for (int index = 0; index < this->_ammount_sock; index++)
 	{
 		pollfd temp;
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-
-		std::cout << "index = " << index << " = ";
-		logger(this->_whatsockvec[index]);
-		
+		// this->checkCgiTimer();
 		if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
@@ -210,7 +229,7 @@ void Server::PollEvents()
 				}
 				this->InitClient(this->_sockvec[index].fd, itter);
 			}
-			else
+			else if (this->_whatsockvec[index] == "CLIENT")
 			{
 				this->EventsPollin(temp.fd, this->_client);
 				if (this->_recvzero == true)
@@ -227,10 +246,28 @@ void Server::PollEvents()
 					this->_recvzero = false;
 				}
 			}
+			else if (this->_whatsockvec[index] == "CGI_READ")
+			{
+				logger("\n--CGI POLLIN\n");
+				if (this->_cgi_donereading == false)
+					this->readCgiResponse(temp.fd, index, this->_client->Getrecvmax());
+			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			if (this->_donereading == true)
+			if (this->_whatsockvec[index] == "CGI_WRITE")
+			{
+				logger("\n--CGI POLLOUT\n");
+				this->writeToCgi(temp.fd, index);
+				// if (this->_client != nullptr) 
+				// {
+       	 		// 	// delete this->_client;
+        		// 	this->_client = nullptr;
+   				// }
+				// this->RmvSocket(index);
+				// this->_response.clear();
+			}
+			else if (this->_donereading == true && this->_response.size() > 0)
 			{
 				this->EventsPollout(temp.fd, this->_client);
 				this->RmvSocket(index);
@@ -244,7 +281,12 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLHUP)
 		{
-			logger("POLLHUP: Connection hung up!");
+			logger("Connection hung up!");
+			if (this->_whatsockvec[index] == "CGI_READ")
+			{
+				logger("\nCGI ERROR!");
+				delete (this->_cgi);
+			}
 			close(temp.fd);
 			this->RmvSocket(index);
 		}
@@ -328,3 +370,125 @@ const char *Server::WriteErrorException::what() const throw()
 {
 	return ("function write failed for the second time! Shutting down server!");
 }
+void Server::writeToCgi(int fd, int index)
+{
+	// (void) index;
+	close(this->_cgi->getReadEndUploadPipe());
+	// logger("\n---POST DATA: " + _post_data);
+	if (!this->_post_data.empty())
+	{
+		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+		if (bytes_written < 0)
+		{
+			logger("ERROR WRITE TO CGI");
+			exit(EXIT_FAILURE);
+		}
+		this->RmvSocket(index);
+	}
+}
+
+std::string Server::readCgiResponse(int fd, int index, int recvmax)
+{
+	std::cout << "JAJAJAJAJ: " << recvmax << std::endl;
+	std::cout << "fd = " << fd << "\n" << "index = " << index << std::endl;
+    char buffer[recvmax];
+    ssize_t bytes_read;
+    if (this->_cgi->waitForChild() == false)
+    {
+        logger("\n\n\nERROR CGI PROCESS\n\n\n");
+        std::exit(EXIT_FAILURE);
+    }
+    bytes_read = read(fd, buffer, sizeof(buffer));
+	for (int i = 0; i < bytes_read; ++i)
+		this->_cgi_response.push_back(buffer[i]);
+	// logger("--CGI RESPONSE:\n" + this->_response);
+	for (char c : this->_cgi_response)
+		std::cout << c;
+	if (bytes_read == 0)
+    {
+        logger("REACHED EOF");
+		this->RmvSocket(index);
+    }
+    else if (bytes_read < 0)
+	{
+        logger("ERROR READING FROM CGI PIPE (read returned -1)");
+		std::exit(EXIT_FAILURE);
+	}
+	if (bytes_read < this->_recvmax)
+    {
+        logger("CGI PIPE FULLY READ");
+		for (char c : this->_cgi_response)
+			this->_response.push_back(c);
+		this->_response.push_back('\0');
+		this->_cgi_response.clear();
+		this->_cgi_donereading = true;
+		this->_cgi_running = false;
+		delete this->_cgi;
+		this->RmvSocket(index);
+	}
+    return "";
+}
+
+
+void Server::checkCgiTimer()
+{
+	std::chrono::time_point<std::chrono::system_clock> now;
+	if (this->_cgi_running)
+			{
+				now = std::chrono::system_clock::now();
+				std::chrono::duration<double> elapsed_seconds = now - this->_start;
+				// std::cout << elapsed_seconds.count() << "s\n";
+				if (elapsed_seconds > std::chrono::seconds(5))
+				{
+					
+					logger("\n\nREQUEST EXCEEDED 5 SECONDS\n");
+					this->_cgi->killCgi();
+					this->_cgi_running = false;
+					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
+					this->_response = 
+					"HTTP/1.1 500 OK\r\n"
+					"Content-Type: text/html\r\n"
+					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
+					"\r\n"
+					+ this->HtmlToString("./var/www/status_codes/500.html");
+					// close(temp.fd);
+					// RmvSocket(index);
+					// exit(EXIT_FAILURE);
+				}
+				
+				// else
+				// 	logger("\n\nREQUEST OK\n");
+			}
+}
+
+void Server::setStartTime (std::chrono::time_point<std::chrono::system_clock> start)
+{
+	this->_start = start;
+}
+
+
+// std::string	Server::readCgiResponse(int fd)
+// {
+// 	// logger("--CGI POLLIN\n");
+// 	std::ostringstream oss;
+// 	char buffer[this->_recvmax];
+// 	ssize_t bytes_read;
+// 	// logger("--METHOD: " + this->_current_cgi->getMethod());
+// 	if (this->_cgi->waitForChild() == false)
+// 	{
+// 		logger("ERROR CGI PROCESS");
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
+// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
+	
+// 	// bytes_read = read(fd, buffer, sizeof(buffer));
+// 	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
+	
+// 	if (bytes_read == -1)
+// 		logger("ERROR READING FROM CGI PIPE");
+// 	// close(fd);
+// 	// std::cout << oss.str() << "\n";
+// 	return (oss.str());
+// }
+

@@ -17,7 +17,7 @@ def handle_post():
         # Full path to save the file
         file_path = os.path.join(upload_dir, file_name)
         # Check if the upload directory exists, if not, create it
-        # print("\n\nFILE_NAME: " + file_name)
+        # print("\n\nFILE_NAME: " + Ofile_name)
         # print("\n\nFILE_PATH: " + file_path)
         # print("\n\nUPLOAD_DIR: " + upload_dir)
         if os.path.exists(file_path):

@@ -79,3 +79,21 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	buffer << file.rdbuf();
 	return (buffer.str());
 }
+
+std::string Server::HtmlToString(std::string path)
+{
+	if (access(path.c_str(), F_OK | R_OK) == -1)
+	{
+		logger("DENIED ACCES htmltostring");
+		exit(EXIT_FAILURE);
+	}	
+	std::ifstream file(path, std::ios::binary);
+	if (!file.good())
+	{
+		std::cout << "Failed to read file!\n" << std::endl;
+		std::exit(EXIT_FAILURE);
+	}
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	return (buffer.str());
+}

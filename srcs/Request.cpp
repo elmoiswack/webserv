@@ -1,4 +1,11 @@
 #include "../includes/Server.hpp"
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <chrono>
+#include "../includes/Cgi.hpp"
 
 void Server::EventsPollin(int fd, Client *client)
 {
@@ -41,7 +48,8 @@ void Server::InitRequest(int fd, Client *client)
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	char buff[client->Getrecvmax()];
+	char buff[client->Getrecvmax() + 1];
+	
 	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
 	if (rbytes == -1)
@@ -54,10 +62,13 @@ int Server::RecieveMessage(int fd, Client *client)
 		logger("RECV returned 0, connection closed!");
 		return (0);
 	}
-	for (int index = 0; index < rbytes; index++)
+	int index = 0;
+	while (index < rbytes)
 	{
 		this->_request.push_back(buff[index]);
+		index++;
 	}
+	buff[index] = '\0';
 	this->IsFirstRead(client, buff);
 	this->IsDoneRead(client, rbytes);
 	logger("message recieved!");
@@ -141,7 +152,6 @@ std::string Server::ParseRequest(Client *client)
 		std::cout << *print;
 	}
 	std::cout << std::endl;
-	logger("\n\n");
 	char arr[7];
 	int index = 0;
 	if (std::isspace(*itfirst))

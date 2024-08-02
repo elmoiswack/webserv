@@ -26,6 +26,7 @@ std::string Server::WhichMethod(Client *client, std::string method, std::vector<
 		if (this->IsMethodAllowed(method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "DELETE";
+		return (this->MethodDelete(itfirst));
 	}
 	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
 	return (this->HtmlToString(this->GetHardCPathCode(501), client));
@@ -101,6 +102,28 @@ std::string Server::listDirectoryContents(const std::string &directoryPath) {
 	return (message_body);
 }
 
+std::string Server::MethodDelete(std::vector<char>::iterator itreq)
+{
+	while (std::isspace(*itreq))
+		itreq++;
+	std::vector<char>::iterator itend = itreq;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itreq, itend);
+	path.insert(0, "var/www");
+	logger("PATH: " + path);
+
+	// const char* filePath = "var/www/uploads/test.txt";
+	if (std::remove(path.c_str()) == 0)
+	{
+		logger("FILE DELETED!");
+		return (this->HtmlToString("./var/www/file_deleted.html"));
+	}
+	logger("ERROR DELETING FILE!");
+	return (this->HtmlToString("./var/www/status_codes/404.html"));
+}
+
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
 	while (std::isspace(*itreq))
@@ -114,14 +137,22 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 
 	if (isCgi(path))
 	{
+		logger("IT IS A CGI BIATCH");
+		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
-		Cgi cgi(_method, path, tmp);
+		this->_cgi = new Cgi(_method, path, tmp);
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
-		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path);
+		std::string cgi_path = _cgi->constructCgiPath(path);
+		// logger("\nBEFORE CGI\n");
+		// this->_start = std::chrono::system_clock::now();
+		this->_cgi_running = true;
+		this->_response = _cgi->runCgi(cgi_path, this);
 		// std::cout << "RESPONSE: \n\n" << this->_response;
+		// for (const std::string& type : this->_whatsockvec) 
+		// 	logger("--Socket type: " + type);
 		return (this->_response);
 	}
 	
@@ -223,16 +254,24 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	logger(path);
 	if (isCgi(path))
 	{
+		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
-		std::string post_data = ParsePost(tmp);
-		Cgi cgi(_method, post_data, path, tmp);
+		// std::string post_data = ParsePost(tmp);
+		this->_post_data = ParsePost(tmp);
+		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
+		// Cgi cgi(_method, this->_post_data, path, tmp);
+		this->_cgi = new Cgi(_method, this->_post_data, path, tmp);
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
+		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
+		// std::cout << "ORIGINAL READ END RESPONSE PIPE: " << _cgi->getReadEndResponsePipe() << "\n";
+		// std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << _cgi->getReadEndUploadPipe() << "\n";
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();
-		std::string cgi_path = cgi.constructCgiPath(path);
-		this->_response = cgi.runCgi(cgi_path);
-		// std::cout << "\nPOST DATA:\n" << post_data << "\n\n";
-		// std::cout << "RESPONSE: \n\n" << this->_response;
+		std::string cgi_path = _cgi->constructCgiPath(path);
+		// this->_start = std::chrono::system_clock::now();
+		// this->_cgi_running = true;
+		_cgi->runCgi(cgi_path, this);
 		return (this->_response);
 	}
 	return ("");

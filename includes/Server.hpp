@@ -20,14 +20,18 @@
 #include <string>
 #include <sstream>
 #include <poll.h>
+#include <chrono>
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 #include "../includes/Client.hpp"
+#include "../includes/Cgi.hpp"
 
 class Parser;
 class Location;
 class Client;
+
+// class Cgi;
 
 class Server
 {
@@ -39,10 +43,13 @@ private:
 	std::vector<std::string> _whatsockvec;
  	int			_ammount_sock;
 	std::vector<char> _request;
+	std::vector<char> _cgi_response;
 	std::string _response;
+	std::string _post_data;
 	std::string _method;
 	bool		_donereading;
 	std::vector<std::string> _allow_methods;
+	bool		_cgi_donereading;
 	bool		_iscgi;
 	bool		_recvzero;
 	bool		_isbody;
@@ -66,6 +73,11 @@ private:
 	int		_listensock;
 	Client *_client;
 
+	int		_websock;
+	Cgi*		_cgi;
+	std::chrono::time_point<std::chrono::system_clock> _start;
+	bool	_cgi_running;
+	// std::unique_ptr<Cgi> _current_cgi;
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
@@ -107,18 +119,23 @@ public:
 	
 	void AcceptClient(int index);
 	void AddSocket(int fd, bool is_client);
+	void AddSocket(int fd, const std::string& type);
 	void RmvSocket(int index);
 	void CloseAllFds();
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
+	void checkCgiTimer();
+	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
+	
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd, Client *client);
 	int  RecieveMessage(int fd, Client *client);
 	std::string ParseRequest(Client *client);
-	std::string ExtractBoundary(const std::string &content);
-	std::string ParsePost(const std::string &content);
 	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq);
-	std::string HtmlToString(std::string path, Client *clien);
+	std::string HtmlToString(std::string path, Client *client);
+	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code, Client *client);
 	long	GetContentLenght(char *buff);
 	void InitRequest(int fd, Client *client);
@@ -126,6 +143,8 @@ public:
 	void IsFirstRead(Client *client, char *buff);
 	void IsDoneRead(Client *client, int rbytes);
 	std::string WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst);
+	std::string MethodDelete(std::vector<char>::iterator itreq);
+	std::string GetSatusCodeFile(std::string code);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd, Client *client);
@@ -134,6 +153,8 @@ public:
 	std::string GetHardCPathCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
+	void writeToCgi(int fd, int index);
+	std::string	readCgiResponse(int fd, int index, int recvmax);
 
 	std::string listDirectoryContents(const std::string &directoryPath);
 	std::string GetFileFromPath(std::string path, Client *client);
