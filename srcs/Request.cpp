@@ -203,30 +203,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		// this->_start = std::chrono::system_clock::now();
 		// this->_cgi_running = true;
 		_cgi->runCgi(cgi_path, this);
-		// cgi.runCgi(cgi_path, this);
-		// std::cout << "RESPONSE: \n\n" << this->_response;f
 		return (this->_response);
 	}
-	// if (isCgi(path))
-	// {
-	// 	std::string tmp(this->_request.begin(), this->_request.end());
-	// 	// std::string post_data = ParsePost(tmp);
-	// 	this->_post_data = ParsePost(tmp);
-	// 	// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
-	// 	Cgi cgi(_method, this->_post_data, path, tmp);
-	// 	this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
-	// 	this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
-	// 	std::cout << "ORIGINAL READ END RESPONSE PIPE: " << cgi.getReadEndResponsePipe() << "\n";
-	// 	std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << cgi.getReadEndUploadPipe() << "\n";
-	// 	this->_iscgi = true;
-	// 	if (this->_response.size() > 0)
-	// 		this->_response.clear();
-	// 	std::string cgi_path = cgi.constructCgiPath(path);
-	// 	this->_response = cgi.runCgi(cgi_path, this);
-	// 	// cgi.runCgi(cgi_path, this);
-	// 	// std::cout << "RESPONSE: \n\n" << this->_response;f
-	// 	return (this->_response);
-	// }
 	return ("");
 }
 
@@ -261,22 +239,6 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq)
 		// 	logger("--Socket type: " + type);
 		return (this->_response);
 	}
-	// if (isCgi(path))
-	// {
-	// 	std::string tmp(this->_request.begin(), this->_request.end());
-	// 	Cgi cgi(_method, path, tmp);
-	// 	// this->AddSocket(cgi.getWriteEndUploadPipe(), std::string("CGI_WRITE"));
-	// 	this->AddSocket(cgi.getReadEndResponsePipe(), std::string("CGI_READ"));
-	// 	this->_iscgi = true;
-	// 	if (this->_response.size() > 0)
-	// 		this->_response.clear();
-	// 	std::string cgi_path = cgi.constructCgiPath(path);
-	// 	this->_response = cgi.runCgi(cgi_path, this);
-	// 	// std::cout << "RESPONSE: \n\n" << this->_response;
-	// 	// for (const std::string& type : this->_whatsockvec) 
-	// 	// 	logger("--Socket type: " + type);
-	// 	return (this->_response);
-	// }
 	this->_iscgi = false;
 	if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString("./var/www" + itloc->GetIndex()));

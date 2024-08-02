@@ -312,12 +312,6 @@ void logger(std::string input)
 	std::cout << input << std::endl;
 }
 
-// void Server::setCgi(Cgi cgi)
-// {
-// 	logger("CGI IS SET\n");
-// 	this->_current_cgi = cgi;
-// }
-
 void Server::writeToCgi(int fd, int index)
 {
 	close(this->_cgi->getReadEndUploadPipe());

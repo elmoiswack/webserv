@@ -109,7 +109,6 @@ public:
 	void CloseAllFds();
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
-	void setCgi(Cgi cgi);
 	void checkCgiTimer();
 	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
 	

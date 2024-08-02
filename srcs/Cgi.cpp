@@ -34,34 +34,21 @@ Cgi::Cgi(const Cgi &obj) : _method(obj._method),
 						   _cgiEnvVars(obj._cgiEnvVars),
 						   _pid(obj._pid)
 {
-	// _initPipes();
-	// std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
-	// std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
 	_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
 }
 
 Cgi &Cgi::operator=(const Cgi &obj)
 {
-	// _initPipes();
 	if (this != &obj)
 	{
 		_method = obj._method;
 		_postData = obj._postData;
 		_cgiEnvVars = obj._cgiEnvVars;
 		_pid = obj._pid;
-		// std::copy(std::begin(obj._uploadPipe), std::end(obj._uploadPipe), _uploadPipe);
-		// std::copy(std::begin(obj._responsePipe), std::end(obj._responsePipe), _responsePipe);
 		_cgiEnvVarsCstyle = this->initCgiEnvVarsCstyle();
 	}
 	return (*this);
 }
-
-// Cgi::Cgi(char *client_resp, const std::string &url) :
-// 	_cgiEnvVars(this->initCgiEnvVars(client_resp, url)),
-// 	_cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
-// {
-
-// }
 
 Cgi::~Cgi()
 {
@@ -110,39 +97,6 @@ std::string Cgi::extractReqUrl(const std::string &url)
 		path.push_back(url[i++]);
 	return (path);
 }
-
-// std::string	Cgi::readCgiResponse(int fd)
-// {
-// 	std::ostringstream oss;
-// 	char buffer[1200];
-// 	ssize_t bytes_read = 0;
-// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
-// 	close(fd);
-// 	// std::cout << oss.str() << "\n";
-// 	return (oss.str());
-// }
-
-// std::string	Cgi::readCgiResponse(int fd)
-// {
-// 	std::ostringstream oss;
-// 	char buffer[1200];
-// 	ssize_t bytes_read = -1;
-// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
-// 	close(fd);
-// 	// std::cout << oss.str() << "\n";
-// 	return (oss.str());
-// }
-
-// void Cgi::writeToCgi(int fd)
-// {
-// 	close(this->_uploadPipe[0]);
-// 	logger("----CGI POLLOUT\n\n");
-// 	write(temp.fd, this->_post_data.c_str(), this->_post_data.size());
-// 	this->RmvSocket(index);
-// 	this->_response.clear();
-// }
 
 std::string extractBoundary(const std::string &content)
 {
