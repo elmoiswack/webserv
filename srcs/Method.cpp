@@ -130,7 +130,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 	if (itloc->GetIndex() == "EMPTY") {
 		if (itloc->GetAutoIndex() == true) {
 			std::cout << "AUTOINDEX PATH = " << path << std::endl;
-			if (path == "/")
+			if (path == "/" || path == "/index.html")
 				return (this->listDirectoryContents(client->GetRoot()));
 			else if (path.back() == '/')
 			{
