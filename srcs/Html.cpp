@@ -4,6 +4,8 @@ std::string Server::GetHardCPathCode(int code)
 {
 	logger("GETTING HARDCODED PATH TO ERRORFILE!");
 	std::cout << "Getting " << code << " html file!" << std::endl;
+	this->_statuscode = code;
+	this->_isstatuscode = true;
 	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
 	while (it != this->_hcerr_page.end())
 	{

@@ -12,7 +12,7 @@ void Server::EventsPollout(int fd, Client *client)
 			this->_response.clear();
 			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
 			this->_response = 
-			"HTTP/1.1 200 OK\r\n"
+			"HTTP/1.1 500 OK\r\n"
 			"Content-Type: text/html\r\n"
 			"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 			"\r\n"
@@ -26,28 +26,43 @@ void Server::EventsPollout(int fd, Client *client)
 		this->_response.clear();
 		this->_donereading = false;
 		this->_iffirstread = true;
+		this->_statuscode = 0;
+		this->_isstatuscode = false;
 	}
 }
 
 void Server::BuildResponse(Client *client)
 {
 	std::string htmlfile = this->ParseRequest(client);
-	if (this->_iscgi == false && this->_autoinfile == false)
+	if (this->_iscgi == false)
 	{
-		this->_response = 
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-		"\r\n"
-		+ htmlfile;
-		this->_request.clear();
+		if (this->_isstatuscode == true)
+		{
+			std::string code = std::to_string(this->_statuscode);
+			this->_response = 
+			"HTTP/1.1 " + code + " OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			"\r\n"
+			+ htmlfile;
+			this->_request.clear();
+		}
+		else 
+		{
+			this->_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			"\r\n"
+			+ htmlfile;
+			this->_request.clear();
+		}
 	}
-	else if ((this->_iscgi == true) || (this->_autoinfile == true))
+	else if (this->_iscgi == true)
 	{
 		this->_response = htmlfile;
 		this->_iscgi = false;
 		this->_request.clear();
-		this->_autoinfile = false;
 	}
 	logger("response created!");	
 }

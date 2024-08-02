@@ -138,11 +138,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 				return (this->listDirectoryContents(path));
 			}
 			else
-			{
-				this->_autoinfile = true;
-				path.insert(0, ".");
-				return (this->HtmlToString(path, client));
-			}
+				return(this->HtmlToString(this->GetHardCPathCode(403), client));
 		}
 		if (itloc->GetAutoIndex() == false)
 			return (this->HtmlToString(this->GetHardCPathCode(403), client));

@@ -13,7 +13,8 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_isbody = true;
 		this->_listensock = 0;
 		this->_iffirstread = true;
-		this->_autoinfile = false;
+		this->_statuscode = 0;
+		this->_isstatuscode = false;
 		this->InitHardcodedError();
 }
 
@@ -31,7 +32,8 @@ Server::Server(Parser &in)
 	this->_isbody = true;
 	this->_listensock = 0;
 	this->_iffirstread = true;
-	this->_autoinfile = false;
+	this->_statuscode = 0;
+	this->_isstatuscode = false;
 	this->_request.clear();
 	this->_response.clear();
 }
