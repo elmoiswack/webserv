@@ -13,6 +13,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_isbody = true;
 		this->_listensock = 0;
 		this->_iffirstread = true;
+		this->_autoinfile = false;
 		this->InitHardcodedError();
 }
 
@@ -30,6 +31,7 @@ Server::Server(Parser &in)
 	this->_isbody = true;
 	this->_listensock = 0;
 	this->_iffirstread = true;
+	this->_autoinfile = false;
 	this->_request.clear();
 	this->_response.clear();
 }
@@ -214,7 +216,11 @@ void Server::PollEvents()
 					logger("Client closed connection!");
 					close(temp.fd);
 					this->RmvSocket(index);
-					delete this->_client;
+					if (this->_client != nullptr) 
+					{
+       	 				delete this->_client;
+        				this->_client = nullptr;
+   					}
 					logger("client is deleted!");
 					this->_recvzero = false;
 				}
@@ -233,7 +239,11 @@ void Server::PollEvents()
 			{
 				this->EventsPollout(temp.fd, this->_client);
 				this->RmvSocket(index);
-				delete this->_client;
+				if (this->_client != nullptr) 
+				{
+       	 			delete this->_client;
+        			this->_client = nullptr;
+   				}
 				logger("client is deleted!");
 			}
 		}

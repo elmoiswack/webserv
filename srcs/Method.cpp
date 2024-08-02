@@ -1,5 +1,8 @@
 #include "../includes/Server.hpp"
 #include "../includes/Cgi.hpp"
+#include <filesystem> 
+#include <fstream> 
+#include <iostream> 
 
 std::string Server::WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst)
 {
@@ -46,6 +49,58 @@ int Server::IsMethodAllowed(std::string method, Client *client)
 	return (1);
 }
 
+std::string Server::listDirectoryContents(const std::string &directoryPath) {
+	std::filesystem::path rootPath = this->GetRoot(); // get root directory
+    std::filesystem::path fullPath = rootPath / directoryPath; // concatenate paths
+
+	std::string message_body; // empty string to store 
+	// Check if the index file exists and use it if available
+	std::string indexFileName = this->GetServerIndex();
+	if (!indexFileName.empty()) {
+		std::ifstream indexFile(this->GetRoot() + indexFileName);
+		if (indexFile.is_open()) // if it can be opened it is read
+		{
+			std::ostringstream ss;
+			ss << indexFile.rdbuf();
+			message_body = ss.str();
+			return (message_body);
+		}
+		else
+		{
+			std::cerr << "Error opening index file: " << indexFileName << "\n";
+		}
+	}
+    // Build directory listing if no index file is used
+    message_body = "<html>\n<title>" + directoryPath + "</title>\n";
+    message_body += "<body><h1>Index of " + directoryPath + "</h1>\n";
+    message_body += "<table><tr><th>Name</th></tr>\n";
+
+    try
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(fullPath)) { // iterate through directory
+            if (entry.path().filename() == ".") // current directory
+                continue;
+            std::string filePath = directoryPath;
+            if (directoryPath.back() != '/') // if it doesn't have slash add one
+                filePath += '/';
+            filePath += entry.path().filename().string();
+            message_body += "<tr><td><a href=\"" + filePath;
+            if (std::filesystem::is_directory(entry.status()))
+                message_body += "/";
+			message_body += "\">" + entry.path().filename().string();
+            if (std::filesystem::is_directory(entry.status()))
+                message_body += "/";
+            message_body += "</a></td></tr>\n";
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Filesystem error: " << e.what() << "\n";
+    }
+    message_body += "</table></body>\n</html>\n"; // close html
+	return (message_body);
+}
+
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 {
 	while (std::isspace(*itreq))
@@ -55,7 +110,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		itend++;
 	std::string path;
 	path.assign(itreq, itend);
-	logger(path);
+	std::cout << "Path = " << path << std::endl;
 
 	if (isCgi(path))
 	{
@@ -70,14 +125,34 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		return (this->_response);
 	}
 	
-	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();	
+	std::vector<Location>::iterator itloc = client->GetLocationblockBegin();
 	this->_iscgi = false;
-	if (path == "/" || path == itloc->GetIndex())
+	if (itloc->GetIndex() == "EMPTY") {
+		if (itloc->GetAutoIndex() == true) {
+			std::cout << "AUTOINDEX PATH = " << path << std::endl;
+			if (path == "/" || path == "/index.html")
+				return (this->listDirectoryContents(client->GetRoot()));
+			else if (path.back() == '/')
+			{
+				path.insert(0, ".");
+				return (this->listDirectoryContents(path));
+			}
+			else
+			{
+				this->_autoinfile = true;
+				path.insert(0, ".");
+				return (this->HtmlToString(path, client));
+			}
+		}
+		if (itloc->GetAutoIndex() == false)
+			return (this->HtmlToString(this->GetHardCPathCode(403), client));
+	}
+	else if (path == "/" || path == itloc->GetIndex())
 		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path, client));
-	else
-		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	logger("Path not found, sending 404!");
+	return (this->HtmlToString(this->GetHardCPathCode(404), client));
 }
 
 std::string Server::ExtractBoundary(const std::string &content) {
