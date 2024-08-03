@@ -414,7 +414,7 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
         logger("ERROR READING FROM CGI PIPE (read returned -1)");
 		std::exit(EXIT_FAILURE);
 	}
-	if (bytes_read < this->_recvmax)
+	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");
 		for (char c : this->_cgi_response)
