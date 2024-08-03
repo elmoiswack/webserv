@@ -3,7 +3,7 @@
 import cgi
 import os
 from os import environ
-import cgitb; cgitb.enable()
+# import cgitb; cgitb.enable()
 import sys
 
 message = ""

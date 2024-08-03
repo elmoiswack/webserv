@@ -143,7 +143,7 @@ public:
 	void IsFirstRead(Client *client, char *buff);
 	void IsDoneRead(Client *client, int rbytes);
 	std::string WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst);
-	std::string MethodDelete(std::vector<char>::iterator itreq);
+	std::string MethodDelete(std::vector<char>::iterator itreq, Client *client);
 	std::string GetSatusCodeFile(std::string code);
 
 	///RESPONSE.CPP

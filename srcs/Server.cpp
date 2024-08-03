@@ -259,13 +259,6 @@ void Server::PollEvents()
 			{
 				logger("\n--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
-				// if (this->_client != nullptr) 
-				// {
-       	 		// 	// delete this->_client;
-        		// 	this->_client = nullptr;
-   				// }
-				// this->RmvSocket(index);
-				// this->_response.clear();
 			}
 			else if (this->_donereading == true && this->_response.size() > 0)
 			{
@@ -281,11 +274,17 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLHUP)
 		{
-			logger("Connection hung up!");
+			logger("\nConnection hung up!");
 			if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				logger("\nCGI ERROR!");
 				delete (this->_cgi);
+				this->_response = 
+				"HTTP/1.1 500\r\n"
+				"Content-Type: text/html\r\n"
+				"Content-Length: " + std::to_string(this->HtmlToString(this->GetHardCPathCode(500), this->_client).length()) + "\r\n"
+				"\r\n"
+				+ this->HtmlToString(this->GetHardCPathCode(500), this->_client);
 			}
 			close(temp.fd);
 			this->RmvSocket(index);
@@ -397,7 +396,8 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
     {
         logger("\n\n\nERROR CGI PROCESS\n\n\n");
         std::exit(EXIT_FAILURE);
-    }
+		// return ("");
+	}
     bytes_read = read(fd, buffer, sizeof(buffer));
 	for (int i = 0; i < bytes_read; ++i)
 		this->_cgi_response.push_back(buffer[i]);

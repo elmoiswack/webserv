@@ -4,6 +4,7 @@ void Server::EventsPollout(int fd, Client *client)
 {
 	logger("POLLOUT");
 	logger("sending response to client...");
+	// logger("\nRESPONSe AT POLLOUT:" + _response);
 	if (write(fd, this->_response.c_str(), this->_response.size()) == -1)
 	{
 		logger("ERROR WRITE: failed to send response! Trying to send 500!");

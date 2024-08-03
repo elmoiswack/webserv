@@ -272,6 +272,28 @@ std::string Cgi::extractContentType(const std::string &req)
 // #include <chrono>
 // #include <thread>
 
+// bool Cgi::waitForChild() const
+// {
+//     int status;
+//     pid_t result = waitpid(this->_pid, &status, WNOHANG);
+//     if (result == 0) {
+//         // Child is still running
+//         return false;
+//     } else if (result == -1) {
+//         perror("waitpid");
+//         return false;
+//     } else {
+//         // Child has terminated
+//         if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+//             return true;
+//         } else {
+//             std::cerr << "CGI script failed with exit code " << WEXITSTATUS(status) << std::endl;
+//             return false;
+//         }
+//     }
+// }
+
+
 bool Cgi::waitForChild() const
 {
 	int exit_code = 0;
@@ -352,6 +374,8 @@ void Cgi::_initPipes()
 		std::cout << "ERROR PIPE\n";
 		std::exit(EXIT_FAILURE);
 	}
+	fcntl(_responsePipe[0], F_SETFL, O_NONBLOCK);
+	fcntl(_uploadPipe[1], F_SETFL, O_NONBLOCK);
 }
 
 int Cgi::getReadEndResponsePipe() const

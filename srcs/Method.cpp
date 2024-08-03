@@ -26,7 +26,7 @@ std::string Server::WhichMethod(Client *client, std::string method, std::vector<
 		if (this->IsMethodAllowed(method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
 		this->_method = "DELETE";
-		return (this->MethodDelete(itfirst));
+		return (this->MethodDelete(itfirst, client));
 	}
 	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
 	return (this->HtmlToString(this->GetHardCPathCode(501), client));
@@ -102,7 +102,7 @@ std::string Server::listDirectoryContents(const std::string &directoryPath) {
 	return (message_body);
 }
 
-std::string Server::MethodDelete(std::vector<char>::iterator itreq)
+std::string Server::MethodDelete(std::vector<char>::iterator itreq, Client *client)
 {
 	while (std::isspace(*itreq))
 		itreq++;
@@ -121,7 +121,7 @@ std::string Server::MethodDelete(std::vector<char>::iterator itreq)
 		return (this->HtmlToString("./var/www/file_deleted.html"));
 	}
 	logger("ERROR DELETING FILE!");
-	return (this->HtmlToString("./var/www/status_codes/404.html"));
+	return (this->HtmlToString(this->GetHardCPathCode(500), client));
 }
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
