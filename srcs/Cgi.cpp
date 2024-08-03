@@ -300,7 +300,7 @@ bool Cgi::waitForChild() const
 	// std::cout << "\n\nCOPIED PID: " << this->_pid << "\n\n";
 
 	pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
-
+	// alarm(0);
 	if (result == -1)
 	{
 		std::cerr << "ERROR: waitpid failed\n";
@@ -333,6 +333,11 @@ bool Cgi::waitForChild() const
 	}
 }
 
+// void handle_timeout(int signum) {
+//     // This function will be called when the timeout is reached
+//     std::cerr << "\n\nProcess timed out: " << signum << std::endl;
+// }
+
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
 	(void)server;
@@ -346,6 +351,14 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 	{
 		// server->setStartTime(std::chrono::system_clock::now());
 		// logger("\n\nBEFORE CGI\n");
+		// struct sigaction sa;
+        // sa.sa_handler = handle_timeout;
+        // sigemptyset(&sa.sa_mask);
+        // sa.sa_flags = 0;
+        // sigaction(SIGALRM, &sa, nullptr);
+        
+        // Start the timer
+        // alarm(5);
 		close(_responsePipe[0]);			   // Close read end of response pipe
 		dup2(_responsePipe[1], STDOUT_FILENO); // Redirect cgi stdout to write end of response pipe
 		close(_uploadPipe[1]);				   // Close write end of upload pipe

@@ -388,8 +388,8 @@ void Server::writeToCgi(int fd, int index)
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
-	std::cout << "JAJAJAJAJ: " << recvmax << std::endl;
-	std::cout << "fd = " << fd << "\n" << "index = " << index << std::endl;
+	// std::cout << "JAJAJAJAJ: " << recvmax << std::endl;
+	// std::cout << "fd = " << fd << "\n" << "index = " << index << std::endl;
     char buffer[recvmax];
     ssize_t bytes_read;
     if (this->_cgi->waitForChild() == false)
@@ -446,7 +446,7 @@ void Server::checkCgiTimer()
 					this->_cgi_running = false;
 					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
 					this->_response = 
-					"HTTP/1.1 500 OK\r\n"
+					"HTTP/1.1 500\r\n"
 					"Content-Type: text/html\r\n"
 					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
 					"\r\n"
