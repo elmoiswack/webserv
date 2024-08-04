@@ -40,7 +40,6 @@ void Server::InitRequest(int fd, Client *client)
 		this->_recvzero = true;
 		this->_donereading = false;
 		this->_request.clear();
-		this->_iffirstread = true;
 		return ;
 	}
 }
@@ -48,9 +47,9 @@ void Server::InitRequest(int fd, Client *client)
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	char buff[client->Getrecvmax() + 1];
-	
-	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
+	std::cout << "recvmax = " << client->Getrecvmax() << std::endl;
+	char* buff = new char[client->Getrecvmax() + 1];
+	int rbytes = recv(fd, buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
 	if (rbytes == -1)
 	{
@@ -69,36 +68,17 @@ int Server::RecieveMessage(int fd, Client *client)
 		index++;
 	}
 	buff[index] = '\0';
-	this->IsFirstRead(client, buff);
-	this->IsDoneRead(client, rbytes);
+	this->_totalread += rbytes;
+	this->IsDoneRead(client);
+	delete[] buff;
 	logger("message recieved!");
 	return (1);
 }
 
-void Server::IsFirstRead(Client *client, char *buff)
+long Server::GetContentLenght(std::string tmp)
 {
-	if (this->_iffirstread == true)
-	{
-		this->_iffirstread = false;
-		if (this->GetContentLenght(buff) != -1)
-		{
-			this->_isbody = true;
-			client->SetContentLenght(this->GetContentLenght(buff));
-			std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
-		}
-		else
-		{
-			this->_isbody = false;
-		}
-	}
-}
-
-long Server::GetContentLenght(char *buff)
-{
-	std::string tmp(buff);
-
 	int begin = tmp.find("Content-Length:", 0);
-	if ((size_t)begin == tmp.npos)
+	if ((size_t)begin == tmp.npos || begin == -1)
 		return (-1);
 	if (begin == -1)
 		return (0);
@@ -108,38 +88,61 @@ long Server::GetContentLenght(char *buff)
 	int end = begin;
 	while (std::isdigit(tmp[end]))
 		end++;
-
 	std::string numb = tmp.substr(begin, end - begin);
 	long body = std::stol(numb);
+	
 	begin = tmp.find("Priority:", 0);
 	while (tmp[begin] && tmp[begin] != '-')
 		begin++;
-	
-	if ((size_t)begin == tmp.size())
-	{
-		logger("FOR FUCK SAKE!!!!!!!!!!!!!");
-		exit(EXIT_FAILURE);
-	}
-	
 	numb = tmp.substr(0, begin);
 	std::string strhead = std::to_string(numb.size());
 	long head = std::stol(strhead);
+
 	return (head + body);
 }
 
-void Server::IsDoneRead(Client *client, int rbytes)
+std::string whichone(std::string tmp)
 {
-	if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
+	if (tmp.find("GET", 0) != tmp.npos)
+		return ("GET");
+	else if (tmp.find("POST", 0) != tmp.npos)
+		return ("POST");
+	else if (tmp.find("DELETE", 0) != tmp.npos)
+		return ("DELETE");
+	return ("EMPTY");
+}
+
+void Server::IsDoneRead(Client *client)
+{
+	std::string tmp(this->_request.begin(), this->_request.end());
+	std::string which = whichone(tmp);
+	if (which == "EMPTY")
+		return ;
+	if ((tmp.find("\r\n\r\n", 0) != tmp.npos))
 	{
-		this->_donereading = true;
-		this->_request.push_back('\0');
-		logger("Done reading post");
-	}
-	else if (this->_isbody == false && rbytes < client->Getrecvmax())
-	{
-		this->_donereading = true;
-		this->_request.push_back('\0');
-		logger("Done reading get");
+		if (which == "POST")
+		{
+			if (this->GetContentLenght(tmp) == -1)
+				return ;
+			if (client->GetContentLenght() == 0)
+			{
+				this->_isbody = true;
+				client->SetContentLenght(this->GetContentLenght(tmp));
+				std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+			}
+			if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
+			{
+				this->_donereading = true;
+				this->_request.push_back('\0');
+				logger("Done reading post");
+			}
+		}
+		else if (which == "GET" || which == "DELETE")
+		{
+			this->_donereading = true;
+			this->_request.push_back('\0');
+			logger("Done reading get");
+		}
 	}
 }
 
@@ -154,7 +157,7 @@ std::string Server::ParseRequest(Client *client)
 	std::cout << std::endl;
 	char arr[7];
 	int index = 0;
-	if (std::isspace(*itfirst))
+	if ((itfirst != this->_request.end()) && (std::isspace(*itfirst)))
 	{
 		while (std::isspace(*itfirst))
 			itfirst++;

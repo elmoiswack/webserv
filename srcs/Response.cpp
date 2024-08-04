@@ -23,13 +23,13 @@ void Server::EventsPollout(int fd, Client *client)
 	logger("fd is closed and removed!");
 	this->_response.clear();
 	this->_donereading = false;
-	this->_iffirstread = true;
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
 }
 
 void Server::BuildResponse(Client *client)
 {
+	logger("Building response...");
 	std::string htmlfile = this->ParseRequest(client);
 	if (this->_iscgi == false)
 	{
@@ -62,4 +62,10 @@ void Server::BuildResponse(Client *client)
 		this->_request.clear();
 	}
 	logger("response created!");	
+	for (auto it = this->_response.begin(); it != this->_response.end(); it++)
+	{
+		std::cout << *it;
+	}
+	std::cout << std::endl;
+	this->_donereading = true;
 }

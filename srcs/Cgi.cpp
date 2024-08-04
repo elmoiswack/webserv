@@ -383,7 +383,7 @@ void Cgi::appendResponse(std::string responseToAdd)
 {
 	this->_response += responseToAdd;
 }
-
+#include <signal.h>
 void Cgi::killCgi()
 {
 	std::cout << "PID BEFORE KILL: " << _pid << "\n";

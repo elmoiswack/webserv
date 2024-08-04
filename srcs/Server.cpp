@@ -10,11 +10,11 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_donereading = false;
 		this->_iscgi = false;
 		this->_recvzero = false;
-		this->_isbody = true;
+		this->_isbody = false;
 		this->_listensock = 0;
-		this->_iffirstread = true;
 		this->_statuscode = 0;
 		this->_isstatuscode = false;
+		this->_totalread = 0;
 		this->InitHardcodedError();
 }
 
@@ -29,13 +29,13 @@ Server::Server(Parser &in)
 	this->_donereading = false;
 	this->_iscgi = false;
 	this->_recvzero = false;
-	this->_isbody = true;
+	this->_isbody = false;
 	this->_listensock = 0;
-	this->_iffirstread = true;
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
 	this->_request.clear();
 	this->_response.clear();
+	this->_totalread = 0;
 	this->_cgi = nullptr;
 }
 
@@ -197,6 +197,7 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	this->_client = new Client(socket, serverblock);
 	logger("New client allocated!");
 	std::cout << this->_client << std::endl;
+	this->_totalread = 0;
 }
 
 void Server::PollEvents()
