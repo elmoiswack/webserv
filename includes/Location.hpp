@@ -23,6 +23,7 @@ class Server;
 class Location {
 	private:
 
+	static bool					 cgi_status;
 	std::vector<std::string> url;
 	bool 					 auto_index;
 	std::vector<std::string> allow_methods;
@@ -33,8 +34,6 @@ class Location {
 	std::string				 locroot;
 	std::string				 cgi_index;
 	std::string				 cgi_pass;
-	bool					 cgi_status;
-
 	std::vector<Location>	 locations_info;
 
 	public:
@@ -65,8 +64,9 @@ std::vector<std::string>					 GetURL(void) const;
 	std::vector<std::string> GetCGIparam(void) const;
 	std::string				 GetCGIindex(void) const;
 	std::string				 GetCGIpass(void) const;
+	std::string				GetLocRoot(void) const;
+	static bool				GetCGIstatus(void);
 
-	std::string GetLocRoot(void) const;
 
 };
 
