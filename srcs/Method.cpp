@@ -137,6 +137,8 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 
 	if (isCgi(path))
 	{
+		if (!Location::GetCGIstatus())
+			return (this->HtmlToString(this->GetHardCPathCode(500)));
 		logger("IT IS A CGI BIATCH");
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
@@ -254,6 +256,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 	logger(path);
 	if (isCgi(path))
 	{
+		if (!Location::GetCGIstatus())
+			return (this->HtmlToString(this->GetHardCPathCode(500)));
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		// std::string post_data = ParsePost(tmp);

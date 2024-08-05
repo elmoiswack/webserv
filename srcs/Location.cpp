@@ -2,10 +2,12 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 
+bool Location::cgi_status = false;
+
 Location::Location() :
     auto_index(false),
-    allow_methods(0),
-	cgi_status(false)
+    allow_methods(0)
+	// cgi_status(false)
 {}
 
 
@@ -351,4 +353,8 @@ std::string Location::GetCGIindex(void) const {
 
 std::string Location::GetCGIpass(void) const {
     return (this->cgi_pass);
+}
+
+bool Location::GetCGIstatus(void) {
+    return (cgi_status);
 }

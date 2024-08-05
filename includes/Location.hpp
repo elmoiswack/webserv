@@ -33,7 +33,7 @@ class Location {
 	std::string				 locroot;
 	std::string				 cgi_index;
 	std::string				 cgi_pass;
-	bool					 cgi_status;
+	static bool				 cgi_status;
 
 	std::vector<Location>	 locations_info;
 
@@ -67,7 +67,7 @@ std::vector<std::string>					 GetURL(void) const;
 	std::string				 GetCGIpass(void) const;
 
 	std::string GetLocRoot(void) const;
-
+	static bool GetCGIstatus(void);
 };
 
 #endif
