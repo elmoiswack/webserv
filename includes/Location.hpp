@@ -33,6 +33,7 @@ class Location {
 	std::string				 locroot;
 	std::string				 cgi_index;
 	std::string				 cgi_pass;
+	bool					 cgi_status;
 
 	std::vector<Location>	 locations_info;
 
@@ -53,6 +54,7 @@ class Location {
 	void ValidateLocRoot(std::vector<std::string>& tokens);
 	void Validate_CGIindex(std::vector<std::string>& tokens);
 	void Validate_CGIpass(std::vector<std::string>& tokens);
+	void Validate_CGI(std::vector<std::string>& tokens);
 
 std::vector<std::string>					 GetURL(void) const;
 	bool 					 GetAutoIndex(void) const;

@@ -4,7 +4,8 @@
 
 Location::Location() :
     auto_index(false),
-    allow_methods(0)
+    allow_methods(0),
+	cgi_status(false)
 {}
 
 
@@ -269,6 +270,28 @@ void    Location::Validate_CGIpass(std::vector<std::string> &tokens)
     this->cgi_pass = (tokens[0]);
 
     // erase ;
+    tokens.erase(tokens.begin(), tokens.begin() + 2);
+}
+
+void    Location::Validate_CGI(std::vector<std::string> &tokens)
+{
+    if ( tokens.size() == 1) 
+        throw Parser::InvalidLineConfException("on / off is Missing!'");
+
+	// erase autoindex token
+    tokens.erase( tokens.begin());
+
+	if (tokens[1] != ";")
+		throw Parser::InvalidLineConfException("; is Missing after cgi!'");
+
+	if (tokens[0] == "on")
+		this->cgi_status  = true;
+	else if (tokens[0] == "off")
+		this->cgi_status = false;
+	else
+		throw Parser::InvalidLineConfException("on / off is Missing!'");
+
+    // erase on or off and ;
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 

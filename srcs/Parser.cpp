@@ -187,6 +187,8 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
             newLocation.Validate_CGIpass(tokens);
 		else if (tokens[0] == "fastcgi_index")
             newLocation.Validate_CGIindex(tokens);
+		else if (tokens[0] == "cgi")
+            newLocation.Validate_CGI(tokens);
         else {
             throw std::runtime_error("Invalid instruction in Location block");
 		}
