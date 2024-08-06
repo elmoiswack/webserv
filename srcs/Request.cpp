@@ -40,7 +40,6 @@ void Server::InitRequest(int fd, Client *client)
 		this->_recvzero = true;
 		this->_donereading = false;
 		this->_request.clear();
-		this->_iffirstread = true;
 		return ;
 	}
 }
@@ -48,10 +47,11 @@ void Server::InitRequest(int fd, Client *client)
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	char buff[client->Getrecvmax() + 1];
-	
-	int rbytes = recv(fd, &buff, client->Getrecvmax(), 0);
+	std::cout << "recvmax = " << client->Getrecvmax() << std::endl;
+	char* buff = new char[client->Getrecvmax() + 1];
+	int rbytes = recv(fd, buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
+	this->_totalread += rbytes;
 	if (rbytes == -1)
 	{
 		logger("ERROR: RECV returned -1!");
@@ -69,106 +69,95 @@ int Server::RecieveMessage(int fd, Client *client)
 		index++;
 	}
 	buff[index] = '\0';
-	this->IsFirstRead(client, buff);
-	this->IsDoneRead(client, rbytes);
+	this->IsDoneRead(client);
+	delete[] buff;
 	logger("message recieved!");
 	return (1);
 }
 
-void Server::IsFirstRead(Client *client, char *buff)
+long Server::GetContentLenght(std::string buff)
 {
-	if (this->_iffirstread == true)
-	{
-		this->_iffirstread = false;
-		if (this->GetContentLenght(buff) != -1)
-		{
-			this->_isbody = true;
-			client->SetContentLenght(this->GetContentLenght(buff));
-			std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
-		}
-		else
-		{
-			this->_isbody = false;
-		}
-	}
-}
-
-long Server::GetContentLenght(char *buff)
-{
-	std::string tmp(buff);
-
-	int begin = tmp.find("Content-Length:", 0);
-	if ((size_t)begin == tmp.npos)
+	int begin = buff.find("Content-Length:", 0);
+	if ((size_t)begin == buff.npos || begin == -1)
 		return (-1);
 	if (begin == -1)
 		return (0);
-	while (!std::isspace(tmp[begin]))
+	while (!std::isspace(buff[begin]))
 		begin++;
 	begin++;
 	int end = begin;
-	while (std::isdigit(tmp[end]))
+	while (std::isdigit(buff[end]))
 		end++;
-
-	std::string numb = tmp.substr(begin, end - begin);
+	std::string numb = buff.substr(begin, end - begin);
 	long body = std::stol(numb);
-	begin = tmp.find("Priority:", 0);
-	while (tmp[begin] && tmp[begin] != '-')
+	
+	begin = buff.find("Priority:", 0);
+	while (buff[begin] && buff[begin] != '-')
 		begin++;
-	
-	if ((size_t)begin == tmp.size())
-	{
-		logger("FOR FUCK SAKE!!!!!!!!!!!!!");
-		exit(EXIT_FAILURE);
-	}
-	
-	numb = tmp.substr(0, begin);
+	numb = buff.substr(0, begin);
 	std::string strhead = std::to_string(numb.size());
 	long head = std::stol(strhead);
+
 	return (head + body);
 }
 
-void Server::IsDoneRead(Client *client, int rbytes)
+std::string Server::WhichMethod(std::string buff)
 {
-	if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
+	if (buff.find("GET", 0) != buff.npos)
+		return ("GET");
+	else if (buff.find("POST", 0) != buff.npos)
+		return ("POST");
+	else if (buff.find("DELETE", 0) != buff.npos)
+		return ("DELETE");
+	return ("EMPTY");
+}
+
+void Server::IsDoneRead(Client *client)
+{
+	std::string tmp(this->_request.begin(), this->_request.end());
+	if (this->_method == "EMPTY")
 	{
-		this->_donereading = true;
-		this->_request.push_back('\0');
-		logger("Done reading post");
+		this->_method = this->WhichMethod(tmp);
+		if (this->_method == "EMPTY")
+			return ;
 	}
-	else if (this->_isbody == false && rbytes < client->Getrecvmax())
+	if ((tmp.find("\r\n\r\n", 0) != tmp.npos))
 	{
-		this->_donereading = true;
-		this->_request.push_back('\0');
-		logger("Done reading get");
+		if (this->_method == "POST")
+		{
+			if (this->GetContentLenght(tmp) == -1)
+				return ;
+			if (client->GetContentLenght() == 0)
+			{
+				this->_isbody = true;
+				client->SetContentLenght(this->GetContentLenght(tmp));
+				std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+			}
+			if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
+			{
+				std::cout << "CLIENT MAX READ = " << client->GetContentLenght() << ", recv READ = " << this->_totalread << std::endl;
+				this->_donereading = true;
+				this->_request.push_back('\0');
+				logger("Done reading post");
+			}
+		}
+		else if ((this->_method == "GET") || (this->_method == "DELETE"))
+		{
+			this->_donereading = true;
+			this->_request.push_back('\0');
+			logger("Done reading get");
+		}
 	}
 }
 
 std::string Server::ParseRequest(Client *client)
 {
 	std::vector<char>::iterator itfirst = this->_request.begin();
-	logger("\n\nRequest after reading is done =");
-	for (std::vector<char>::iterator print = this->_request.begin(); print != this->_request.end(); print++)
+	while ((itfirst != this->_request.end()) && (!std::isspace(*itfirst)))
 	{
-		std::cout << *print;
-	}
-	std::cout << std::endl;
-	char arr[7];
-	int index = 0;
-	if (std::isspace(*itfirst))
-	{
-		while (std::isspace(*itfirst))
-			itfirst++;
-	}
-	if (itfirst == this->_request.end())
-		return (this->HtmlToString(this->GetHardCPathCode(400), client));
-	while ((itfirst != this->_request.end()) && (!std::isspace(*itfirst)) && (index < 7))
-	{
-		arr[index] = *itfirst;
-		index++;
 		itfirst++;
 	}
-	arr[index] = '\0';
-	std::string method(arr);
-	
-	return (this->WhichMethod(client, method, itfirst));
+	if (itfirst == this->_request.end())
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));	
+	return (this->WhichMethod(client, itfirst));
 }

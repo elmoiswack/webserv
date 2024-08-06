@@ -4,28 +4,25 @@
 #include <fstream> 
 #include <iostream> 
 
-std::string Server::WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst)
+std::string Server::WhichMethod(Client *client, std::vector<char>::iterator itfirst)
 {
-	if (method == "GET")
+	if (this->_method == "GET")
 	{
-		if (this->IsMethodAllowed(method, client) == -1)
+		if (this->IsMethodAllowed(this->_method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		this->_method = "GET";
 		return (this->MethodGet(itfirst, client));
 	}
-	else if (method == "POST")
+	else if (this->_method == "POST")
 	{
-		if (this->IsMethodAllowed(method, client) == -1)
+		if (this->IsMethodAllowed(this->_method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		this->_method = "POST";
 		std::string response = this->MethodPost(itfirst);
 		return (response);
 	}
-	else if (method == "DELETE")
+	else if (this->_method == "DELETE")
 	{
-		if (this->IsMethodAllowed(method, client) == -1)
+		if (this->IsMethodAllowed(this->_method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		this->_method = "DELETE";
 		return (this->MethodDelete(itfirst));
 	}
 	logger("\nCURRENT METHOD DOENS'T EXIST!\n");

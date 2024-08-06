@@ -23,9 +23,10 @@ void Server::EventsPollout(int fd, Client *client)
 	logger("fd is closed and removed!");
 	this->_response.clear();
 	this->_donereading = false;
-	this->_iffirstread = true;
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
+	this->_totalread = 0;
+	this->_method = "EMPTY";
 }
 
 void Server::BuildResponse(Client *client)

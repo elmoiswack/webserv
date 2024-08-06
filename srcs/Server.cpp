@@ -12,9 +12,10 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_recvzero = false;
 		this->_isbody = true;
 		this->_listensock = 0;
-		this->_iffirstread = true;
 		this->_statuscode = 0;
 		this->_isstatuscode = false;
+		this->_totalread = 0;
+		this->_method = "EMPTY";
 		this->InitHardcodedError();
 }
 
@@ -31,11 +32,12 @@ Server::Server(Parser &in)
 	this->_recvzero = false;
 	this->_isbody = true;
 	this->_listensock = 0;
-	this->_iffirstread = true;
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
 	this->_request.clear();
 	this->_response.clear();
+	this->_totalread = 0;
+	this->_method = "EMPTY";
 	this->_cgi = nullptr;
 }
 
@@ -389,8 +391,6 @@ void Server::writeToCgi(int fd, int index)
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
-	std::cout << "JAJAJAJAJ: " << recvmax << std::endl;
-	std::cout << "fd = " << fd << "\n" << "index = " << index << std::endl;
     char buffer[recvmax];
     ssize_t bytes_read;
     if (this->_cgi->waitForChild() == false)

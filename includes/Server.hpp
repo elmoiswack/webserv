@@ -53,9 +53,9 @@ private:
 	bool		_iscgi;
 	bool		_recvzero;
 	bool		_isbody;
-	bool		_iffirstread;
 	int			_statuscode;
 	bool		_isstatuscode;
+	long		_totalread;
 
 	int			_recvmax;
 	std::string _port;
@@ -137,14 +137,13 @@ public:
 	std::string HtmlToString(std::string path, Client *client);
 	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code, Client *client);
-	long	GetContentLenght(char *buff);
+	long	GetContentLenght(std::string buff);
 	void InitRequest(int fd, Client *client);
 	void BuildResponse(Client *client);
-	void IsFirstRead(Client *client, char *buff);
-	void IsDoneRead(Client *client, int rbytes);
-	std::string WhichMethod(Client *client, std::string method, std::vector<char>::iterator itfirst);
+	void IsDoneRead(Client *client);
+	std::string WhichMethod(std::string);
+	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
 	std::string MethodDelete(std::vector<char>::iterator itreq);
-	std::string GetSatusCodeFile(std::string code);
 
 	///RESPONSE.CPP
 	void EventsPollout(int fd, Client *client);
@@ -157,7 +156,6 @@ public:
 	std::string	readCgiResponse(int fd, int index, int recvmax);
 
 	std::string listDirectoryContents(const std::string &directoryPath);
-	std::string GetFileFromPath(std::string path, Client *client);
 
 	class BindErrorException : public std::exception
 	{
