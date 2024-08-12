@@ -278,7 +278,7 @@ void Server::PollEvents()
        	 			delete this->_client;
         			this->_client = nullptr;
    				}
-				logger("client is deleted!");
+				logger("client is deleted!\n");
 			}
 		}
 		else if (temp.revents & POLLHUP)

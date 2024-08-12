@@ -16,8 +16,7 @@ std::string Server::WhichMethod(Client *client, std::vector<char>::iterator itfi
 	{
 		if (this->IsMethodAllowed(this->_method, client) == -1)
 			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		std::string response = this->MethodPost(itfirst);
-		return (response);
+		return (this->MethodPost(itfirst));
 	}
 	else if (this->_method == "DELETE")
 	{
@@ -118,7 +117,7 @@ std::string Server::MethodDelete(std::vector<char>::iterator itreq)
 		return (this->HtmlToString("./var/www/file_deleted.html"));
 	}
 	logger("ERROR DELETING FILE!");
-	return (this->HtmlToString("./var/www/status_codes/404.html"));
+	return (this->HtmlToString(this->GetHardCPathCode(404)));
 }
 
 std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
@@ -136,7 +135,6 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 	{
 		if (!Location::GetCGIstatus())
 			return (this->HtmlToString(this->GetHardCPathCode(500)));
-		logger("IT IS A CGI BIATCH");
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		this->_cgi = new Cgi(_method, path, tmp);

@@ -48,7 +48,7 @@ int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
 	std::cout << "recvmax = " << client->Getrecvmax() << std::endl;
-	char* buff = new char[client->Getrecvmax() + 1];
+	char* buff = new char[client->Getrecvmax()];
 	int rbytes = recv(fd, buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
 	this->_totalread += rbytes;
@@ -68,7 +68,6 @@ int Server::RecieveMessage(int fd, Client *client)
 		this->_request.push_back(buff[index]);
 		index++;
 	}
-	buff[index] = '\0';
 	this->IsDoneRead(client);
 	delete[] buff;
 	logger("message recieved!");
@@ -138,6 +137,11 @@ void Server::IsDoneRead(Client *client)
 				std::cout << "CLIENT MAX READ = " << client->GetContentLenght() << ", recv READ = " << this->_totalread << std::endl;
 				this->_donereading = true;
 				this->_request.push_back('\0');
+				std::cout << "\nFULL REQUEST:" << std::endl;
+				for (size_t i = 0; i < this->_request.size(); i++)
+				{
+					std::cout << this->_request[i];
+				}
 				logger("Done reading post");
 			}
 		}
@@ -145,6 +149,11 @@ void Server::IsDoneRead(Client *client)
 		{
 			this->_donereading = true;
 			this->_request.push_back('\0');
+			std::cout << "\nFULL REQUEST:" << std::endl;
+			for (size_t i = 0; i < this->_request.size(); i++)
+			{
+				std::cout << this->_request[i];
+			}
 			logger("Done reading get");
 		}
 	}
@@ -158,6 +167,7 @@ std::string Server::ParseRequest(Client *client)
 		itfirst++;
 	}
 	if (itfirst == this->_request.end())
-		return (this->HtmlToString(this->GetHardCPathCode(400), client));	
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
+
 	return (this->WhichMethod(client, itfirst));
 }
