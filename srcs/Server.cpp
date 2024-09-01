@@ -391,19 +391,22 @@ void Server::writeToCgi(int fd, int index)
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
-    char buffer[recvmax];
-    ssize_t bytes_read;
+    // char buffer[recvmax];
+	char *buffer = new char[recvmax];
+    // ssize_t bytes_read;
     if (this->_cgi->waitForChild() == false)
     {
         logger("\n\n\nERROR CGI PROCESS\n\n\n");
         std::exit(EXIT_FAILURE);
     }
-    bytes_read = read(fd, buffer, sizeof(buffer));
-	for (int i = 0; i < bytes_read; ++i)
-		this->_cgi_response.push_back(buffer[i]);
-	// logger("--CGI RESPONSE:\n" + this->_response);
-	for (char c : this->_cgi_response)
-		std::cout << c;
+    // bytes_read = read(fd, buffer, sizeof(buffer));
+    ssize_t bytes_read = read(fd, buffer, recvmax);
+	std::cout << "\nBYTES READ: " << bytes_read << "\n\n";
+	// for (int i = 0; i < bytes_read; ++i)
+	// 	this->_cgi_response.push_back(buffer[i]);
+	// // logger("--CGI RESPONSE:\n" + this->_response);
+	// for (char c : this->_cgi_response)
+	// 	std::cout << c;
 	if (bytes_read == 0)
     {
         logger("REACHED EOF");
@@ -414,18 +417,23 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
         logger("ERROR READING FROM CGI PIPE (read returned -1)");
 		std::exit(EXIT_FAILURE);
 	}
+	for (int i = 0; i < bytes_read; ++i)
+		this->_cgi_response.push_back(buffer[i]);
+	for (char c : this->_cgi_response)
+		std::cout << c;
 	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");
 		for (char c : this->_cgi_response)
 			this->_response.push_back(c);
-		this->_response.push_back('\0');
+		// this->_response.push_back('\0');
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
 		this->_cgi_running = false;
 		delete this->_cgi;
 		this->RmvSocket(index);
 	}
+	delete[] buffer;
     return "";
 }
 
