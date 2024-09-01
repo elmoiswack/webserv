@@ -401,7 +401,7 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
     }
     // bytes_read = read(fd, buffer, sizeof(buffer));
     ssize_t bytes_read = read(fd, buffer, recvmax);
-	std::cout << "\nBYTES READ: " << bytes_read << "\n\n";
+	std::cout << "\nBYTES READ:  " << bytes_read << "\n\n";
 	// for (int i = 0; i < bytes_read; ++i)
 	// 	this->_cgi_response.push_back(buffer[i]);
 	// // logger("--CGI RESPONSE:\n" + this->_response);
