@@ -26,8 +26,12 @@ def handle_post():
             if not os.path.exists(upload_dir):
                 os.makedirs(upload_dir)
             # Write the file to the specified directory
-            with open(file_path, 'wb') as fd:
-                fd.write(file_item.file.read())
+            with open(file_path, 'wb') as fout:
+                while True:
+                    chunk = file_item.file.read(100000)
+                    if not chunk:
+                        break
+                    fout.write(chunk)
             message = f"Uploaded {file_name}"
     else:
         message = "No file was uploaded!"
@@ -44,10 +48,9 @@ def handle_post():
     html_headers = (
 	    "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
-        f"Content-Length: {len(html_content)}\r\n"
+        f"Content-Length: {len(html_content)}\r\n\r"
     )
     print(html_headers)
-    print("", end='\r\n')
     print(html_content)
 
 def main():

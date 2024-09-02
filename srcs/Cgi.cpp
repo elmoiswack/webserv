@@ -126,25 +126,25 @@ std::vector<std::string> Cgi::initCgiEnvVars(const std::string &client_resp, con
 {
 	std::vector<std::string> env_vars =
 		{
-			"CONTENT_LENGTH=",
+			"CONTENT_LENGTH= " + this-> extractContentLength(client_resp),
 			// "CONTENT_TYPE=multipart/form-data; boundary=" + extractBoundary(client_resp),
-			"CONTENT_TYPE=" + this->extractContentType(client_resp),
-			"GATEWAY_INTERFACE=CGI/1.1",
-			"QUERY_STRING=" + this->extractQueryString(url),
-			"UPLOAD_FILENAME=test.txt",
-			"REQUEST_METHOD=" + this->_method,
-			"REMOTE_ADDR=",
-			"SCRIPT_NAME=",
-			"SCRIPT_FILENAME=",
-			"SERVER_NAME=",
-			"SERVER_PORT=",
-			"SERVER_PROTOCOL=HTTP/1.1",
-			"HTTP_COOKIE=",
+			"CONTENT_TYPE= " + this->extractContentType(client_resp),
+			"GATEWAY_INTERFACE= CGI/1.1",
+			"QUERY_STRING= " + this->extractQueryString(url),
+			"UPLOAD_FILENAME= test.txt",
+			"REQUEST_METHOD= " + this->_method,
+			"REMOTE_ADDR= ",
+			"SCRIPT_NAME= ",
+			"SCRIPT_FILENAME= ",
+			"SERVER_NAME= ",
+			"SERVER_PORT= ",
+			"SERVER_PROTOCOL= HTTP/1.1",
+			"HTTP_COOKIE= ",
 			// "REMOTE_ADDR", "192.168.1.100"
 		};
-	// logger("CGI ENV VARS: \n\n");
-	// for (const std::string &env : env_vars)
-	// 	std::cout << env << "\n";
+	logger("CGI ENV VARS: \n\n");
+	for (const std::string &env : env_vars)
+		std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -176,6 +176,19 @@ std::string Cgi::extractQueryString(const std::string &url)
 						 : url.substr(pos + 1, url.length() - pos - 1);
 	}
 	return (querry_str);
+}
+
+std::string Cgi::extractContentLength(const std::string &client_req)
+{
+	size_t pos = client_req.find("Content-Length:");
+	if (pos != std::string::npos)
+	{
+		pos += sizeof("Content-Length:");
+		size_t end = client_req.find("\n");
+		if (end != std::string::npos)
+			return (client_req.substr(pos, end - pos));
+	}
+	return ("");
 }
 
 std::string Cgi::extractContentType(const std::string &req)
@@ -341,7 +354,7 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 		// std::cout << "\nORIGINAL PID: " << this->_pid << "\n";
 		close(_responsePipe[1]);
 	}
-	std::cout << "HFJKEWHAJGFKERSHKGLHERSKJGHERAGEW" << std::endl;
+	// std::cout << "HFJKEWHAJGFKERSHKGLHERSKJGHERAGEW" << std::endl;
 	return ("");
 }
 

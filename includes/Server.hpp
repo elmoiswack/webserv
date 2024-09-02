@@ -46,6 +46,7 @@ private:
 	std::vector<char> _cgi_response;
 	std::string _response;
 	std::string _post_data;
+	std::vector<char> _post_data_v;
 	std::string _method;
 	bool		_donereading;
 	std::vector<std::string> _allow_methods;
@@ -124,6 +125,7 @@ public:
 	void CloseAllFds();
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
+	std::vector<char> ParsePostV(const std::string &content);
 	void checkCgiTimer();
 	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
 	

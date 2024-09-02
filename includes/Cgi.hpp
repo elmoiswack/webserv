@@ -51,6 +51,7 @@ class Cgi
 		std::string 				extractReqUrl(const std::string &url);
 		std::string					extractQueryString(const std::string &url);
 		std::string					extractContentType(const std::string &req);
+		std::string					extractContentLength(const std::string &req);
 		// std::string					readCgiResponse(int fd);
 		// void 						writeToCgi(int fd);
 		std::string					runCgi(const std::string &cgi_path, Server *self);

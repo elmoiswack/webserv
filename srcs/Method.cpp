@@ -201,6 +201,52 @@ std::string Server::ExtractBoundary(const std::string &content) {
     return (boundary);
 }
 
+std::vector<char> Server::ParsePostV(const std::string &content) {
+	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
+    size_t content_type_start = content.find(content_type_header);
+    if (content_type_start == std::string::npos) {
+		std::cout << "Content-Type not found" << std::endl;
+        return {};
+    }
+    content_type_start += content_type_header.length();
+    size_t content_type_end = content.find("\n", content_type_start);
+    std::string content_type = content.substr(content_type_start, content_type_end - content_type_start);
+
+	//   std::cout << "Content-Type: " << content_type << std::endl;
+
+    std::string boundary = ExtractBoundary(content);
+    if (boundary.empty()) {
+		std::cout << "Boundary not found" << std::endl;
+        return {};
+    }
+
+	// std::cout << "Boundary: " << boundary << std::endl;
+
+    std::string boundary_start = "--" + boundary;
+    std::string boundary_end = boundary_start + "--";
+	
+    size_t start_pos = content.find(boundary_start);
+    size_t end_pos = content.find(boundary_end);
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+		std::cout << "Boundary positions not found" << std::endl;
+        return {};
+    }
+	std::vector<char> post_data;
+	logger("\n====================================\n");
+	logger("POST DATA: \n");
+    for (size_t i = start_pos; i < end_pos + boundary_end.length(); ++i)
+	{
+		post_data.push_back(content[i]);
+		std::cout << content[i];
+	}
+	logger("\n====================================\n");
+    // Include boundary_start in the extracted data
+	// start_pos += boundary_start.length();
+    // std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
+    
+    return post_data;
+}
+
 std::string Server::ParsePost(const std::string &content) {
 	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
     size_t content_type_start = content.find(content_type_header);
@@ -256,6 +302,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		// std::string post_data = ParsePost(tmp);
+		// this->_post_data = ParsePost(tmp);
+		this->_post_data_v = ParsePostV(tmp);
 		this->_post_data = ParsePost(tmp);
 		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
 		// Cgi cgi(_method, this->_post_data, path, tmp);

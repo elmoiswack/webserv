@@ -372,14 +372,17 @@ const char *Server::WriteErrorException::what() const throw()
 {
 	return ("function write failed for the second time! Shutting down server!");
 }
+
 void Server::writeToCgi(int fd, int index)
 {
 	// (void) index;
 	close(this->_cgi->getReadEndUploadPipe());
 	// logger("\n---POST DATA: " + _post_data);
-	if (!this->_post_data.empty())
+	// if (!this->_post_data.empty())
+	if (!this->_post_data_v.empty())
 	{
-		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+		// ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+		ssize_t bytes_written = write(fd, this->_post_data_v.data(), this->_post_data_v.size());
 		if (bytes_written < 0)
 		{
 			logger("ERROR WRITE TO CGI");
@@ -402,11 +405,6 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
     // bytes_read = read(fd, buffer, sizeof(buffer));
     ssize_t bytes_read = read(fd, buffer, recvmax);
 	std::cout << "\nBYTES READ: " << bytes_read << "\n\n";
-	// for (int i = 0; i < bytes_read; ++i)
-	// 	this->_cgi_response.push_back(buffer[i]);
-	// // logger("--CGI RESPONSE:\n" + this->_response);
-	// for (char c : this->_cgi_response)
-	// 	std::cout << c;
 	if (bytes_read == 0)
     {
         logger("REACHED EOF");
@@ -426,7 +424,6 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
         logger("CGI PIPE FULLY READ");
 		for (char c : this->_cgi_response)
 			this->_response.push_back(c);
-		// this->_response.push_back('\0');
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
 		this->_cgi_running = false;
