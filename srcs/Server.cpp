@@ -382,6 +382,14 @@ void Server::writeToCgi(int fd, int index)
 	if (!this->_post_data_v.empty())
 	{
 		// ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+		// std::cout << "\nPOST DATA:" << std::endl;
+		// for (size_t i = 0; i < this->_post_data_v.size(); i++)
+		// {
+		// 	std::cout << this->_post_data_v[i];
+		// }
+		// logger("Done reading post");
+		std::cout << "\nSIZE OF POST DATA (VECTOR): " << this->_post_data_v.size() << "\n";
+		std::cout << "\nSIZE OF POST DATA         : " << this->_post_data.size() << "\n";
 		ssize_t bytes_written = write(fd, this->_post_data_v.data(), this->_post_data_v.size());
 		if (bytes_written < 0)
 		{
@@ -417,13 +425,15 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 	}
 	for (int i = 0; i < bytes_read; ++i)
 		this->_cgi_response.push_back(buffer[i]);
-	// for (char c : this->_cgi_response)
-	// 	std::cout << c;
 	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");
 		for (char c : this->_cgi_response)
 			this->_response.push_back(c);
+		// logger("READING CGI RESPONSE\n");
+		// for (char c : this->_cgi_response)
+		// 	std::cout << c;
+		// logger("CGI RESPONSE READ\n");
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
 		this->_cgi_running = false;

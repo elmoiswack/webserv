@@ -232,14 +232,13 @@ std::vector<char> Server::ParsePostV(const std::string &content) {
         return {};
     }
 	std::vector<char> post_data;
-	logger("\n====================================\n");
-	logger("POST DATA: \n");
+	// logger("POST DATA: \n");
     for (size_t i = start_pos; i < end_pos + boundary_end.length(); ++i)
 	{
 		post_data.push_back(content[i]);
 		// std::cout << content[i];
 	}
-	logger("\n====================================\n");
+	// logger("END POST DATA: \n");
     // Include boundary_start in the extracted data
 	// start_pos += boundary_start.length();
     // std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
@@ -302,10 +301,17 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		this->_cgi_donereading = false;
 		std::string tmp(this->_request.begin(), this->_request.end());
 		// std::string post_data = ParsePost(tmp);
-		// this->_post_data = ParsePost(tmp);
-		this->_post_data_v = ParsePostV(tmp);
 		this->_post_data = ParsePost(tmp);
-		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
+		this->_post_data_v = ParsePostV(tmp);
+		// std::cout << "\nPOST DATA:" << std::endl;
+		// for (size_t i = 0; i < this->_post_data_v.size(); i++)
+		// {
+		// 	std::cout << this->_post_data_v[i];
+		// }
+		// logger("Done reading post");
+		//this->_post_data = ParsePost(tmp);
+		//std::cout << "\nPOST DATA:\n" << this->_post_data << "\n";
+		//logger("END POST DATA: \n");
 		// Cgi cgi(_method, this->_post_data, path, tmp);
 		this->_cgi = new Cgi(_method, this->_post_data, path, tmp);
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
