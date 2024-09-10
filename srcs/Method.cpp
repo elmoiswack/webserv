@@ -237,7 +237,7 @@ std::vector<char> Server::ParsePostV(const std::string &content) {
     for (size_t i = start_pos; i < end_pos + boundary_end.length(); ++i)
 	{
 		post_data.push_back(content[i]);
-		std::cout << content[i];
+		// std::cout << content[i];
 	}
 	logger("\n====================================\n");
     // Include boundary_start in the extracted data

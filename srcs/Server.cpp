@@ -417,8 +417,8 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 	}
 	for (int i = 0; i < bytes_read; ++i)
 		this->_cgi_response.push_back(buffer[i]);
-	for (char c : this->_cgi_response)
-		std::cout << c;
+	// for (char c : this->_cgi_response)
+	// 	std::cout << c;
 	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");

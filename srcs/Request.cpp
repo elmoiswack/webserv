@@ -130,31 +130,31 @@ void Server::IsDoneRead(Client *client)
 			{
 				this->_isbody = true;
 				client->SetContentLenght(this->GetContentLenght(tmp));
-				std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+				std::cout << "--CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
 			}
 			if (this->_isbody == true && this->_request.size() == (size_t)client->GetContentLenght())
 			{
 				std::cout << "CLIENT MAX READ = " << client->GetContentLenght() << ", recv READ = " << this->_totalread << std::endl;
 				this->_donereading = true;
 				this->_request.push_back('\0');
-				std::cout << "\nFULL REQUEST:" << std::endl;
-				for (size_t i = 0; i < this->_request.size(); i++)
-				{
-					std::cout << this->_request[i];
-				}
-				logger("Done reading post");
+				// std::cout << "\nFULL REQUEST:" << std::endl;
+				// for (size_t i = 0; i < this->_request.size(); i++)
+				// {
+				// 	std::cout << this->_request[i];
+				// }
+				// logger("Done reading post");
 			}
 		}
 		else if ((this->_method == "GET") || (this->_method == "DELETE"))
 		{
 			this->_donereading = true;
 			this->_request.push_back('\0');
-			std::cout << "\nFULL REQUEST:" << std::endl;
-			for (size_t i = 0; i < this->_request.size(); i++)
-			{
-				std::cout << this->_request[i];
-			}
-			logger("Done reading get");
+			// std::cout << "\nFULL REQUEST:" << std::endl;
+			// for (size_t i = 0; i < this->_request.size(); i++)
+			// {
+			// 	std::cout << this->_request[i];
+			// }
+			// logger("Done reading get");
 		}
 	}
 }

@@ -126,20 +126,20 @@ std::vector<std::string> Cgi::initCgiEnvVars(const std::string &client_resp, con
 {
 	std::vector<std::string> env_vars =
 		{
-			"CONTENT_LENGTH= " + this-> extractContentLength(client_resp),
+			"CONTENT_LENGTH=" + this-> extractContentLength(client_resp),
 			// "CONTENT_TYPE=multipart/form-data; boundary=" + extractBoundary(client_resp),
-			"CONTENT_TYPE= " + this->extractContentType(client_resp),
-			"GATEWAY_INTERFACE= CGI/1.1",
-			"QUERY_STRING= " + this->extractQueryString(url),
-			"UPLOAD_FILENAME= test.txt",
-			"REQUEST_METHOD= " + this->_method,
-			"REMOTE_ADDR= ",
-			"SCRIPT_NAME= ",
-			"SCRIPT_FILENAME= ",
-			"SERVER_NAME= ",
-			"SERVER_PORT= ",
-			"SERVER_PROTOCOL= HTTP/1.1",
-			"HTTP_COOKIE= ",
+			"CONTENT_TYPE=" + this->extractContentType(client_resp),
+			"GATEWAY_INTERFACE=CGI/1.1",
+			"QUERY_STRING=" + this->extractQueryString(url),
+			"UPLOAD_FILENAME=test.txt",
+			"REQUEST_METHOD=" + this->_method,
+			"REMOTE_ADDR=",
+			"SCRIPT_NAME=",
+			"SCRIPT_FILENAME=",
+			"SERVER_NAME=",
+			"SERVER_PORT=",
+			"SERVER_PROTOCOL=HTTP/1.1",
+			"HTTP_COOKIE=",
 			// "REMOTE_ADDR", "192.168.1.100"
 		};
 	logger("CGI ENV VARS: \n\n");
@@ -183,8 +183,10 @@ std::string Cgi::extractContentLength(const std::string &client_req)
 	size_t pos = client_req.find("Content-Length:");
 	if (pos != std::string::npos)
 	{
-		pos += sizeof("Content-Length:");
-		size_t end = client_req.find("\n");
+		pos += std::string("Content-Length:").length();
+		size_t end = client_req.find("\n", pos);
+		while (std::isspace(client_req[pos]))
+			++pos;
 		if (end != std::string::npos)
 			return (client_req.substr(pos, end - pos));
 	}
@@ -211,30 +213,30 @@ std::string Cgi::extractContentType(const std::string &req)
 	return "";
 }
 
-// bool Cgi::waitForChild() const
-// {
-// 	int exit_code = 0;
-//     pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
-//     if (result == -1) {
-//         std::cout << "ERROR PARENT PROCESS\n";
-// 		return (false);
-//     }
-// 	// else if (result == 0)
-// 	// {
-//     //     std::cout << "NO CHILD HAS EXITED YET\n";
-// 	// 	return (false);
-// 	// }
-//     if (WIFEXITED(exit_code))
-// 	{
-//         std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
-//         return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
-//     }
-// 	else
-// 	{
-//         std::cout << "Child process exited abnormally" << "\n";
-// 		return (false);
-// 	}
-// }
+bool Cgi::waitForChild() const
+{
+	int exit_code = 0;
+    pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+    if (result == -1) {
+        std::cout << "ERROR PARENT PROCESS\n";
+		return (false);
+    }
+	// else if (result == 0)
+	// {
+    //     std::cout << "NO CHILD HAS EXITED YET\n";
+	// 	return (false);
+	// }
+    if (WIFEXITED(exit_code))
+	{
+        std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
+        return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
+    }
+	else
+	{
+        std::cout << "Child process exited abnormally" << "\n";
+		return (false);
+	}
+}
 
 // bool Cgi::waitForChild() const
 // {
@@ -285,44 +287,44 @@ std::string Cgi::extractContentType(const std::string &req)
 // #include <chrono>
 // #include <thread>
 
-bool Cgi::waitForChild() const
-{
-	int exit_code = 0;
-	// std::cout << "\n\nCOPIED PID: " << this->_pid << "\n\n";
+// bool Cgi::waitForChild() const
+// {
+// 	int exit_code = 0;
+// 	// std::cout << "\n\nCOPIED PID: " << this->_pid << "\n\n";
 
-	pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+// 	pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
 
-	if (result == -1)
-	{
-		std::cerr << "ERROR: waitpid failed\n";
-		return false;
-	}
-	// else if (result == 0)
-	// {
-	// 	std::cerr << "000000\n";
-	// 	return true;
-	// }
-	if (WIFEXITED(exit_code))
-	{
-		std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
-		return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
-	}
-	else if (WIFSIGNALED(exit_code))
-	{
-		std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
-		return false;
-	}
-	else if (WIFSTOPPED(exit_code))
-	{
-		std::cerr << "Child process is stopped by signal: " << WSTOPSIG(exit_code) << "\n";
-		return false;
-	}
-	else
-	{
-		std::cerr << "Child process terminated abnormally\n";
-		return false;
-	}
-}
+// 	if (result == -1)
+// 	{
+// 		std::cerr << "ERROR: waitpid failed\n";
+// 		return false;
+// 	}
+// 	// else if (result == 0)
+// 	// {
+// 	// 	std::cerr << "000000\n";
+// 	// 	return true;
+// 	// }
+// 	if (WIFEXITED(exit_code))
+// 	{
+// 		std::cout << "Child process exited with status: " << WEXITSTATUS(exit_code) << "\n";
+// 		return (WEXITSTATUS(exit_code) == EXIT_SUCCESS);
+// 	}
+// 	else if (WIFSIGNALED(exit_code))
+// 	{
+// 		std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
+// 		return false;
+// 	}
+// 	else if (WIFSTOPPED(exit_code))
+// 	{
+// 		std::cerr << "Child process is stopped by signal: " << WSTOPSIG(exit_code) << "\n";
+// 		return false;
+// 	}
+// 	else
+// 	{
+// 		std::cerr << "Child process terminated abnormally\n";
+// 		return false;
+// 	}
+// }
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
