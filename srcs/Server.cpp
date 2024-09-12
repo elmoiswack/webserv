@@ -16,6 +16,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_isstatuscode = false;
 		this->_totalread = 0;
 		this->_method = "EMPTY";
+		this->_bytes_written = 0;
 		this->InitHardcodedError();
 }
 
@@ -39,6 +40,7 @@ Server::Server(Parser &in)
 	this->_totalread = 0;
 	this->_method = "EMPTY";
 	this->_cgi = nullptr;
+	this->_bytes_written = 0;
 }
 
 Server::~Server()
@@ -372,21 +374,67 @@ const char *Server::WriteErrorException::what() const throw()
 {
 	return ("function write failed for the second time! Shutting down server!");
 }
-void Server::writeToCgi(int fd, int index)
+// void Server::writeToCgi(int fd, int index)
+// {
+// 	// (void) index;
+// 	close(this->_cgi->getReadEndUploadPipe());
+// 	// logger("\n---POST DATA: " + _post_data);
+// 	if (!this->_post_data.empty())
+// 	{
+// 		unsigned long total = 0;
+// 		ssize_t bytes_written = 0;
+// 		std::cout << "POST DATA SIZE = " <<  this->_post_data.size() << std::endl;
+// 		while (total < this->_post_data.size())
+// 		{
+// 			bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+// 			std::cout << "BYTES WRITTEN = " << bytes_written << std::endl;
+// 			if (bytes_written != -1)
+// 				total += bytes_written;
+// 			std::cout << "total = " << total << " should be: " << this->_post_data.size() << std::endl;
+// 			sleep(10);
+// 		}
+// 		if (bytes_written < 0)
+// 		{
+// 			logger("ERROR WRITE TO CGI");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 		this->RmvSocket(index);
+// 	}
+// }
+#include <chrono>
+#include <iostream>
+#include <thread>
+void Server::writeToCgi(int fd, int index) 
 {
-	// (void) index;
-	close(this->_cgi->getReadEndUploadPipe());
-	// logger("\n---POST DATA: " + _post_data);
-	if (!this->_post_data.empty())
+    close(this->_cgi->getReadEndUploadPipe());
+    std::cout << "WENT THROUGH POLL" << std::endl;
+	if (!this->_post_data.empty()) 
 	{
-		ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
-		if (bytes_written < 0)
+		ssize_t total_bytes = this->_post_data.size();
+		const char *data_ptr = this->_post_data.data();
+
+        if (this->_bytes_written < total_bytes) 
 		{
-			logger("ERROR WRITE TO CGI");
-			exit(EXIT_FAILURE);
+			int tmp = 10000;
+			if ((this->_bytes_written + tmp) > total_bytes)
+			{
+				tmp = total_bytes - this->_bytes_written;
+			}
+            ssize_t written = write(fd, data_ptr + this->_bytes_written, tmp);
+            if (written == -1) 
+			{
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				return ;
+			}
+            this->_bytes_written += written;
+			std::cout << "NEW BYTES WRITTEN = " << this->_bytes_written << std::endl;
+        }
+		else
+		{
+			this->_bytes_written = 0;
+        	this->RmvSocket(index);
 		}
-		this->RmvSocket(index);
-	}
+    }
 }
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
