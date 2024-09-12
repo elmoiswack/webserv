@@ -21,6 +21,7 @@
 #include <sstream>
 #include <poll.h>
 #include <chrono>
+#include <thread> 
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
@@ -78,6 +79,7 @@ private:
 	Cgi*		_cgi;
 	std::chrono::time_point<std::chrono::system_clock> _start;
 	bool	_cgi_running;
+	ssize_t _bytes_written;
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,

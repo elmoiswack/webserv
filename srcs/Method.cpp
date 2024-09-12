@@ -313,7 +313,8 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		//std::cout << "\nPOST DATA:\n" << this->_post_data << "\n";
 		//logger("END POST DATA: \n");
 		// Cgi cgi(_method, this->_post_data, path, tmp);
-		this->_cgi = new Cgi(_method, this->_post_data, path, tmp);
+		std::string post_data(this->_post_data_v.begin(), this->_post_data_v.end());
+		this->_cgi = new Cgi(_method, post_data, path, tmp);
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		// std::cout << "ORIGINAL READ END RESPONSE PIPE: " << _cgi->getReadEndResponsePipe() << "\n";

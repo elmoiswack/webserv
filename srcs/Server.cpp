@@ -17,6 +17,7 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_totalread = 0;
 		this->_method = "EMPTY";
 		this->InitHardcodedError();
+		this->_bytes_written = 0;
 }
 
 
@@ -288,6 +289,13 @@ void Server::PollEvents()
 			{
 				logger("\nCGI ERROR!");
 				delete (this->_cgi);
+				std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
+				this->_response = 
+				"HTTP/1.1 500 OK\r\n"
+				"Content-Type: text/html\r\n"
+				"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+				"\r\n"
+				+ errfile;
 			}
 			close(temp.fd);
 			this->RmvSocket(index);
@@ -373,32 +381,59 @@ const char *Server::WriteErrorException::what() const throw()
 	return ("function write failed for the second time! Shutting down server!");
 }
 
+// void Server::writeToCgi(int fd, int index)
+// {
+// 	// (void) index;
+// 	close(this->_cgi->getReadEndUploadPipe());
+// 	// logger("\n---POST DATA: " + _post_data);
+// 	// if (!this->_post_data.empty())
+// 	if (!this->_post_data_v.empty())
+// 	{
+// 		// ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
+// 		// std::cout << "\nPOST DATA:" << std::endl;
+// 		// for (size_t i = 0; i < this->_post_data_v.size(); i++)
+// 		// {
+// 		// 	std::cout << this->_post_data_v[i];
+// 		// }
+// 		// logger("Done reading post");
+// 		std::cout << "\nSIZE OF POST DATA (VECTOR): " << this->_post_data_v.size() << "\n";
+// 		std::cout << "\nSIZE OF POST DATA         : " << this->_post_data.size() << "\n";
+// 		ssize_t bytes_written = write(fd, this->_post_data_v.data(), this->_post_data_v.size());
+// 		std::cout << "\nBYTES WRITTEN         	  : " << bytes_written << "\n";
+// 		if (bytes_written < 0)
+// 		{
+// 			logger("ERROR WRITE TO CGI");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 		this->RmvSocket(index);
+// 	}
+// }
+
 void Server::writeToCgi(int fd, int index)
 {
-	// (void) index;
-	close(this->_cgi->getReadEndUploadPipe());
-	// logger("\n---POST DATA: " + _post_data);
-	// if (!this->_post_data.empty())
-	if (!this->_post_data_v.empty())
+    close(this->_cgi->getReadEndUploadPipe());
+    if (!this->_post_data_v.empty())
 	{
-		// ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
-		// std::cout << "\nPOST DATA:" << std::endl;
-		// for (size_t i = 0; i < this->_post_data_v.size(); i++)
-		// {
-		// 	std::cout << this->_post_data_v[i];
-		// }
-		// logger("Done reading post");
-		std::cout << "\nSIZE OF POST DATA (VECTOR): " << this->_post_data_v.size() << "\n";
-		std::cout << "\nSIZE OF POST DATA         : " << this->_post_data.size() << "\n";
-		ssize_t bytes_written = write(fd, this->_post_data_v.data(), this->_post_data_v.size());
-		if (bytes_written < 0)
+        ssize_t total_bytes = this->_post_data_v.size();
+        const char *data_ptr = this->_post_data_v.data();
+        if (this->_bytes_written < total_bytes)
 		{
-			logger("ERROR WRITE TO CGI");
-			exit(EXIT_FAILURE);
+            ssize_t written = write(fd, data_ptr + this->_bytes_written, total_bytes - this->_bytes_written);
+            if (written == -1)
+			{
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				return;
+            }
+            this->_bytes_written += written;
+        }
+		else
+		{
+			this->_bytes_written = 0;
+			this->RmvSocket(index);
 		}
-		this->RmvSocket(index);
-	}
+    }
 }
+
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
