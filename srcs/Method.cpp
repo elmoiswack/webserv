@@ -139,6 +139,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		std::string tmp(this->_request.begin(), this->_request.end());
 		this->_cgi = new Cgi(_method, path, tmp);
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
+		// std::cout << "ORIGINAL FD: " << _cgi->getReadEndResponsePipe() << "\n\n";
 		this->_iscgi = true;
 		if (this->_response.size() > 0)
 			this->_response.clear();

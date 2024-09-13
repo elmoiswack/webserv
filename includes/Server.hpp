@@ -77,9 +77,11 @@ private:
 
 	int		_websock;
 	Cgi*		_cgi;
-	std::chrono::time_point<std::chrono::system_clock> _start;
+	// std::chrono::time_point<std::chrono::system_clock> _start;
+	std::chrono::time_point<std::chrono::steady_clock> _start;
 	bool	_cgi_running;
 	ssize_t _bytes_written;
+	static Server*	_server_static;
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
@@ -129,7 +131,9 @@ public:
 	std::string ParsePost(const std::string &content);
 	std::vector<char> ParsePostV(const std::string &content);
 	void checkCgiTimer();
-	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
+	void setStartTime (std::chrono::time_point<std::chrono::steady_clock> start);
+	static void handleCgiAlarm(int sig);
+	void	setStaticServer(Server* server);
 	
 	
 	///REQUEST.CPP

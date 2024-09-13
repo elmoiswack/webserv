@@ -8,7 +8,7 @@ import sys
 
 message = ""
 def handle_post():
-    form = cgii.FieldStorage()
+    form = cgi.FieldStorage()
     file_item = form['file']
     if file_item.filename:
         # Securely get the filename

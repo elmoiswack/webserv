@@ -213,48 +213,11 @@ std::string Cgi::extractContentType(const std::string &req)
 	return "";
 }
 
-// #include <chrono>
-// #include <thread>
-
-bool Cgi::waitForChild() const
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    int exit_code = 0;
-    pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
-
-    if (result == -1)
-    {
-        std::cerr << "ERROR: waitpid failed\n";
-        return false;
-    }
-
-    if (WIFEXITED(exit_code))
-    {
-        int status = WEXITSTATUS(exit_code);
-        if (status != 0) {
-            std::cerr << "Child process exited with error status: " << status << "\n";
-            return false; // non-zero exit code indicates an error
-        }
-        return true;
-    }
-    else if (WIFSIGNALED(exit_code))
-    {
-        std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
-        return false;
-    }
-    else
-    {
-        std::cerr << "Child process terminated abnormally\n";
-        return false;
-    }
-}
-
 // bool Cgi::waitForChild() const
 // {
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 //     int exit_code = 0;
-
-//     // Blocking wait for the child process to terminate
-//     pid_t result = waitpid(this->_pid, &exit_code, 0); // 0 makes it block until child exits
+//     pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
 
 //     if (result == -1)
 //     {
@@ -262,35 +225,95 @@ bool Cgi::waitForChild() const
 //         return false;
 //     }
 
-//     // Check if the child process exited normally
 //     if (WIFEXITED(exit_code))
 //     {
 //         int status = WEXITSTATUS(exit_code);
-//         if (status != 0)
-//         {
+//         if (status != 0) {
 //             std::cerr << "Child process exited with error status: " << status << "\n";
-//             return false; // Non-zero exit code indicates an error
+//             return false; // non-zero exit code indicates an error
 //         }
-//         return true; // CGI completed successfully
+//         return true;
 //     }
-//     // Check if the child process was terminated by a signal
 //     else if (WIFSIGNALED(exit_code))
 //     {
 //         std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
-//         return false; // Process terminated abnormally by signal
+//         return false;
 //     }
-//     // Check for other abnormal terminations
 //     else
 //     {
 //         std::cerr << "Child process terminated abnormally\n";
-//         return false; // Other abnormal termination
+//         return false;
 //     }
 // }
 
+// void Cgi::waitForChild() const
+// {
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//     int exit_code = 0;
+//     while (true) {
+//         pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+//         if (result == 0) {
+//             // Child is still running, continue loop (non-blocking)
+//             usleep(100000); // Sleep for 100ms (non-blocking sleep)
+//             continue;
+//         } else if (result == this->_pid) {
+//             // Child process finished
+//             alarm(0); // Cancel the alarm since the process finished within time
+//             if (WIFEXITED(exit_code)) {
+//                 std::cout << "CGI script exited with status: " << WEXITSTATUS(exit_code) << std::endl;
+//             } else if (WIFSIGNALED(exit_code)) {
+//                 std::cout << "CGI script killed by signal: " << WTERMSIG(exit_code) << std::endl;
+//             }
+//             return;
+//         } else {
+//             // Error in waitpid
+//             perror("waitpid");
+//             return;
+//         }
+// 	}    
+// }
+
+
+bool Cgi::waitForChild() const
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    int exit_code = 0;
+    while (true) {
+        pid_t result = waitpid(this->_pid, &exit_code, WNOHANG);
+        if (result == 0) {
+            // Child is still running, continue loop (non-blocking)
+            usleep(100000); // Sleep for 100ms (non-blocking sleep)
+            continue;
+        } else if (result == this->_pid) {
+            // Child process finished
+            alarm(0); // Cancel the alarm since the process finished within time
+            if (WIFEXITED(exit_code)) {
+                std::cout << "CGI script exited with status: " << WEXITSTATUS(exit_code) << std::endl;
+				return true;
+			} else if (WIFSIGNALED(exit_code)) {
+                std::cout << "CGI script killed by signal: " << WTERMSIG(exit_code) << std::endl;
+            	return false;
+			}
+        } else {
+            // Error in waitpid
+            perror("waitpid");
+            return false;
+        }
+	}    
+}
+
+// void handleCgiAlarm(int sig) 
+// {
+// 	std::cout << "CGI PROCESS INTERRUPTED " << sig << "\n";
+// 	(this->pi > 0) {
+//         std::cout << "CGI script timed out, killing process..." << std::endl;
+//         kill(cgi_pid, SIGKILL); // Kill the CGI process
+//     }
+// }
 
 std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
-	(void)server;
+	// (void)server;
 	pid_t pid = fork();
 	if (pid == -1)
 	{
@@ -299,7 +322,8 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 	}
 	else if (pid == 0) // Child process
 	{
-		// server->setStartTime(std::chrono::system_clock::now());
+		// std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
+		// server->setStartTime(cgiStartTime);
 		// logger("\n\nBEFORE CGI\n");
 		close(_responsePipe[0]);			   // Close read end of response pipe
 		dup2(_responsePipe[1], STDOUT_FILENO); // Redirect cgi stdout to write end of response pipe
@@ -314,11 +338,12 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 	}
 	else // Parent process
 	{
-		this->_pid = pid; // save pid for further processing if needed
-		// std::cout << "\nORIGINAL PID: " << this->_pid << "\n";
+		this->_pid = pid;
+		server->setStaticServer(server);
+		signal(SIGALRM, server->handleCgiAlarm);
+		alarm(3);
 		close(_responsePipe[1]);
 	}
-	// std::cout << "HFJKEWHAJGFKERSHKGLHERSKJGHERAGEW" << std::endl;
 	return ("");
 }
 
@@ -373,6 +398,47 @@ void Cgi::killCgi()
 		waitpid(this->_pid, nullptr, 0);
 	}
 }
+
+
+
+
+// bool Cgi::waitForChild() const
+// {
+//     int exit_code = 0;
+
+//     // Blocking wait for the child process to terminate
+//     pid_t result = waitpid(this->_pid, &exit_code, 0); // 0 makes it block until child exits
+
+//     if (result == -1)
+//     {
+//         std::cerr << "ERROR: waitpid failed\n";
+//         return false;
+//     }
+
+//     // Check if the child process exited normally
+//     if (WIFEXITED(exit_code))
+//     {
+//         int status = WEXITSTATUS(exit_code);
+//         if (status != 0)
+//         {
+//             std::cerr << "Child process exited with error status: " << status << "\n";
+//             return false; // Non-zero exit code indicates an error
+//         }
+//         return true; // CGI completed successfully
+//     }
+//     // Check if the child process was terminated by a signal
+//     else if (WIFSIGNALED(exit_code))
+//     {
+//         std::cerr << "Child process was terminated by signal: " << WTERMSIG(exit_code) << "\n";
+//         return false; // Process terminated abnormally by signal
+//     }
+//     // Check for other abnormal terminations
+//     else
+//     {
+//         std::cerr << "Child process terminated abnormally\n";
+//         return false; // Other abnormal termination
+//     }
+// }
 
 
 // !!HAS TO BE RAN THROUGH POLL, CAN BE DONE OUTSIDE OF THIS SCOPE!!

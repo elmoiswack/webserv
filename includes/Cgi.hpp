@@ -68,6 +68,7 @@ class Cgi
 		int 						getWriteEndUploadPipe() const;
 		int 						getReadEndUploadPipe() const;
 		pid_t 						getPidCgi() const;
+		// void 						waitForChild() const;
 		bool 						waitForChild() const;
 		void 						appendResponse(std::string responseToAdd);
 		void						killCgi();
