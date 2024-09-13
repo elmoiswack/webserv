@@ -251,7 +251,7 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
-				logger("\n--CGI POLLIN\n");
+				logger("--CGI POLLIN\n");
 				if (this->_cgi_donereading == false)
 					this->readCgiResponse(temp.fd, index, this->_client->Getrecvmax());
 			}
@@ -260,7 +260,7 @@ void Server::PollEvents()
 		{
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
-				logger("\n--CGI POLLOUT\n");
+				logger("--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
 				// if (this->_client != nullptr) 
 				// {
@@ -437,15 +437,22 @@ void Server::writeToCgi(int fd, int index)
 
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
-    // char buffer[recvmax];
 	char *buffer = new char[recvmax];
-    // ssize_t bytes_read;
     if (this->_cgi->waitForChild() == false)
     {
         logger("\n\n\nERROR CGI PROCESS\n\n\n");
-        std::exit(EXIT_FAILURE);
+		delete this->_cgi;
+		this->RmvSocket(index);
+		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
+		this->_response = 
+		"HTTP/1.1 500 OK\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+		"\r\n"
+		+ errfile;
+		this->_cgi_running = false;
+		return("");
     }
-    // bytes_read = read(fd, buffer, sizeof(buffer));
     ssize_t bytes_read = read(fd, buffer, recvmax);
 	std::cout << "\nBYTES READ: " << bytes_read << "\n\n";
 	if (bytes_read == 0)
