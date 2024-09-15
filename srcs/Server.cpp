@@ -46,6 +46,7 @@ Server::Server(Parser &in)
 
 Server::~Server()
 {
+	logger("SERVER DESTRUCTED\n");
 	this->CloseAllFds();
 	this->_whatsockvec.clear();
 	this->_error_page.clear();
@@ -205,6 +206,7 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	std::cout << this->_client << std::endl;
 }
 
+pollfd g_temp;
 void Server::PollEvents()
 {
 	// std::chrono::time_point<std::chrono::system_clock> now;
@@ -215,7 +217,7 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		
+		g_temp = temp;
 		// if (this->_cgi_running)
 		//  	this->checkCgiTimer();
 
@@ -530,9 +532,10 @@ void Server::handleCgiAlarm(int sig)
 	std::cout << "FD INDEX IN SIG HANDLER: " << fd_index << "\n";
 
 	_server_static->_cgi->killCgi();
-	// delete _server_static->_cgi;
-	// _server_static->_cgi = nullptr;
-	// _server_static->RmvSocket(fd_index);
+	delete _server_static->_cgi;
+	_server_static->_cgi = nullptr;
+	close(g_temp.fd);
+	_server_static->RmvSocket(fd_index);
 	// _server_static->_recvmax = 0;
 	// _server_static->_cgi_response.clear();
 	// _server_static->_cgi_donereading = true;

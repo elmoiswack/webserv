@@ -142,9 +142,9 @@ std::vector<std::string> Cgi::initCgiEnvVars(const std::string &client_resp, con
 			"HTTP_COOKIE=",
 			// "REMOTE_ADDR", "192.168.1.100"
 		};
-	logger("CGI ENV VARS: \n\n");
-	for (const std::string &env : env_vars)
-		std::cout << env << "\n";
+	// logger("CGI ENV VARS: \n\n");
+	// for (const std::string &env : env_vars)
+	// 	std::cout << env << "\n";
 	return (env_vars);
 }
 
@@ -388,7 +388,7 @@ void Cgi::appendResponse(std::string responseToAdd)
 
 void Cgi::killCgi()
 {
-	std::cout << "PID BEFORE KILL: " << _pid << "\n";
+	// std::cout << "PID BEFORE KILL: " << _pid << "\n";
 	if (this->_pid > 0)
 	{
 		if (kill(this->_pid, SIGKILL) < 0)
