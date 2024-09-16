@@ -39,9 +39,12 @@ private:
 
 	std::vector<Server> _serverblocks;
 	std::vector<Location> _locationblocks;
+	std::vector<Client*> _clientvec;
 	std::vector<struct pollfd> _sockvec;
 	std::vector<std::string> _whatsockvec;
- 	int			_ammount_sock;
+ 	int			_amount_sock;
+	int			_amount_listen;
+	int			_amount_client;
 	std::vector<char> _request;
 	std::vector<char> _cgi_response;
 	std::string _response;
@@ -122,6 +125,7 @@ public:
 	void PollEvents();
 	
 	void AcceptClient(int index);
+	void DeleteClient(int index, int fd);
 	void AddSocket(int fd, bool is_client);
 	void AddSocket(int fd, const std::string& type);
 	void RmvSocket(int index);
@@ -137,7 +141,7 @@ public:
 	int  RecieveMessage(int fd, Client *client);
 	std::string ParseRequest(Client *client);
 	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
-	std::string MethodPost(std::vector<char>::iterator itreq);
+	std::string MethodPost(std::vector<char>::iterator itreq,Client *client);
 	std::string HtmlToString(std::string path, Client *client);
 	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code, Client *client);
@@ -150,16 +154,20 @@ public:
 	std::string MethodDelete(std::vector<char>::iterator itreq);
 
 	///RESPONSE.CPP
-	void EventsPollout(int fd, Client *client);
+	void WriteToClient(int fd, Client *client);
 
 	void InitHardcodedError();
 	std::string GetHardCPathCode(int code);
+	int  GetHardCCode(std::string path);
+	std::string WhichMessageCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
 	void writeToCgi(int fd, int index);
 	std::string	readCgiResponse(int fd, int index, int recvmax);
 
 	std::string listDirectoryContents(const std::string &directoryPath);
+
+	std::vector<Client*>::iterator GetClient(int index);
 
 	class BindErrorException : public std::exception
 	{

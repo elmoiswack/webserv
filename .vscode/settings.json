@@ -76,6 +76,9 @@
 		"ratio": "cpp",
 		"variant": "cpp",
 		"chrono": "cpp",
-		"codecvt": "cpp"
+		"codecvt": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp",
+		"semaphore": "cpp"
 	}
 }

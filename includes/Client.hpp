@@ -7,6 +7,7 @@
 class Client
 {
 private:
+	int		_id;
 	int		_listensocket;
 	std::vector<Location> _locationblocks;
 	int		_recvmax;
@@ -14,6 +15,11 @@ private:
 	std::string		_root;
 	std::vector<std::string> _allow_methods;
 	long		_contentlenght;
+	std::string _servername;
+	std::string _port;
+	std::vector<char> _request;
+	std::string _response;
+	std::string _method;
 
 public:
 	Client();
@@ -32,7 +38,22 @@ public:
 	std::vector<std::string> GetMethods();
 	void SetContentLenght(long contentlen);
 	long GetContentLenght();
+	std::string GetServerName();
+	std::string GetPort();
+	int GetId();
+	void SetId(int id);
 
+	void PushToRequest(char buff);
+	void ClearRequest();
+	std::vector<char>::iterator GetBeginRequest();
+	std::vector<char>::iterator GetEndRequest();
+	ssize_t GetRequestSize();
+	void SetCurrentMethod(std::string method);
+	std::string GetCurrentMethod();
+	void ClearResponse();
+	void SetResponse(std::string tmp);
+	std::string GetResponse();
+	ssize_t GetResponseSize();
 };
 
 std::ostream& operator<<(std::ostream &out, Client *in);

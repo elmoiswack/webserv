@@ -25,6 +25,51 @@ std::string Server::GetHardCPathCode(int code)
 	return (it->second);
 }
 
+int Server::GetHardCCode(std::string path)
+{
+	logger("GETTING HARDCODED CODE TO ERRORFILE!");
+	this->_isstatuscode = true;
+	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
+	while (it != this->_hcerr_page.end())
+	{
+		if (it->second == path)
+			break ;
+		it++;
+	}
+	if (it == this->_hcerr_page.end())
+	{
+		logger("Code passed isn't valid! Internal server error! Sending 500!");
+		return (500);
+	}
+	return (it->first);
+}
+
+std::string Server::WhichMessageCode(int code)
+{
+	switch (code)
+	{
+		case 204:
+			return ("No Content");
+		case 400:
+			return ("Bad Request");
+		case 403:
+			return ("Forbidden");
+		case 404:
+			return ("Not Found");
+		case 405:
+			return ("Method Not Allowed");
+		case 411:
+			return ("Length Required");
+		case 500:
+			return ("Internal Server Error");
+		case 501:
+			return ("Not Implemented");
+		default:
+			break;
+	}
+	return ("OK");
+}
+
 std::string Server::GetSatusCodeFile(std::string path, Client *client)
 {
 	std::string::iterator begin = path.begin();

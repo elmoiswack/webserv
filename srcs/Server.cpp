@@ -1,11 +1,16 @@
 #include "../includes/Server.hpp"
 #include "../includes/Parser.hpp"
 #include "../includes/Client.hpp"
+#include <chrono>
+#include <iostream>
+#include <thread>
 
 Server::Server(const std::string& ip, const std::string& port, const std::string& server_name,
                const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods)
     : _allow_methods(allow_methods), _port(port), _ip(ip), _server_name(server_name), _client_max(client_max),  _root(root),  _serverindex(serverindex), _error_page(error_page), _cgi(nullptr){
-		this->_ammount_sock = 0;
+		this->_amount_sock = 0;
+		this->_amount_listen = 0;
+		this->_amount_client = 0;
 		this->_client = NULL;
 		this->_donereading = false;
 		this->_iscgi = false;
@@ -26,7 +31,9 @@ Server::Server(Parser &in)
 {
 	this->_serverblocks = in.GetServerBlocks();
 	this->InitHardcodedError();
-	this->_ammount_sock = 0;
+	this->_amount_sock = 0;
+	this->_amount_listen = 0;
+	this->_amount_client = 0;
 	this->_client = NULL;
 	this->_donereading = false;
 	this->_iscgi = false;
@@ -55,72 +62,20 @@ Server::~Server()
 	this->_sockvec.clear();
 	this->_serverblocks.clear();
 	this->_hcerr_page.clear();
+	for (auto it = this->_clientvec.begin(); it != this->_clientvec.end(); it++)
+		delete *it;
 }
 
 void Server::InitHardcodedError()
 {
+	this->_hcerr_page[204] = "./var/www/status_codes/204.html";
 	this->_hcerr_page[400] = "./var/www/status_codes/400.html";
 	this->_hcerr_page[403] = "./var/www/status_codes/403.html";
 	this->_hcerr_page[404] = "./var/www/status_codes/404.html";
 	this->_hcerr_page[405] = "./var/www/status_codes/405.html";
+	this->_hcerr_page[411] = "./var/www/status_codes/411.html";
 	this->_hcerr_page[500] = "./var/www/status_codes/500.html";
 	this->_hcerr_page[501] = "./var/www/status_codes/501.html";
-}
-
-void Server::AddSocket(int fd, bool is_client)
-{
-	pollfd temp;
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		std::cout << "ERROR FCNTL" << std::endl;
-		throw(Server::FcntlErrorException());
-	}
-	temp.fd = fd;
-	temp.events = POLLIN | POLLOUT;
-	temp.revents = 0;
-	this->_sockvec.push_back(temp);
-	if (is_client == true)
-	{
-		this->_whatsockvec.push_back("CLIENT");
-	}
-	else
-		this->_whatsockvec.push_back("SERVER");
-	this->_ammount_sock += 1;
-}
-
-void Server::AddSocket(int fd, const std::string& type) // for the cgi
-{
-	logger("\nCGI SOCKET ADDED -> " + type);
-	pollfd temp;
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		std::cout << "ERROR FCNTL" << std::endl;
-		exit(EXIT_FAILURE);	
-	}
-	temp.fd = fd;
-	temp.events = POLLIN | POLLOUT;
-	temp.revents = 0;
-	this->_sockvec.push_back(temp);
-	this->_whatsockvec.push_back(type);
-	this->_ammount_sock += 1;
-}
-
-void Server::RmvSocket(int index)
-{
-	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
-	for (int i = 0; i != index; i++)
-	{
-		it++;
-	}
-	close(this->_sockvec[index].fd);
-	this->_sockvec.erase(it);
-	std::vector<std::string>::iterator jt = this->_whatsockvec.begin();
-	for (int j = 0; j != index; j++)
-	{
-		jt++;
-	}
-	this->_whatsockvec.erase(jt);
-	this->_ammount_sock--;
 }
 
 void Server::SetUpServer()
@@ -132,6 +87,7 @@ void Server::SetUpServer()
 		this->InitSocket(it);
 		this->BindSockets(it, index);
 		this->ListenSockets(index);
+		this->_amount_listen += 1;
 		index++;
 	}
 	logger("Server is initialized!");
@@ -180,10 +136,11 @@ void Server::ListenSockets(int index)
 
 void Server::RunPoll()
 {
-	std::cout << "Ammount of listening sockets ready: " << this->_ammount_sock << std::endl;
+	std::cout << "Ammount of listening sockets ready: " << this->_amount_sock << std::endl;
 	while (1)
 	{
 		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
+		logger("\nWent through poll!\n");
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
@@ -196,18 +153,11 @@ void Server::RunPoll()
 	}	
 }
 
-void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
-{
-	this->_client = new Client(socket, serverblock);
-	logger("New client allocated!");
-	std::cout << this->_client << std::endl;
-}
-
 void Server::PollEvents()
 {
 	// std::chrono::time_point<std::chrono::system_clock> now;
-	// std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
-	for (int index = 0; index < this->_ammount_sock; index++)
+	// std::cout << "Ammount of sockets ready: " << this->_amount_sock << std::endl;
+	for (int index = 0; index < this->_amount_sock; index++)
 	{
 		pollfd temp;
 		temp.fd = this->_sockvec[index].fd;
@@ -235,30 +185,34 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
-				this->EventsPollin(temp.fd, this->_client);
+				auto it = this->GetClient(index);
+				this->EventsPollin(temp.fd, *it);
 				if (this->_recvzero == true)
 				{
 					logger("Client closed connection!");
-					close(temp.fd);
-					this->RmvSocket(index);
-					if (this->_client != nullptr) 
-					{
-       	 				delete this->_client;
-        				this->_client = nullptr;
-   					}
-					logger("client is deleted!");
+					this->DeleteClient(index, temp.fd);
 					this->_recvzero = false;
+				}
+				if (this->_isstatuscode == true)
+				{
+					this->WriteToClient(temp.fd, *it);
+					this->DeleteClient(index, temp.fd);
+					this->_isstatuscode = false;
 				}
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
+				auto it = this->GetClient(index);
+				Client *client = *it;
 				logger("\n--CGI POLLIN\n");
 				if (this->_cgi_donereading == false)
-					this->readCgiResponse(temp.fd, index, this->_client->Getrecvmax());
+					this->readCgiResponse(temp.fd, index, client->Getrecvmax());
 			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
+			auto it = this->GetClient(index);
+			Client *client = *it;
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
 				logger("\n--CGI POLLOUT\n");
@@ -271,17 +225,32 @@ void Server::PollEvents()
 				// this->RmvSocket(index);
 				// this->_response.clear();
 			}
-			else if (this->_donereading == true && this->_response.size() > 0)
+			else if (this->_donereading == true && client->GetResponseSize() > 0)
 			{
-				this->EventsPollout(temp.fd, this->_client);
-				this->RmvSocket(index);
-				if (this->_client != nullptr) 
-				{
-       	 			delete this->_client;
-        			this->_client = nullptr;
-   				}
-				logger("client is deleted!\n");
+				this->WriteToClient(temp.fd, client);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				this->DeleteClient(index, temp.fd);
 			}
+			// else if (this->_method == "POST")
+			// {
+			// 	auto it = this->GetClient(index);
+			// 	this->_client = *it;
+			// 	if (this->_client->GetContentLenght() == 0)
+			// 	{
+			// 		std::string htmlfile = this->HtmlToString(this->GetHardCPathCode(411), this->_client);
+			// 		std::string code = std::to_string(411);
+			// 		std::string message = this->WhichMessageCode(411);
+			// 		this->_response = 
+			// 		"HTTP/1.1 " + code + " " + message + "\r\n"
+			// 		"Content-Type: text/html\r\n"
+			// 		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			// 		"\r\n"
+			// 		+ htmlfile;
+			// 		this->_request.clear();
+			// 		std::cout << this->_response << std::endl;
+			// 		this->_donereading = true;
+			// 	}
+			// }
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -291,20 +260,17 @@ void Server::PollEvents()
 				logger("\nCGI ERROR!");
 				delete (this->_cgi);
 			}
-			close(temp.fd);
-			this->RmvSocket(index);
+			this->DeleteClient(index, temp.fd);
 		}
 		else if (temp.revents & POLLERR)
 		{
 			logger("POLLERR: Connection already has been closed!");
-			close(temp.fd);
-			this->RmvSocket(index);
+			this->DeleteClient(index, temp.fd);
 		}
 		else if (temp.revents & POLLNVAL)
 		{
 			logger("POLLNVAL: invalid request, closing connection!");
-			close(temp.fd);
-			this->RmvSocket(index);
+			this->DeleteClient(index, temp.fd);
 		}
 	}	
 }
@@ -322,9 +288,108 @@ void Server::AcceptClient(int index)
 	logger("Connection is accepted!");
 }
 
+void Server::AddSocket(int fd, bool is_client)
+{
+	pollfd temp;
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << "ERROR FCNTL" << std::endl;
+		throw(Server::FcntlErrorException());
+	}
+	temp.fd = fd;
+	temp.events = POLLIN | POLLOUT;
+	temp.revents = 0;
+	this->_sockvec.push_back(temp);
+	if (is_client == true)
+	{
+		this->_whatsockvec.push_back("CLIENT");
+	}
+	else
+		this->_whatsockvec.push_back("SERVER");
+	this->_amount_sock += 1;
+}
+
+void Server::AddSocket(int fd, const std::string& type) // for the cgi
+{
+	logger("\nCGI SOCKET ADDED -> " + type);
+	pollfd temp;
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << "ERROR FCNTL" << std::endl;
+		exit(EXIT_FAILURE);	
+	}
+	temp.fd = fd;
+	temp.events = POLLIN | POLLOUT;
+	temp.revents = 0;
+	this->_sockvec.push_back(temp);
+	this->_whatsockvec.push_back(type);
+	this->_amount_sock += 1;
+}
+
+void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
+{
+	this->_clientvec.push_back(new Client(socket, serverblock));
+	logger("New client allocated!");
+	std::vector<Client*>::iterator it = this->_clientvec.end();
+	it--;
+	Client* client = *it;
+	client->SetId(this->_amount_client);
+	std::cout << client << std::endl;
+	this->_amount_client += 1;
+}
+
+std::vector<Client*>::iterator Server::GetClient(int index)
+{
+	index -= this->_amount_listen;
+	int count = 0;
+	auto it = this->_clientvec.begin();
+	while (count != index)
+	{
+		count++;
+		it++;
+	}
+	if (it == this->_clientvec.end())
+	{
+		logger("FAILED GETTING CLIENT");
+		exit(EXIT_FAILURE);
+	}
+	return (it);
+}
+
+void Server::DeleteClient(int index, int fd)
+{
+	close(fd);
+	this->RmvSocket(index);
+	if (this->_client != nullptr) 
+	{
+    	delete this->_client;
+        this->_client = nullptr;
+   	}
+	logger("client is deleted!\n");
+	this->_amount_client -= 1;
+}
+
+void Server::RmvSocket(int index)
+{
+	std::vector<struct pollfd>::iterator it = this->_sockvec.begin();
+	for (int i = 0; i != index; i++)
+	{
+		it++;
+	}
+	close(this->_sockvec[index].fd);
+	this->_sockvec.erase(it);
+	std::vector<std::string>::iterator jt = this->_whatsockvec.begin();
+	for (int j = 0; j != index; j++)
+	{
+		jt++;
+	}
+	this->_whatsockvec.erase(jt);
+	this->_amount_sock--;
+}
+
 void Server::CloseAllFds()
 {
-	for (int i = 0;  i != this->_ammount_sock; i++)
+	for (int i = 0;  i != this->_amount_sock; i++)
 	{
 		close(this->_sockvec[i].fd);
 	}
@@ -401,13 +466,10 @@ const char *Server::WriteErrorException::what() const throw()
 // 		this->RmvSocket(index);
 // 	}
 // }
-#include <chrono>
-#include <iostream>
-#include <thread>
+
 void Server::writeToCgi(int fd, int index) 
 {
     close(this->_cgi->getReadEndUploadPipe());
-    std::cout << "WENT THROUGH POLL" << std::endl;
 	if (!this->_post_data.empty()) 
 	{
 		ssize_t total_bytes = this->_post_data.size();
@@ -427,7 +489,6 @@ void Server::writeToCgi(int fd, int index)
 				return ;
 			}
             this->_bytes_written += written;
-			std::cout << "NEW BYTES WRITTEN = " << this->_bytes_written << std::endl;
         }
 		else
 		{
