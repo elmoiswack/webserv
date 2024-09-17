@@ -20,6 +20,7 @@ private:
 	std::vector<char> _request;
 	std::string _response;
 	std::string _method;
+	bool 		_donereading;
 
 public:
 	Client();
@@ -54,6 +55,8 @@ public:
 	void SetResponse(std::string tmp);
 	std::string GetResponse();
 	ssize_t GetResponseSize();
+	void SetDonereading(bool state);
+	bool GetDonereading();
 };
 
 std::ostream& operator<<(std::ostream &out, Client *in);

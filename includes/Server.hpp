@@ -45,12 +45,9 @@ private:
  	int			_amount_sock;
 	int			_amount_listen;
 	int			_amount_client;
-	std::vector<char> _request;
 	std::vector<char> _cgi_response;
-	std::string _response;
 	std::string _post_data;
 	std::string _method;
-	bool		_donereading;
 	std::vector<std::string> _allow_methods;
 	bool		_cgi_donereading;
 	bool		_iscgi;
@@ -74,7 +71,6 @@ private:
 	std::vector<Location> _locations;
 
 	int		_listensock;
-	Client *_client;
 
 	int		_websock;
 	Cgi*		_cgi;
@@ -156,6 +152,7 @@ public:
 	///RESPONSE.CPP
 	void WriteToClient(int fd, Client *client);
 
+	std::string GetHost(std::string tmp);
 	void InitHardcodedError();
 	std::string GetHardCPathCode(int code);
 	int  GetHardCCode(std::string path);
@@ -163,7 +160,7 @@ public:
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);
 	void writeToCgi(int fd, int index);
-	std::string	readCgiResponse(int fd, int index, int recvmax);
+	std::string	readCgiResponse(int fd, int index, int recvmax, Client *client);
 
 	std::string listDirectoryContents(const std::string &directoryPath);
 

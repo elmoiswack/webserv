@@ -11,8 +11,6 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_amount_sock = 0;
 		this->_amount_listen = 0;
 		this->_amount_client = 0;
-		this->_client = NULL;
-		this->_donereading = false;
 		this->_iscgi = false;
 		this->_recvzero = false;
 		this->_isbody = true;
@@ -20,7 +18,6 @@ Server::Server(const std::string& ip, const std::string& port, const std::string
 		this->_statuscode = 0;
 		this->_isstatuscode = false;
 		this->_totalread = 0;
-		this->_method = "EMPTY";
 		this->_bytes_written = 0;
 		this->InitHardcodedError();
 }
@@ -34,18 +31,13 @@ Server::Server(Parser &in)
 	this->_amount_sock = 0;
 	this->_amount_listen = 0;
 	this->_amount_client = 0;
-	this->_client = NULL;
-	this->_donereading = false;
 	this->_iscgi = false;
 	this->_recvzero = false;
 	this->_isbody = true;
 	this->_listensock = 0;
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
-	this->_request.clear();
-	this->_response.clear();
 	this->_totalread = 0;
-	this->_method = "EMPTY";
 	this->_cgi = nullptr;
 	this->_bytes_written = 0;
 }
@@ -57,8 +49,6 @@ Server::~Server()
 	this->_error_page.clear();
 	this->_locationblocks.clear();
 	this->_locations.clear();
-	this->_request.clear();
-	delete this->_client;
 	this->_sockvec.clear();
 	this->_serverblocks.clear();
 	this->_hcerr_page.clear();
@@ -163,6 +153,13 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
+		Client *client;
+		if (this->_whatsockvec[index] == "CLIENT")
+		{
+			auto it = this->GetClient(index);
+			client = *it;
+
+		}
 		// this->checkCgiTimer();
 		if (temp.revents & POLLIN)
 		{
@@ -185,8 +182,7 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
-				auto it = this->GetClient(index);
-				this->EventsPollin(temp.fd, *it);
+				this->EventsPollin(temp.fd, client);
 				if (this->_recvzero == true)
 				{
 					logger("Client closed connection!");
@@ -195,24 +191,21 @@ void Server::PollEvents()
 				}
 				if (this->_isstatuscode == true)
 				{
-					this->WriteToClient(temp.fd, *it);
+					this->WriteToClient(temp.fd, client);
 					this->DeleteClient(index, temp.fd);
 					this->_isstatuscode = false;
 				}
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
-				auto it = this->GetClient(index);
-				Client *client = *it;
 				logger("\n--CGI POLLIN\n");
+				std::cout << client << std::endl;
 				if (this->_cgi_donereading == false)
-					this->readCgiResponse(temp.fd, index, client->Getrecvmax());
+					client->SetResponse(this->readCgiResponse(temp.fd, index, client->Getrecvmax(), client));
 			}
 		}
 		else if (temp.revents & POLLOUT)
 		{
-			auto it = this->GetClient(index);
-			Client *client = *it;
 			if (this->_whatsockvec[index] == "CGI_WRITE")
 			{
 				logger("\n--CGI POLLOUT\n");
@@ -225,32 +218,12 @@ void Server::PollEvents()
 				// this->RmvSocket(index);
 				// this->_response.clear();
 			}
-			else if (this->_donereading == true && client->GetResponseSize() > 0)
+			else if (client->GetDonereading() == true && client->GetResponseSize() > 0)
 			{
 				this->WriteToClient(temp.fd, client);
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				this->DeleteClient(index, temp.fd);
 			}
-			// else if (this->_method == "POST")
-			// {
-			// 	auto it = this->GetClient(index);
-			// 	this->_client = *it;
-			// 	if (this->_client->GetContentLenght() == 0)
-			// 	{
-			// 		std::string htmlfile = this->HtmlToString(this->GetHardCPathCode(411), this->_client);
-			// 		std::string code = std::to_string(411);
-			// 		std::string message = this->WhichMessageCode(411);
-			// 		this->_response = 
-			// 		"HTTP/1.1 " + code + " " + message + "\r\n"
-			// 		"Content-Type: text/html\r\n"
-			// 		"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-			// 		"\r\n"
-			// 		+ htmlfile;
-			// 		this->_request.clear();
-			// 		std::cout << this->_response << std::endl;
-			// 		this->_donereading = true;
-			// 	}
-			// }
 		}
 		else if (temp.revents & POLLHUP)
 		{
@@ -351,7 +324,7 @@ std::vector<Client*>::iterator Server::GetClient(int index)
 	if (it == this->_clientvec.end())
 	{
 		logger("FAILED GETTING CLIENT");
-		exit(EXIT_FAILURE);
+		std::exit(EXIT_FAILURE);
 	}
 	return (it);
 }
@@ -360,11 +333,13 @@ void Server::DeleteClient(int index, int fd)
 {
 	close(fd);
 	this->RmvSocket(index);
-	if (this->_client != nullptr) 
+	int clientid = this->_amount_client - 1;
+	if (this->_clientvec[clientid] != nullptr)
 	{
-    	delete this->_client;
-        this->_client = nullptr;
-   	}
+		delete this->_clientvec[clientid];
+		this->_clientvec.pop_back();
+		//this->_clientvec.erase(it);
+	}
 	logger("client is deleted!\n");
 	this->_amount_client -= 1;
 }
@@ -498,7 +473,7 @@ void Server::writeToCgi(int fd, int index)
     }
 }
 
-std::string Server::readCgiResponse(int fd, int index, int recvmax)
+std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *client)
 {
     char buffer[recvmax];
     ssize_t bytes_read;
@@ -526,49 +501,59 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");
-		for (char c : this->_cgi_response)
-			this->_response.push_back(c);
-		this->_response.push_back('\0');
+		//std::cout << this->_cgi_response << std::endl;
+		// std::cout << "HAHAHAHAHA" << std::endl;
+		// for (char c : this->_cgi_response)
+		// {
+		// 	std::cout << c;
+		// 	//client->PushToRequest(c);
+		// }
+		// //client->PushToRequest('\0');
+		std::string tmp(this->_cgi_response.begin(), this->_cgi_response.end());
+		client->SetResponse(tmp);
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
 		this->_cgi_running = false;
 		delete this->_cgi;
 		this->RmvSocket(index);
+		return (tmp);
 	}
     return "";
 }
 
 
-void Server::checkCgiTimer()
-{
-	std::chrono::time_point<std::chrono::system_clock> now;
-	if (this->_cgi_running)
-			{
-				now = std::chrono::system_clock::now();
-				std::chrono::duration<double> elapsed_seconds = now - this->_start;
-				// std::cout << elapsed_seconds.count() << "s\n";
-				if (elapsed_seconds > std::chrono::seconds(5))
-				{
+// void Server::checkCgiTimer()
+// {
+// 	std::chrono::time_point<std::chrono::system_clock> now;
+// 	if (this->_cgi_running)
+// 			{
+// 				now = std::chrono::system_clock::now();
+// 				std::chrono::duration<double> elapsed_seconds = now - this->_start;
+// 				// std::cout << elapsed_seconds.count() << "s\n";
+// 				if (elapsed_seconds > std::chrono::seconds(5))
+// 				{
 					
-					logger("\n\nREQUEST EXCEEDED 5 SECONDS\n");
-					this->_cgi->killCgi();
-					this->_cgi_running = false;
-					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
-					this->_response = 
-					"HTTP/1.1 500 OK\r\n"
-					"Content-Type: text/html\r\n"
-					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
-					"\r\n"
-					+ this->HtmlToString("./var/www/status_codes/500.html");
-					// close(temp.fd);
-					// RmvSocket(index);
-					// exit(EXIT_FAILURE);
-				}
+// 					logger("\n\nREQUEST EXCEEDED 5 SECONDS\n");
+// 					this->_cgi->killCgi();
+// 					this->_cgi_running = false;
+// 					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
+					
+// 					std::string response = 
+// 					"HTTP/1.1 500 OK\r\n"
+// 					"Content-Type: text/html\r\n"
+// 					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
+// 					"\r\n"
+// 					+ this->HtmlToString("./var/www/status_codes/500.html");
+					
+// 					// close(temp.fd);
+// 					// RmvSocket(index);
+// 					// exit(EXIT_FAILURE);
+// 				}
 				
-				// else
-				// 	logger("\n\nREQUEST OK\n");
-			}
-}
+// 				// else
+// 				// 	logger("\n\nREQUEST OK\n");
+// 			}
+// }
 
 void Server::setStartTime (std::chrono::time_point<std::chrono::system_clock> start)
 {

@@ -138,7 +138,7 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 			return (this->HtmlToString(this->GetHardCPathCode(500)));
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
-		this->_cgi = new Cgi(_method, path, tmp);
+		this->_cgi = new Cgi(client->GetCurrentMethod(), path, tmp);
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
@@ -261,7 +261,7 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, Client *client
 		this->_post_data = ParsePost(tmp);
 		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
 		// Cgi cgi(_method, this->_post_data, path, tmp);
-		this->_cgi = new Cgi(_method, this->_post_data, path, tmp);
+		this->_cgi = new Cgi(client->GetCurrentMethod(), this->_post_data, path, tmp);
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		// std::cout << "ORIGINAL READ END RESPONSE PIPE: " << _cgi->getReadEndResponsePipe() << "\n";

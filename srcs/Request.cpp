@@ -10,14 +10,12 @@
 void Server::EventsPollin(int fd, Client *client)
 {
 	logger("POLLIN");
-	if (this->_donereading == false)
+	if (client->GetDonereading() == false)
 	{
 		this->InitRequest(fd, client);
 	}
-	if (this->_donereading == true)
+	if (client->GetDonereading() == true)
 	{
-		std::string tmp(client->GetBeginRequest(),client->GetEndRequest());
-		std::cout << "HAHAHJFSAHKJFAHKFAKJFSAn\n" << tmp << std::endl; 
 		this->BuildResponse(client);
 	}
 }
@@ -25,26 +23,10 @@ void Server::EventsPollin(int fd, Client *client)
 void Server::InitRequest(int fd, Client *client)
 {
 	int ret = this->RecieveMessage(fd, client);
-	if (ret == -1)
-	{
-		// std::string errfile = this->HtmlToString(this->GetHardCPathCode(400), client);
-		// this->_response = 
-		// "HTTP/1.1 200 OK\r\n"
-		// "Content-Type: text/html\r\n"
-		// "Content-Length: " + std::to_string(errfile.length()) + "\r\n"
-		// "\r\n"
-		// + errfile;
-		// this->_request.clear();
-		// this->_donereading = true;
-		this->_recvzero = true;
-		this->_donereading = false;
-		client->ClearRequest();
-		return ;
-	}
-	else if (ret == 0)
+	if (ret == -1 || ret == 0)
 	{
 		this->_recvzero = true;
-		this->_donereading = false;
+		client->SetDonereading(false);
 		client->ClearRequest();
 		return ;
 	}
@@ -53,7 +35,6 @@ void Server::InitRequest(int fd, Client *client)
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	std::cout << "recvmax = " << client->Getrecvmax() << std::endl;
 	char* buff = new char[client->Getrecvmax()];
 	int rbytes = recv(fd, buff, client->Getrecvmax(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
@@ -146,35 +127,25 @@ void Server::IsDoneRead(Client *client)
 			}
 			if (this->_isbody == true && client->GetRequestSize() == (ssize_t)client->GetContentLenght())
 			{
-				this->_donereading = true;
+				client->SetDonereading(true);
 				client->PushToRequest('\0');
-
-				// std::cout << "\nFULL REQUEST:" << std::endl;
-				// for (size_t i = 0; i < this->_request.size(); i++)
-				// {
-				// 	std::cout << this->_request[i];
-				// }
 				logger("Done reading post");
 			}
 		}
 		else if ((client->GetCurrentMethod() == "GET") || (client->GetCurrentMethod() == "DELETE"))
 		{
-			this->_donereading = true;
+			client->SetDonereading(true);
 			client->PushToRequest('\0');
-			// std::cout << "\nFULL REQUEST:" << std::endl;
-			// for (size_t i = 0; i < this->_request.size(); i++)
-			// {
-			// 	std::cout << this->_request[i];
-			// }
 			logger("Done reading get");
 		}
 	}
 }
 
-std::string GetHost(std::string tmp)
+std::string Server::GetHost(std::string tmp)
 {
 	auto it = tmp.find("Host: ", 0);
-
+	if (it == tmp.npos)
+		return ("EMPTY");
 	while (!std::isspace(tmp[it]))
 		it++;
 	it++;
@@ -198,7 +169,9 @@ std::string Server::ParseRequest(Client *client)
 	if (itfirst == client->GetEndRequest())
 		return (this->HtmlToString(this->GetHardCPathCode(400), client));
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
-	std::string hostreq = GetHost(tmp);
+	std::string hostreq = this->GetHost(tmp);
+	if (hostreq == "EMPTY")
+		return (this->HtmlToString(this->GetHardCPathCode(400), client));
 	std::string hostserv = client->GetServerName() + ":" + client->GetPort();
 	if (hostreq != hostserv && hostreq != ("localhost:" + client->GetPort()))
 		return (this->HtmlToString(this->GetHardCPathCode(400), client));

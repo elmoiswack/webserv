@@ -172,6 +172,16 @@ void Client::ClearResponse()
 	this->_response.clear();
 }
 
+void Client::SetDonereading(bool state)
+{
+	this->_donereading = state;
+}
+
+bool Client::GetDonereading()
+{
+	return (this->_donereading);
+}
+
 std::ostream& operator<<(std::ostream &out, Client *in)
 {
 	out << "Client listen sock = " << in->GetListensock() << std::endl;

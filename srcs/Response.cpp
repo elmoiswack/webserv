@@ -4,13 +4,14 @@ void Server::WriteToClient(int fd, Client *client)
 {
 	logger("sending response to client...");
 	std::string response = client->GetResponse();
+	std::cout << "RESPONSE = " << response << std::endl;
 	if (write(fd, response.c_str(), response.size()) == -1)
 	{
 		logger("ERROR WRITE: failed to send response! Trying to send 500!");
 		response.clear();
 		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
 		response = 
-		"HTTP/1.1 500 OK\r\n"
+		"HTTP/1.1 500 Internal Server Error\r\n"
 		"Content-Type: text/html\r\n"
 		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 		"\r\n"
@@ -18,16 +19,14 @@ void Server::WriteToClient(int fd, Client *client)
 		if (write(fd, response.c_str(), response.size()) == -1)
 			throw(Server::WriteErrorException());
 	}
-	logger("response is sent to fd!");
+	logger("response is sent to fd, closing fd!");
 	close(fd);
-	logger("fd is closed and removed!");
-	//this->_response.clear();
 	client->ClearResponse();
-	this->_donereading = false;
+	client->SetDonereading(false);
+	client->SetCurrentMethod("EMPTY");
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
 	this->_totalread = 0;
-	this->_method = "EMPTY";
 }
 
 void Server::BuildResponse(Client *client)
@@ -49,7 +48,6 @@ void Server::BuildResponse(Client *client)
 
 			client->ClearRequest();
 			client->SetResponse(response);
-			std::cout << "CLIENT HAHA = " << client->GetResponse() << std::endl;;
 		}
 		else 
 		{
