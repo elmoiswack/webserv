@@ -145,9 +145,10 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 			this->_response.clear();
 		std::string cgi_path = _cgi->constructCgiPath(path);
 		// logger("\nBEFORE CGI\n");
-		// this->_start = std::chrono::system_clock::now();
-		this->_cgi_running = true;
+		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
+		this->setStartTime(cgiStartTime);
 		this->_response = _cgi->runCgi(cgi_path, this);
+		this->_cgi_running = true;
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		// for (const std::string& type : this->_whatsockvec) 
 		// 	logger("--Socket type: " + type);
@@ -322,9 +323,10 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq)
 		if (this->_response.size() > 0)
 			this->_response.clear();
 		std::string cgi_path = _cgi->constructCgiPath(path);
-		// this->_start = std::chrono::system_clock::now();
-		// this->_cgi_running = true;
+		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
+		this->setStartTime(cgiStartTime);
 		_cgi->runCgi(cgi_path, this);
+		this->_cgi_running = true;
 		return (this->_response);
 	}
 	return ("");

@@ -130,7 +130,8 @@ public:
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
 	std::vector<char> ParsePostV(const std::string &content);
-	void checkCgiTimer();
+	// void checkCgiTimer(pollfd temp, int index);
+	bool checkCgiTimer(pollfd temp, int index);
 	void setStartTime (std::chrono::time_point<std::chrono::steady_clock> start);
 	static void handleCgiAlarm(int sig);
 	void	setStaticServer(Server* server);

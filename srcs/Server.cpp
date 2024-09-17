@@ -92,7 +92,7 @@ void Server::AddSocket(int fd, bool is_client)
 
 void Server::AddSocket(int fd, const std::string& type) // for the cgi
 {
-	logger("\nCGI SOCKET ADDED -> " + type);
+	logger("\nSOCKET ADDED -> " + type);
 	pollfd temp;
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
@@ -114,6 +114,7 @@ void Server::RmvSocket(int index)
 	{
 		it++;
 	}
+	logger("SOCKET REMOVED -> " + this->_whatsockvec[index]);
 	close(this->_sockvec[index].fd);
 	this->_sockvec.erase(it);
 	std::vector<std::string>::iterator jt = this->_whatsockvec.begin();
@@ -123,7 +124,7 @@ void Server::RmvSocket(int index)
 	}
 	this->_whatsockvec.erase(jt);
 	this->_ammount_sock--;
-	logger("\nSOCKET REMOVED");
+	// logger("\nSOCKET REMOVED");
 }
 
 void Server::SetUpServer()
@@ -206,7 +207,8 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	std::cout << this->_client << std::endl;
 }
 
-pollfd g_temp;
+pollfd 	g_temp;
+int		g_index;
 void Server::PollEvents()
 {
 	// std::chrono::time_point<std::chrono::system_clock> now;
@@ -218,10 +220,30 @@ void Server::PollEvents()
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
 		g_temp = temp;
-		// if (this->_cgi_running)
-		//  	this->checkCgiTimer();
+		g_index = index;
 
-		if (temp.revents & POLLIN)
+		// if (this->_cgi_running)
+		//  	this->checkCgiTimer(temp, index);
+		
+		if (this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CGI_READ" && !this->checkCgiTimer(temp, index))
+		{
+			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
+			this->_response.clear();
+			this->_response = 
+			"HTTP/1.1 500 OK\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+			"\r\n"
+			+ errfile;
+			this->_cgi->killCgi();
+			this->_cgi_running = false;
+			delete this->_cgi;
+			this->_cgi = nullptr;
+			//close(temp.fd);
+			logger("REMOVING SOCKET IN POLLEVENTS (top)");
+			RmvSocket(index);
+		}
+		else if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
 			{
@@ -260,7 +282,8 @@ void Server::PollEvents()
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				std::cout << "FD INDEX IN POLL EVENTS: " << index << "\n\n";
-
+				// g_index = index;
+				// g_temp = temp;
 				logger("--CGI POLLIN\n");
 				if (this->_cgi_donereading == false)
 					this->readCgiResponse(temp.fd, index, this->_client->Getrecvmax());
@@ -295,20 +318,31 @@ void Server::PollEvents()
 		else if (temp.revents & POLLHUP)
 		{
 			logger("Connection hung up!");
-			if (this->_whatsockvec[index] == "CGI_READ")
+			if (this->_whatsockvec[index] == "CGI_READ" && this->_cgi_running)
 			{
-				logger("\nCGI ERROR!");
+				logger("\nCGI ERROR (poll loop)!");
+				this->_cgi_running = false;
 				delete (this->_cgi);
+				this->_cgi = nullptr;
 				std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
+				this->_response.clear();
 				this->_response = 
 				"HTTP/1.1 500 OK\r\n"
 				"Content-Type: text/html\r\n"
 				"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 				"\r\n"
 				+ errfile;
+				close(temp.fd);
+				logger("REMOVING SOCKET IN POLLHUP");
+				this->RmvSocket(index);
+
 			}
-			close(temp.fd);
-			this->RmvSocket(index);
+			else
+			{
+				close(temp.fd);
+				logger("REMOVING SOCKET IN POLLHUP (else)");
+				this->RmvSocket(index);
+			}
 		}
 		else if (temp.revents & POLLERR)
 		{
@@ -543,15 +577,47 @@ void Server::handleCgiAlarm(int sig)
 	std::cout << "CGI PROCESS INTERRUPTED " << sig << "\n\n";
 }
 
+bool Server::checkCgiTimer(pollfd temp, int index)
+{
+	(void)temp;
+	(void)index;
+	// std::chrono::time_point<std::chrono::system_clock> now;
+	std::chrono::time_point<std::chrono::steady_clock> currentTime;
+	if (this->_cgi_running)
+			{
+				currentTime = std::chrono::steady_clock::now();
+				std::chrono::duration<double> elapsed_seconds = currentTime - this->_start;
+				// std::cout << elapsed_seconds.count() << "s\n";
+				if (elapsed_seconds.count() > 3.0)
+				{
+					// this->_start = currentTime;
+					// logger("\nCGI EXECUTION EXCEEDED 3 SECONDS\n");
+					// this->_cgi->killCgi();
+					// this->_cgi_running = false;
+					// delete this->_cgi;
+					// this->_cgi = nullptr;
+					// this->_response.clear();
+					// this->_response = 
+					// "HTTP/1.1 500 OK\r\n"
+					// "Content-Type: text/html\r\n"
+					// "Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
+					// "\r\n"
+					// + this->HtmlToString("./var/www/status_codes/500.html");
+					// logger("REMOVING SOCKET IN CHECK CGI TIMER");
+					return false;
+				}
+				
+				// else
+				// 	logger("\n\nREQUEST OK\n");
+			}
+	return true;
+}
 
 
-
-
-
-
-
-// void Server::checkCgiTimer()
+// void Server::checkCgiTimer(pollfd temp, int index)
 // {
+// 	(void)temp;
+// 	(void)index;
 // 	// std::chrono::time_point<std::chrono::system_clock> now;
 // 	std::chrono::time_point<std::chrono::steady_clock> currentTime;
 // 	if (this->_cgi_running)
@@ -559,22 +625,24 @@ void Server::handleCgiAlarm(int sig)
 // 				currentTime = std::chrono::steady_clock::now();
 // 				std::chrono::duration<double> elapsed_seconds = currentTime - this->_start;
 // 				// std::cout << elapsed_seconds.count() << "s\n";
-// 				if (elapsed_seconds.count() > 5.0)
+// 				if (elapsed_seconds.count() > 3.0)
 // 				{
-					
-// 					logger("\n\nREQUEST EXCEEDED 5 SECONDS\n");
+// 					// this->_start = currentTime;
+// 					logger("\nCGI EXECUTION EXCEEDED 3 SECONDS\n");
 // 					this->_cgi->killCgi();
 // 					this->_cgi_running = false;
-// 					// this->_response = this->HtmlToString("./var/www/status_codes/500.html");
+// 					delete this->_cgi;
+// 					this->_cgi = nullptr;
+// 					this->_response.clear();
 // 					this->_response = 
 // 					"HTTP/1.1 500 OK\r\n"
 // 					"Content-Type: text/html\r\n"
 // 					"Content-Length: " + std::to_string(this->HtmlToString("./var/www/status_codes/500.html").length()) + "\r\n"
 // 					"\r\n"
 // 					+ this->HtmlToString("./var/www/status_codes/500.html");
+// 					// logger("REMOVING SOCKET IN CHECK CGI TIMER");
 // 					// close(temp.fd);
 // 					// RmvSocket(index);
-// 					// exit(EXIT_FAILURE);
 // 				}
 				
 // 				// else
@@ -582,10 +650,11 @@ void Server::handleCgiAlarm(int sig)
 // 			}
 // }
 
-// void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> start)
-// {
-// 	this->_start = start;
-// }
+
+void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> start)
+{
+	this->_start = start;
+}
 
 
 

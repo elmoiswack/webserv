@@ -340,8 +340,8 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 	{
 		this->_pid = pid;
 		server->setStaticServer(server);
-		signal(SIGALRM, server->handleCgiAlarm);
-		alarm(3);
+		// signal(SIGALRM, server->handleCgiAlarm);
+		// alarm(3);
 		close(_responsePipe[1]);
 	}
 	return ("");
