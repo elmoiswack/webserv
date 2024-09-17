@@ -1,66 +1,73 @@
 #include "../includes/Server.hpp"
 
-void Server::EventsPollout(int fd, Client *client)
+void Server::WriteToClient(int fd, Client *client)
 {
-	logger("POLLOUT");
 	logger("sending response to client...");
-	if (write(fd, this->_response.c_str(), this->_response.size()) == -1)
+	std::string response = client->GetResponse();
+	std::cout << "RESPONSE = " << response << std::endl;
+	if (write(fd, response.c_str(), response.size()) == -1)
 	{
 		logger("ERROR WRITE: failed to send response! Trying to send 500!");
-		this->_response.clear();
+		response.clear();
 		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
-		this->_response = 
-		"HTTP/1.1 500 OK\r\n"
+		response = 
+		"HTTP/1.1 500 Internal Server Error\r\n"
 		"Content-Type: text/html\r\n"
 		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 		"\r\n"
 		+ errfile;
-		if (write(fd, this->_response.c_str(), this->_response.size()) == -1)
+		if (write(fd, response.c_str(), response.size()) == -1)
 			throw(Server::WriteErrorException());
 	}
-	logger("response is sent to fd!");
+	logger("response is sent to fd, closing fd!");
 	close(fd);
-	logger("fd is closed and removed!");
-	this->_response.clear();
-	this->_donereading = false;
+	client->ClearResponse();
+	client->SetDonereading(false);
+	client->SetCurrentMethod("EMPTY");
 	this->_statuscode = 0;
 	this->_isstatuscode = false;
 	this->_totalread = 0;
-	this->_method = "EMPTY";
 }
 
 void Server::BuildResponse(Client *client)
 {
 	std::string htmlfile = this->ParseRequest(client);
+	std::string response;
 	if (this->_iscgi == false)
 	{
 		if (this->_isstatuscode == true)
 		{
 			std::string code = std::to_string(this->_statuscode);
-			this->_response = 
-			"HTTP/1.1 " + code + " OK\r\n"
+			std::string message = this->WhichMessageCode(std::stoi(code));
+			response = 
+			"HTTP/1.1 " + code + " " + message + "\r\n"
 			"Content-Type: text/html\r\n"
 			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 			"\r\n"
 			+ htmlfile;
-			this->_request.clear();
+
+			client->ClearRequest();
+			client->SetResponse(response);
 		}
 		else 
 		{
-			this->_response = 
+			response = 
 			"HTTP/1.1 200 OK\r\n"
 			"Content-Type: text/html\r\n"
 			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 			"\r\n"
 			+ htmlfile;
-			this->_request.clear();
+
+			client->ClearRequest();
+			client->SetResponse(response);
 		}
 	}
 	else if (this->_iscgi == true)
 	{
-		this->_response = htmlfile;
+		response = htmlfile;
 		this->_iscgi = false;
-		this->_request.clear();
+		client->ClearRequest();
+		client->SetResponse(response);
 	}
 	logger("response created!");	
 }
