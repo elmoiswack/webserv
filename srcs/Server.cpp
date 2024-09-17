@@ -321,24 +321,18 @@ void Server::PollEvents()
 				delete (this->_cgi);
 				this->_cgi = nullptr;
 				std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
-				this->_response.clear();
 				this->_response = 
 				"HTTP/1.1 500 OK\r\n"
 				"Content-Type: text/html\r\n"
 				"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 				"\r\n"
 				+ errfile;
-				close(temp.fd);
-				logger("REMOVING SOCKET IN POLLHUP");
-				this->RmvSocket(index);
 				this->_donereading = true;
+				this->_request.clear();
 			}
-			else
-			{
-				close(temp.fd);
-				logger("REMOVING SOCKET IN POLLHUP (else)");
-				this->RmvSocket(index);
-			}
+			close(temp.fd);
+			logger("REMOVING SOCKET IN POLLHUP (else)");
+			this->RmvSocket(index);
 		}
 		else if (temp.revents & POLLERR)
 		{
@@ -421,34 +415,6 @@ const char *Server::WriteErrorException::what() const throw()
 	return ("function write failed for the second time! Shutting down server!");
 }
 
-// void Server::writeToCgi(int fd, int index)
-// {
-// 	// (void) index;
-// 	close(this->_cgi->getReadEndUploadPipe());
-// 	// logger("\n---POST DATA: " + _post_data);
-// 	// if (!this->_post_data.empty())
-// 	if (!this->_post_data_v.empty())
-// 	{
-// 		// ssize_t bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
-// 		// std::cout << "\nPOST DATA:" << std::endl;
-// 		// for (size_t i = 0; i < this->_post_data_v.size(); i++)
-// 		// {
-// 		// 	std::cout << this->_post_data_v[i];
-// 		// }
-// 		// logger("Done reading post");
-// 		std::cout << "\nSIZE OF POST DATA (VECTOR): " << this->_post_data_v.size() << "\n";
-// 		std::cout << "\nSIZE OF POST DATA         : " << this->_post_data.size() << "\n";
-// 		ssize_t bytes_written = write(fd, this->_post_data_v.data(), this->_post_data_v.size());
-// 		std::cout << "\nBYTES WRITTEN         	  : " << bytes_written << "\n";
-// 		if (bytes_written < 0)
-// 		{
-// 			logger("ERROR WRITE TO CGI");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		this->RmvSocket(index);
-// 	}
-// }
-
 void Server::writeToCgi(int fd, int index)
 {
     close(this->_cgi->getReadEndUploadPipe());
@@ -474,12 +440,9 @@ void Server::writeToCgi(int fd, int index)
     }
 }
 
-
 std::string Server::readCgiResponse(int fd, int index, int recvmax)
 {
 	char *buffer = new char[recvmax];
-    // ssize_t bytes_read;
-	// this->_cgi->waitForChild();
     if (this->_cgi->waitForChild() == false)
     {
         logger("\nERROR CGI PROCESS\n");
@@ -493,6 +456,8 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 		"\r\n"
 		+ errfile;
 		this->_cgi_running = false;
+		this->_donereading = true;
+		this->_request.clear();
 		return("");
     }
     ssize_t bytes_read = read(fd, buffer, recvmax);
@@ -514,12 +479,9 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
         logger("CGI PIPE FULLY READ");
 		for (char c : this->_cgi_response)
 			this->_response.push_back(c);
-		// logger("READING CGI RESPONSE\n");
-		// for (char c : this->_cgi_response)
-		// 	std::cout << c;
-		// logger("CGI RESPONSE READ\n");
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
+		this->_request.clear();
 		this->_cgi_running = false;
 		delete this->_cgi;
 		this->RmvSocket(index);
@@ -549,6 +511,10 @@ bool Server::checkCgiTimer(pollfd temp, int index)
 	return true;
 }
 
+void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> start)
+{
+	this->_start = start;
+}
 
 // void Server::checkCgiTimer(pollfd temp, int index)
 // {
@@ -587,36 +553,5 @@ bool Server::checkCgiTimer(pollfd temp, int index)
 // }
 
 
-void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> start)
-{
-	this->_start = start;
-}
 
-
-
-
-// std::string	Server::readCgiResponse(int fd)
-// {
-// 	// logger("--CGI POLLIN\n");
-// 	std::ostringstream oss;
-// 	char buffer[this->_recvmax];
-// 	ssize_t bytes_read;
-// 	// logger("--METHOD: " + this->_current_cgi->getMethod());
-// 	if (this->_cgi->waitForChild() == false)
-// 	{
-// 		logger("ERROR CGI PROCESS");
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0)
-// 		oss.write(buffer, bytes_read); // -> append read data to the output string stream
-	
-// 	// bytes_read = read(fd, buffer, sizeof(buffer));
-// 	// this->_cgi->appendResponse(std::string(buffer, buffer + bytes_read));
-	
-// 	if (bytes_read == -1)
-// 		logger("ERROR READING FROM CGI PIPE");
-// 	// close(fd);
-// 	// std::cout << oss.str() << "\n";
-// 	return (oss.str());
-// }
 
