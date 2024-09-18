@@ -211,18 +211,15 @@ pollfd 	g_temp;
 int		g_index;
 void Server::PollEvents()
 {
-	// std::chrono::time_point<std::chrono::system_clock> now;
-	// std::cout << "Ammount of sockets ready: " << this->_ammount_sock << std::endl;
 	for (int index = 0; index < this->_ammount_sock; index++)
 	{
 		pollfd temp;
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		if (this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CGI_READ" && !this->checkCgiTimer(temp, index))
+		if (!(temp.revents & POLLIN) && this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CLIENT" && !this->checkCgiTimer(temp, index))
 		{
 			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), this->_client);
-			this->_response.clear();
 			this->_response = 
 			"HTTP/1.1 500 OK\r\n"
 			"Content-Type: text/html\r\n"
@@ -235,8 +232,7 @@ void Server::PollEvents()
 			this->_cgi = nullptr;
 			this->_donereading = true;
 			this->_request.clear();
-			//close(temp.fd);
-			logger("REMOVING SOCKET IN POLLEVENTS (top)");
+			close(temp.fd);
 			RmvSocket(index);
 		}
 		else if (temp.revents & POLLIN)
@@ -277,9 +273,6 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
-				std::cout << "FD INDEX IN POLL EVENTS: " << index << "\n\n";
-				// g_index = index;
-				// g_temp = temp;
 				logger("--CGI POLLIN\n");
 				if (this->_cgi_donereading == false)
 					this->readCgiResponse(temp.fd, index, this->_client->Getrecvmax());
@@ -291,17 +284,11 @@ void Server::PollEvents()
 			{
 				logger("--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
-				// if (this->_client != nullptr) 
-				// {
-       	 		// 	// delete this->_client;
-        		// 	this->_client = nullptr;
-   				// }
-				// this->RmvSocket(index);
-				// this->_response.clear();
 			}
 			else if (this->_donereading == true && this->_response.size() > 0)
 			{
 				this->EventsPollout(temp.fd, this->_client);
+				logger("REMOVING SOCKET IN CGI DONE READING: ");
 				this->RmvSocket(index);
 				if (this->_client != nullptr) 
 				{
@@ -435,6 +422,7 @@ void Server::writeToCgi(int fd, int index)
 		else
 		{
 			this->_bytes_written = 0;
+			logger("REMOVING SOCKET IN writeToCgi:");
 			this->RmvSocket(index);
 		}
     }
@@ -461,7 +449,6 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 		return("");
     }
     ssize_t bytes_read = read(fd, buffer, recvmax);
-	std::cout << "\nBYTES READ: " << bytes_read << "\n\n";
 	if (bytes_read == 0)
     {
         logger("REACHED EOF");
@@ -484,6 +471,7 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax)
 		this->_request.clear();
 		this->_cgi_running = false;
 		delete this->_cgi;
+		logger("REMOVING SOCKET IN READ CGI RES");
 		this->RmvSocket(index);
 	}
 	delete[] buffer;
@@ -515,6 +503,57 @@ void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> st
 {
 	this->_start = start;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // void Server::checkCgiTimer(pollfd temp, int index)
 // {
