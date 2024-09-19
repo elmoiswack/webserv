@@ -4,7 +4,6 @@ void Server::WriteToClient(int fd, Client *client)
 {
 	logger("sending response to client...");
 	std::string response = client->GetResponse();
-	std::cout << "RESPONSE = " << response << std::endl;
 	if (write(fd, response.c_str(), response.size()) == -1)
 	{
 		logger("ERROR WRITE: failed to send response! Trying to send 500!");

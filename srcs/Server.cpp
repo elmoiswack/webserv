@@ -338,7 +338,6 @@ void Server::DeleteClient(int index, int fd)
 	{
 		delete this->_clientvec[clientid];
 		this->_clientvec.pop_back();
-		//this->_clientvec.erase(it);
 	}
 	logger("client is deleted!\n");
 	this->_amount_client -= 1;
@@ -501,14 +500,6 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
 	if (bytes_read < recvmax)
     {
         logger("CGI PIPE FULLY READ");
-		//std::cout << this->_cgi_response << std::endl;
-		// std::cout << "HAHAHAHAHA" << std::endl;
-		// for (char c : this->_cgi_response)
-		// {
-		// 	std::cout << c;
-		// 	//client->PushToRequest(c);
-		// }
-		// //client->PushToRequest('\0');
 		std::string tmp(this->_cgi_response.begin(), this->_cgi_response.end());
 		client->SetResponse(tmp);
 		this->_cgi_response.clear();

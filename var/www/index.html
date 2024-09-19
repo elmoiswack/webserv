@@ -6,10 +6,10 @@
     <title>HTTP Server</title>
 	<link rel="stylesheet" href="styles.css">
 	<script>
-		function deleteFile() {
+		async function deleteFile() {
 	const fileName = document.getElementById('deleteFileName').value;
 	if (fileName) {
-		fetch(`/uploads/${fileName}`, {
+		await fetch(`/uploads/${fileName}`, {
 			method: 'DELETE'
 		})
 		.then(response => {
@@ -29,6 +29,7 @@
 }
 
 	</script>
+
 </head>
 <body>
     <h1>HTTP Server</h1>
@@ -48,9 +49,13 @@
 			</form>
 		</p></li>
         <li><a href="/cgi-bin/view_files.cgi">View uploaded files</a></li>
-		<li><p>DELETE FILE:
+		<!-- <li><p>DELETE FILE:
 			<input type="text" id="deleteFileName" placeholder="Enter file name">
             <button onclick="deleteFile()">Delete</button>
+        </p></li> -->
+		<li><p>DELETE FILE:
+			<input type="text" id="deleteFileName" placeholder="Enter file name">
+			<button onclick="deleteFile()">Delete</button>
         </p></li>
 		<li><a href="/cgi-bin/infinite_loop.cgi">Test cgi infinite loop</a></li>
 		<li><a href="imaginary.html"> Test non-existing html page </a> </li>

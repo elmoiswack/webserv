@@ -108,7 +108,7 @@ std::string Server::MethodDelete(std::vector<char>::iterator itreq)
 		itend++;
 	std::string path;
 	path.assign(itreq, itend);
-	path.insert(0, "var/www");
+	path.insert(0, "./var/www");
 	logger("PATH: " + path);
 
 	// const char* filePath = "var/www/uploads/test.txt";

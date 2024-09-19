@@ -7,6 +7,8 @@ import cgitb; cgitb.enable()
 import sys
 
 message = ""
+code = 0
+codemessage = ""
 def handle_post():
     form = cgi.FieldStorage()
     file_item = form['file']
@@ -22,6 +24,8 @@ def handle_post():
         # print("\n\nUPLOAD_DIR: " + upload_dir)
         if os.path.exists(file_path):
             message = "File with the same name already exists, upload cancelled!"
+            code = 409
+            codemessage = "Conflict"
         else:
             if not os.path.exists(upload_dir):
                 os.makedirs(upload_dir)
@@ -33,8 +37,12 @@ def handle_post():
                         break
                     fout.write(chunk)
             message = f"Uploaded {file_name}"
+            code = 201
+            codemessage = "Created"
     else:
         message = "No file was uploaded!"
+        code = 400
+        codemessage = "Bad Request"
 
     html_content = (
 	    "<!DOCTYPE html>\n"
@@ -46,7 +54,7 @@ def handle_post():
 	    "</html>\n"
     )
     html_headers = (
-	    "HTTP/1.1 200 OK\r\n"
+	    f"HTTP/1.1 {code} {codemessage}\r\n"
         "Content-Type: text/html\r\n"
         f"Content-Length: {len(html_content)}\r\n\r"
     )

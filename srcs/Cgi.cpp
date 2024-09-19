@@ -341,7 +341,6 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 		// std::cout << "\nORIGINAL PID: " << this->_pid << "\n";
 		close(_responsePipe[1]);
 	}
-	std::cout << "HFJKEWHAJGFKERSHKGLHERSKJGHERAGEW" << std::endl;
 	return ("");
 }
 

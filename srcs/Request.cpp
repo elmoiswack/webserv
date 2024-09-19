@@ -129,14 +129,19 @@ void Server::IsDoneRead(Client *client)
 			{
 				client->SetDonereading(true);
 				client->PushToRequest('\0');
-				logger("Done reading post");
+				logger("Done reading post!");
 			}
 		}
 		else if ((client->GetCurrentMethod() == "GET") || (client->GetCurrentMethod() == "DELETE"))
 		{
+			std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
+			std::cout << "TMP REQUEST = " << tmp << std::endl;
 			client->SetDonereading(true);
 			client->PushToRequest('\0');
-			logger("Done reading get");
+			if (client->GetCurrentMethod() == "GET")
+				logger("Done reading get!");
+			else
+				logger("Done reading delete!");
 		}
 	}
 }
