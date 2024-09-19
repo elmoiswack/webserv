@@ -123,7 +123,7 @@ void Server::IsDoneRead(Client *client)
 			{
 				this->_isbody = true;
 				client->SetContentLenght(this->GetContentLenght(tmp));
-				std::cout << "CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
+				std::cout << "--CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
 			}
 			if (this->_isbody == true && client->GetRequestSize() == (ssize_t)client->GetContentLenght())
 			{

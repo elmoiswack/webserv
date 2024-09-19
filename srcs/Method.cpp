@@ -146,8 +146,10 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		std::string cgi_path = _cgi->constructCgiPath(path);
 		// logger("\nBEFORE CGI\n");
 		// this->_start = std::chrono::system_clock::now();
-		this->_cgi_running = true;
+		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
+		this->setStartTime(cgiStartTime);
 		client->SetResponse(_cgi->runCgi(cgi_path, this));
+		this->_cgi_running = true;
 		// std::cout << "RESPONSE: \n\n" << this->_response;
 		// for (const std::string& type : this->_whatsockvec) 
 		// 	logger("--Socket type: " + type);
@@ -200,6 +202,49 @@ std::string Server::ExtractBoundary(const std::string &content) {
     boundary.erase(boundary.find_last_not_of(" \t\n\r\f\v") + 1);
     
     return (boundary);
+}
+
+std::vector<char> Server::ParsePostV(const std::string &content) {
+	std::string content_type_header = "Content-Type: multipart/form-data; boundary=";
+    size_t content_type_start = content.find(content_type_header);
+    if (content_type_start == std::string::npos) {
+		std::cout << "Content-Type not found" << std::endl;
+        return {};
+    }
+    content_type_start += content_type_header.length();
+    size_t content_type_end = content.find("\n", content_type_start);
+    std::string content_type = content.substr(content_type_start, content_type_end - content_type_start);
+
+	//   std::cout << "Content-Type: " << content_type << std::endl;
+
+    std::string boundary = ExtractBoundary(content);
+    if (boundary.empty()) {
+		std::cout << "Boundary not found" << std::endl;
+        return {};
+    }
+
+	// std::cout << "Boundary: " << boundary << std::endl;
+
+    std::string boundary_start = "--" + boundary;
+    std::string boundary_end = boundary_start + "--";
+	
+    size_t start_pos = content.find(boundary_start);
+    size_t end_pos = content.find(boundary_end);
+    if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
+		std::cout << "Boundary positions not found" << std::endl;
+        return {};
+    }
+	std::vector<char> post_data;
+    for (size_t i = start_pos; i < end_pos + boundary_end.length(); ++i)
+	{
+		post_data.push_back(content[i]);
+		// std::cout << content[i];
+	}
+    // Include boundary_start in the extracted data
+	// start_pos += boundary_start.length();
+    // std::string post_data = content.substr(start_pos, end_pos - start_pos + boundary_end.length());
+    
+    return post_data;
 }
 
 std::string Server::ParsePost(const std::string &content) {
@@ -262,17 +307,23 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, Client *client
 		// std::cout << "\nPOST DATA:\n" << this->_post_data << "\n\n";
 		// Cgi cgi(_method, this->_post_data, path, tmp);
 		this->_cgi = new Cgi(client->GetCurrentMethod(), this->_post_data, path, tmp);
+
+		// std::string tmp(this->_request.begin(), this->_request.end());
+		// this->_post_data = ParsePost(tmp);
+		// this->_post_data_v = ParsePostV(tmp);
+		// std::string post_data(this->_post_data_v.begin(), this->_post_data_v.end());
+		// this->_cgi = new Cgi(_method, post_data, path, tmp);
+		
 		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
-		// std::cout << "ORIGINAL READ END RESPONSE PIPE: " << _cgi->getReadEndResponsePipe() << "\n";
-		// std::cout << "ORIGINAL WRITE END UPLOAD PIPE: " << _cgi->getReadEndUploadPipe() << "\n";
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
 			client->ClearResponse();
 		std::string cgi_path = _cgi->constructCgiPath(path);
-		// this->_start = std::chrono::system_clock::now();
-		// this->_cgi_running = true;
+		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
+		this->setStartTime(cgiStartTime);
 		_cgi->runCgi(cgi_path, this);
+		this->_cgi_running = true;
 		return (client->GetResponse());
 	}
 	return ("");

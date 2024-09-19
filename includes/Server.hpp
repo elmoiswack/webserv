@@ -21,6 +21,7 @@
 #include <sstream>
 #include <poll.h>
 #include <chrono>
+#include <thread> 
 
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
@@ -47,6 +48,7 @@ private:
 	int			_amount_client;
 	std::vector<char> _cgi_response;
 	std::string _post_data;
+	std::vector<char> _post_data_v;
 	std::string _method;
 	std::vector<std::string> _allow_methods;
 	bool		_cgi_donereading;
@@ -74,7 +76,8 @@ private:
 
 	int		_websock;
 	Cgi*		_cgi;
-	std::chrono::time_point<std::chrono::system_clock> _start;
+	// std::chrono::time_point<std::chrono::system_clock> _start;
+	std::chrono::time_point<std::chrono::steady_clock> _start;
 	bool	_cgi_running;
 
 	ssize_t _bytes_written;
@@ -128,8 +131,12 @@ public:
 	void CloseAllFds();
 	std::string ExtractBoundary(const std::string &content);
 	std::string ParsePost(const std::string &content);
-	void checkCgiTimer();
-	void setStartTime (std::chrono::time_point<std::chrono::system_clock> start);
+	std::vector<char> ParsePostV(const std::string &content);
+	// void checkCgiTimer(pollfd temp, int index);
+	bool checkCgiTimer(pollfd temp, int index);
+	void setStartTime (std::chrono::time_point<std::chrono::steady_clock> start);
+	static void handleCgiAlarm(int sig);
+	void	setStaticServer(Server* server);
 	
 	
 	///REQUEST.CPP
