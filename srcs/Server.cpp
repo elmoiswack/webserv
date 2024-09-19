@@ -207,12 +207,6 @@ void Server::PollEvents()
 					this->DeleteClient(index, temp.fd);
 					this->_recvzero = false;
 				}
-				if (this->_isstatuscode == true)
-				{
-					this->WriteToClient(temp.fd, client);
-					this->DeleteClient(index, temp.fd);
-					this->_isstatuscode = false;
-				}
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
@@ -228,6 +222,12 @@ void Server::PollEvents()
 			{
 				logger("--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
+			}
+			else if (this->_isstatuscode == true)
+			{
+				this->WriteToClient(temp.fd, client);
+				this->DeleteClient(index, temp.fd);
+				this->_isstatuscode = false;
 			}
 			else if (client->GetDonereading() == true && client->GetResponseSize() > 0)
 			{

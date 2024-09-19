@@ -1,0 +1,103 @@
+SERVER DESTRUCTED
+
+Number of server blocks: 1
+Server IP: 127.0.0.1
+Server Port: 8001
+Server Name: test
+Client Max Body Size: 1024
+Root: ./var/www
+Server Index: /index.html
+Allow Methods: GET POST DELETE 
+--------------------------------------
+Error Pages:
+Error Code: 501 -> URL: /status_codes/501.html
+Error Code: 500 -> URL: /status_codes/500.html
+Error Code: 413 -> URL: /status_codes/413.html
+Error Code: 412 -> URL: /status_codes/412.html
+Error Code: 411 -> URL: /status_codes/411.html
+Error Code: 410 -> URL: /status_codes/410.html
+Error Code: 300 -> URL: /status_codes/300.html
+Error Code: 404 -> URL: /status_codes/404.html
+Error Code: 301 -> URL: /status_codes/301.html
+Error Code: 405 -> URL: /status_codes/405.html
+Error Code: 505 -> URL: /status_codes/505.html
+Error Code: 302 -> URL: /status_codes/302.html
+Error Code: 303 -> URL: /status_codes/303.html
+Error Code: 307 -> URL: /status_codes/307.html
+Error Code: 400 -> URL: /status_codes/400.html
+Error Code: 401 -> URL: /status_codes/401.html
+Error Code: 402 -> URL: /status_codes/402.html
+Error Code: 403 -> URL: /status_codes/403.html
+Error Code: 408 -> URL: /status_codes/408.html
+Error Code: 409 -> URL: /status_codes/409.html
+--------------------------------------
+Locations:
+URL: /tours
+Auto Index: on
+Allow Methods: GET 
+Index: /index.html
+Return Redirect: return
+Alias: docs/fusion_web
+CGI Pass: 
+CGI Index: 
+CGI Param: 
+Root: docs/fusion_web
+--------------------------------------
+URL: cgi-bin
+Auto Index: off
+Allow Methods: 
+Index: 
+Return Redirect: 
+Alias: 
+CGI Pass: unix:/var/run/fcgiwrap.socket
+CGI Index: index.pl
+CGI Param: SCRIPT_FILENAME /srv/www/example.com/public_html$fastcgi_script_name 
+Root: ./
+--------------------------------------
+SERVER DESTRUCTED
+
+Ammount serverblocks = 1
+port = 8001
+Server is initialized!
+Ammount of listening sockets ready: 1
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+Client listen sock = 3
+Client recvmax = 1024
+Client root = ./var/www
+501 500 413 412 411 410 300 404 301 405 505 302 303 307 400 401 402 403 408 409 
+GET POST DELETE 
+Client id = 0
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 78
+PUT / HTTP/1.1
+Host: 127.0.0.1:8001
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+TOTAL READ = 78
+Method: PUT isn't allowed!
+
+CURRENT METHOD DOENS'T EXIST!
+
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd, closing fd!
+client is about to get deleted!
+client is deleted!
+

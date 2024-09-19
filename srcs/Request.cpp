@@ -17,6 +17,7 @@ void Server::EventsPollin(int fd, Client *client)
 	if (client->GetDonereading() == true)
 	{
 		this->BuildResponse(client);
+
 	}
 }
 
@@ -54,9 +55,11 @@ int Server::RecieveMessage(int fd, Client *client)
 	int index = 0;
 	while (index < rbytes)
 	{
+		std::cout << buff[index];
 		client->PushToRequest(buff[index]);
 		index++;
 	}
+	std::cout << std::endl;
 	std::cout << "TOTAL READ = " << client->GetRequestSize() << std::endl;
 	this->IsDoneRead(client);
 	delete[] buff;
@@ -106,6 +109,23 @@ void Server::IsDoneRead(Client *client)
 	
 	if (client->GetCurrentMethod() == "EMPTY")
 	{
+		if (client->GetRequestSize() > 10)
+		{
+			std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
+			std::string ha;
+			for (int i = 0; i < 10; i++)
+			{
+				if (std::isspace(tmp[i]))
+					break ;
+				ha.push_back(tmp[i]);
+			}
+			if (this->IsMethodAllowed(ha, client)  == -1)
+			{
+				client->SetDonereading(true);
+				client->SetCurrentMethod(ha);
+				return ;
+			}
+		}
 		client->SetCurrentMethod(this->WhichMethod(tmp));
 		if (client->GetCurrentMethod() == "EMPTY")
 			return ;
@@ -174,7 +194,7 @@ std::string Server::ParseRequest(Client *client)
 	if (hostreq == "EMPTY")
 		return (this->HtmlToString(this->GetHardCPathCode(400), client));
 	std::string hostserv = client->GetServerName() + ":" + client->GetPort();
-	if (hostreq != hostserv && hostreq != ("localhost:" + client->GetPort()))
+	if (hostreq != hostserv && hostreq != ("localhost:" + client->GetPort()) && hostreq != ("127.0.0.1:" + client->GetPort()))
 		return (this->HtmlToString(this->GetHardCPathCode(400), client));
 	return (this->WhichMethod(client, itfirst));
 }
