@@ -19,7 +19,7 @@ OBJS		:= 	$(addprefix $(OBJDIR)/,$(SRC:.cpp=.o))
 SRCS		:= 	$(addprefix $(SRCDIR)/,$(SRC))
 
 CC	:=	c++
-CFLAGS	:= -Wall -Werror -Wextra -std=c++17 -fsanitize=address -g
+CFLAGS	:= -Wall -Werror -Wextra -std=c++17 #-fsanitize=address -g
 
 HEADERS := -I ./includes
 
