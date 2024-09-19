@@ -146,7 +146,6 @@ public:
 	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
 	std::string MethodPost(std::vector<char>::iterator itreq,Client *client);
 	std::string HtmlToString(std::string path, Client *client);
-	std::string HtmlToString(std::string path);
 	std::string GetSatusCodeFile(std::string code, Client *client);
 	long	GetContentLenght(std::string buff);
 	void InitRequest(int fd, Client *client);
@@ -154,7 +153,7 @@ public:
 	void IsDoneRead(Client *client);
 	std::string WhichMethod(std::string);
 	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
-	std::string MethodDelete(std::vector<char>::iterator itreq);
+	std::string MethodDelete(std::vector<char>::iterator itreq, Client *client);
 
 	///RESPONSE.CPP
 	void WriteToClient(int fd, Client *client);

@@ -132,7 +132,7 @@ void Server::RunPoll()
 	while (1)
 	{
 		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
-		// logger("\nWent through poll!\n");
+		logger("\nWent through poll!\n");
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
@@ -147,8 +147,6 @@ void Server::RunPoll()
 
 void Server::PollEvents()
 {
-	// std::chrono::time_point<std::chrono::system_clock> now;
-	// std::cout << "Ammount of sockets ready: " << this->_amount_sock << std::endl;
 	for (int index = 0; index < this->_amount_sock; index++)
 	{
 		pollfd temp;
@@ -160,7 +158,6 @@ void Server::PollEvents()
 		{
 			auto it = this->GetClient(index);
 			client = *it;
-
 		}
 		if (!(temp.revents & POLLIN) && this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CLIENT" && !this->checkCgiTimer(temp, index))
 		{
@@ -317,7 +314,7 @@ void Server::AddSocket(int fd, const std::string& type) // for the cgi
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cout << "ERROR FCNTL" << std::endl;
-		exit(EXIT_FAILURE);	
+		throw(Server::FcntlErrorException());
 	}
 	temp.fd = fd;
 	temp.events = POLLIN | POLLOUT;
@@ -343,7 +340,6 @@ std::vector<Client*>::iterator Server::GetClient(int index)
 {
 	index -= this->_amount_listen;
 	int count = 0;
-	// std::cout << "INDEX = " << index << std::endl;
 	auto it = this->_clientvec.begin();
 	while (count != index)
 	{
@@ -360,8 +356,6 @@ std::vector<Client*>::iterator Server::GetClient(int index)
 
 void Server::DeleteClient(int index, int fd)
 {
-	std::cout << "\nINDEX IN DELETE CLIENT: " << index << "\n";
-	std::cout << "CLIENT VEC SIZE = " << this->_clientvec.size() << std::endl;
 	close(fd);
 	this->RmvSocket(index);
 	int clientid = this->_amount_client - 1;
@@ -444,33 +438,6 @@ const char *Server::WriteErrorException::what() const throw()
 {
 	return ("function write failed for the second time! Shutting down server!");
 }
-// void Server::writeToCgi(int fd, int index)
-// {
-// 	// (void) index;
-// 	close(this->_cgi->getReadEndUploadPipe());
-// 	// logger("\n---POST DATA: " + _post_data);
-// 	if (!this->_post_data.empty())
-// 	{
-// 		unsigned long total = 0;
-// 		ssize_t bytes_written = 0;
-// 		std::cout << "POST DATA SIZE = " <<  this->_post_data.size() << std::endl;
-// 		while (total < this->_post_data.size())
-// 		{
-// 			bytes_written = write(fd, this->_post_data.c_str(), this->_post_data.size());
-// 			std::cout << "BYTES WRITTEN = " << bytes_written << std::endl;
-// 			if (bytes_written != -1)
-// 				total += bytes_written;
-// 			std::cout << "total = " << total << " should be: " << this->_post_data.size() << std::endl;
-// 			sleep(10);
-// 		}
-// 		if (bytes_written < 0)
-// 		{
-// 			logger("ERROR WRITE TO CGI");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		this->RmvSocket(index);
-// 	}
-// }
 
 void Server::writeToCgi(int fd, int index) 
 {
@@ -530,6 +497,18 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
     {
         logger("REACHED EOF");
 		this->RmvSocket(index);
+		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
+		std::string response = 
+		"HTTP/1.1 500 Internal Server Error\r\n"
+		"Content-Type: text/html\r\n"
+		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
+		"\r\n"
+		+ errfile;
+		this->_cgi_running = false;
+		client->SetResponse(response);
+		client->SetDonereading(true);
+		client->ClearRequest();
+		return (client->GetResponse());
     }
     else if (bytes_read < 0)
 	{

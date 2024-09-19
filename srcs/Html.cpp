@@ -3,7 +3,6 @@
 std::string Server::GetHardCPathCode(int code)
 {
 	logger("GETTING HARDCODED PATH TO ERRORFILE!");
-	std::cout << "Getting " << code << " html file!" << std::endl;
 	this->_statuscode = code;
 	this->_isstatuscode = true;
 	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
@@ -119,24 +118,6 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	{
 		std::cout << "Failed to read file! Sending 500!\n" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(500), client));
-	}
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	return (buffer.str());
-}
-
-std::string Server::HtmlToString(std::string path)
-{
-	if (access(path.c_str(), F_OK | R_OK) == -1)
-	{
-		logger("DENIED ACCES htmltostring");
-		exit(EXIT_FAILURE);
-	}	
-	std::ifstream file(path, std::ios::binary);
-	if (!file.good())
-	{
-		std::cout << "Failed to read file!\n" << std::endl;
-		std::exit(EXIT_FAILURE);
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();

@@ -52,7 +52,6 @@ int Server::RecieveMessage(int fd, Client *client)
 		return (0);
 	}
 	int index = 0;
-	logger("message recieved!");
 	while (index < rbytes)
 	{
 		client->PushToRequest(buff[index]);
@@ -123,7 +122,6 @@ void Server::IsDoneRead(Client *client)
 			{
 				this->_isbody = true;
 				client->SetContentLenght(this->GetContentLenght(tmp));
-				std::cout << "--CLIENT CONTENT LEN = " << client->GetContentLenght() << std::endl;
 			}
 			if (this->_isbody == true && client->GetRequestSize() == (ssize_t)client->GetContentLenght())
 			{
@@ -134,8 +132,6 @@ void Server::IsDoneRead(Client *client)
 		}
 		else if ((client->GetCurrentMethod() == "GET") || (client->GetCurrentMethod() == "DELETE"))
 		{
-			std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
-			std::cout << "TMP REQUEST = " << tmp << std::endl;
 			client->SetDonereading(true);
 			client->PushToRequest('\0');
 			if (client->GetCurrentMethod() == "GET")
