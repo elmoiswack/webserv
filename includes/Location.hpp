@@ -23,7 +23,7 @@ class Server;
 class Location {
 	private:
 
-	std::vector<std::string> url;
+	std::string url;
 	bool 					 auto_index;
 	std::vector<std::string> allow_methods;
 	std::string				 index;
@@ -34,6 +34,8 @@ class Location {
 	std::string				 cgi_index;
 	std::string				 cgi_pass;
 	static bool				 cgi_status;
+	std::unordered_map<std::string, std::string> _redir_page;
+	bool		_redirectstate;
 
 	std::vector<Location>	 locations_info;
 
@@ -45,6 +47,7 @@ class Location {
 	// void ParseLocationBlock(std::vector<std::string>& tokens);
 
 	void ValidateLocationURL(std::vector<std::string> &tokens);
+	void ValidateRedirection(std::vector<std::string>& tokens);
 	void ValidateAutoIndex(std::vector<std::string> &tokens);
 	void Validate_AllowMethods(std::vector<std::string> &tokens);
 	void ValidateIndex(std::vector<std::string> &tokens);
@@ -56,7 +59,7 @@ class Location {
 	void Validate_CGIpass(std::vector<std::string>& tokens);
 	void Validate_CGI(std::vector<std::string>& tokens);
 
-std::vector<std::string>					 GetURL(void) const;
+	std::string				 GetURL(void) const;
 	bool 					 GetAutoIndex(void) const;
 	std::vector<std::string> Get_AllowMethods(void) const;
 	std::string 			 GetIndex(void) const;
@@ -65,7 +68,8 @@ std::vector<std::string>					 GetURL(void) const;
 	std::vector<std::string> GetCGIparam(void) const;
 	std::string				 GetCGIindex(void) const;
 	std::string				 GetCGIpass(void) const;
-
+	bool					 GetRedirectState();
+	std::unordered_map<std::string, std::string> GetRedirectPage();
 	std::string GetLocRoot(void) const;
 	static bool GetCGIstatus(void);
 };

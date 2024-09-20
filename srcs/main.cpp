@@ -33,10 +33,8 @@ void runTests(const Parser& parser) {
         std::cout << "Locations:" << std::endl;
         std::vector<Location> locations = server.GetLocations();
         for (const auto& location : locations) {
-            std::vector<std::string> urls = location.GetURL();
-            for (const auto& url : urls) {
-                std::cout << "URL: " << url << std::endl;
-            }
+            std::string urls = location.GetURL();
+            std::cout << "URL: " << urls << std::endl;
             std::cout << "Auto Index: " << (location.GetAutoIndex() ? "on" : "off") << std::endl;
     		std::vector<std::string> _methods = location.Get_AllowMethods();	
    			std::cout << "Allow Methods: ";

@@ -135,16 +135,14 @@ public:
 	// void checkCgiTimer(pollfd temp, int index);
 	bool checkCgiTimer(pollfd temp, int index);
 	void setStartTime (std::chrono::time_point<std::chrono::steady_clock> start);
-	static void handleCgiAlarm(int sig);
-	void	setStaticServer(Server* server);
 	
 	
 	///REQUEST.CPP
 	void EventsPollin(int fd, Client *client);
 	int  RecieveMessage(int fd, Client *client);
 	std::string ParseRequest(Client *client);
-	std::string MethodGet(std::vector<char>::iterator itreq, Client *client);
-	std::string MethodPost(std::vector<char>::iterator itreq,Client *client);
+	std::string MethodGet(std::string path, Client *client);
+	std::string MethodPost(std::string path,Client *client);
 	std::string HtmlToString(std::string path, Client *client);
 	std::string GetSatusCodeFile(std::string code, Client *client);
 	long	GetContentLenght(std::string buff);
@@ -153,15 +151,18 @@ public:
 	void IsDoneRead(Client *client);
 	std::string WhichMethod(std::string);
 	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
-	std::string MethodDelete(std::vector<char>::iterator itreq, Client *client);
+	std::string GetPath(std::vector<char>::iterator itfirst);
+	std::string MethodDelete(std::string path, Client *client);
 
+	std::vector<Location>::iterator GetLocationBlock(Client *client, std::string path);
+	void SetClientVars(Client *client, std::vector<Location>::iterator it);
 	///RESPONSE.CPP
 	void WriteToClient(int fd, Client *client);
 
 	std::string GetHost(std::string tmp);
 	void InitHardcodedError();
-	std::string GetHardCPathCode(int code);
-	int  GetHardCCode(std::string path);
+	std::string GetHardCPathCode(int code, Client *client);
+	int  GetHardCCode(std::string path, Client *client);
 	std::string WhichMessageCode(int code);
 	void InitClient(int socket, std::vector<Server>::iterator serverblock);
 	int IsMethodAllowed(std::string method, Client *client);

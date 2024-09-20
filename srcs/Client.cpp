@@ -10,17 +10,22 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 	this->_listensocket = socket;
 	this->_locationblocks = serverblock->GetLocations();
 	this->_servername = serverblock->GetServName();
+	this->_error_page = serverblock->GetErrorPage();
 	this->_port = serverblock->GetPort();
 	this->_recvmax = std::stoi(serverblock->GetClientMax());
-	this->_root = serverblock->GetRoot();
-	this->_error_page = serverblock->GetErrorPage();
-	this->_allow_methods = serverblock->GetAllowMethods();
-	std::vector<std::string> tmp = serverblock->GetAllowMethods();
 	this->_request.clear();
 	this->_response.clear();
 	this->_contentlenght = 0;
 	this->_id = 0;
 	this->_method = "EMPTY";
+	
+	//get from location
+	this->_root = "";
+	this->_allow_methods.clear();
+	this->_redir_page.clear();
+	this->_redirectstate = false;
+	this->_index = "";
+	
 	std::cout << "CLIENT CREATED AND VARS SET!" << std::endl;
 }
 
@@ -92,6 +97,26 @@ std::string Client::GetRoot()
 	return (this->_root);
 }
 
+void Client::SetRoot(std::string root)
+{
+	this->_root = root;
+}
+
+void Client::SetIndex(std::string index)
+{
+	this->_index = index;
+}
+
+std::string Client::GetIndex()
+{
+	return (this->_index);
+}
+
+void Client::SetMethodVec(std::vector<std::string> method)
+{
+	this->_allow_methods = method;
+}
+
 std::vector<std::string>::iterator Client::GetMethodsBegin()
 {
 	return (this->_allow_methods.begin());
@@ -100,11 +125,6 @@ std::vector<std::string>::iterator Client::GetMethodsBegin()
 std::vector<std::string>::iterator Client::GetMethodsEnd()
 {
 	return (this->_allow_methods.end());
-}
-
-std::vector<std::string> Client::GetMethods()
-{
-	return (this->_allow_methods);
 }
 
 void Client::SetContentLenght(long contentlen)
@@ -180,6 +200,46 @@ void Client::SetDonereading(bool state)
 bool Client::GetDonereading()
 {
 	return (this->_donereading);
+}
+
+void Client::SetStatusCode(int code)
+{
+	this->_code = code;
+}
+
+int Client::GetStatusCode()
+{
+	return (this->_code);
+}
+
+void Client::SetStatusCodeState(bool state)
+{
+	this->_isstatuscode = state;
+}
+
+bool Client::GetStatusCodeState()
+{
+	return (this->_isstatuscode);
+}
+
+void Client::SetRedirectPage(std::unordered_map<std::string, std::string> pages)
+{
+	this->_redir_page = pages;
+}
+
+void Client::SetRedirectState(bool state)
+{
+	this->_redirectstate = state;
+}
+
+std::unordered_map<std::string, std::string> Client::GetRedirectPage()
+{
+	return (this->_redir_page);
+}
+
+bool Client::GetRedirectState()
+{
+	return (this->_redirectstate);
 }
 
 std::ostream& operator<<(std::ostream &out, Client *in)

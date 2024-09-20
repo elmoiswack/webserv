@@ -61,6 +61,7 @@ Server::~Server()
 void Server::InitHardcodedError()
 {
 	this->_hcerr_page[204] = "./var/www/status_codes/204.html";
+	this->_hcerr_page[301] = "./var/www/status_codes/301.html";
 	this->_hcerr_page[400] = "./var/www/status_codes/400.html";
 	this->_hcerr_page[403] = "./var/www/status_codes/403.html";
 	this->_hcerr_page[404] = "./var/www/status_codes/404.html";
@@ -161,7 +162,7 @@ void Server::PollEvents()
 		}
 		if (!(temp.revents & POLLIN) && this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CLIENT" && !this->checkCgiTimer(temp, index))
 		{
-			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
+			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 			std::string response = 
 			"HTTP/1.1 500 OK\r\n"
 			"Content-Type: text/html\r\n"
@@ -178,7 +179,6 @@ void Server::PollEvents()
 			close(temp.fd);
 			RmvSocket(index);
 		}
-		
 		else if (temp.revents & POLLIN)
 		{
 			if (this->_whatsockvec[index] == "SERVER")
@@ -223,12 +223,11 @@ void Server::PollEvents()
 				logger("--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
 			}
-			else if (this->_isstatuscode == true)
-			{
-				this->WriteToClient(temp.fd, client);
-				this->DeleteClient(index, temp.fd);
-				this->_isstatuscode = false;
-			}
+			// else if (client->GetStatusCodeState() == true)
+			// {
+			// 	this->WriteToClient(temp.fd, client);
+			// 	this->DeleteClient(index, temp.fd);
+			// }
 			else if (client->GetDonereading() == true && client->GetResponseSize() > 0)
 			{
 				this->WriteToClient(temp.fd, client);
@@ -245,7 +244,7 @@ void Server::PollEvents()
 				this->_cgi_running = false;
 				delete (this->_cgi);
 				this->_cgi = nullptr;
-				std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
+				std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 				std::string response = 
 				"HTTP/1.1 500 Internal Server Error\r\n"
 				"Content-Type: text/html\r\n"
@@ -332,7 +331,6 @@ void Server::InitClient(int socket, std::vector<Server>::iterator serverblock)
 	it--;
 	Client* client = *it;
 	client->SetId(this->_amount_client);
-	std::cout << client << std::endl;
 	this->_amount_client += 1;
 }
 
@@ -442,6 +440,7 @@ const char *Server::WriteErrorException::what() const throw()
 void Server::writeToCgi(int fd, int index) 
 {
     close(this->_cgi->getReadEndUploadPipe());
+	std::cout << "post data size = " << this->_post_data.size() << std::endl;
 	if (!this->_post_data.empty()) 
 	{
 		ssize_t total_bytes = this->_post_data.size();
@@ -479,7 +478,7 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
         logger("\nERROR CGI PROCESS\n");
 		delete this->_cgi;
 		this->RmvSocket(index);
-		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
+		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 		std::string response = 
 		"HTTP/1.1 500 Internal Server Error\r\n"
 		"Content-Type: text/html\r\n"
@@ -497,7 +496,7 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
     {
         logger("REACHED EOF");
 		this->RmvSocket(index);
-		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500), client);
+		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 		std::string response = 
 		"HTTP/1.1 500 Internal Server Error\r\n"
 		"Content-Type: text/html\r\n"

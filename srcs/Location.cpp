@@ -30,10 +30,29 @@ void    Location::ValidateLocationURL(std::vector<std::string> &tokens)
 		throw Parser::InvalidLineConfException("{ is Missing after Location URL!'");
 
 	// add the URL to the location block after removing any trailing '/'
-    this->url.push_back( std::regex_replace( tokens[0], std::regex("/+$"), "") );
-
+    this->url = tokens[0];
     // erase the processed URL token and {
      tokens.erase(tokens.begin(), tokens.begin() + 1);
+}
+
+void Location::ValidateRedirection(std::vector<std::string>& tokens)
+{
+    if (tokens.size() < 5)
+    {
+        throw Parser::InvalidLineConfException("Riderection token is missing!");
+    }
+    if (tokens[1] != "from")
+    {
+        throw Parser::InvalidLineConfException("Token 'from' for redirection is missing!");
+    }
+    if (tokens[3] != "to")
+    {
+        throw Parser::InvalidLineConfException("Token 'to' for redirection is missing!");
+    }
+
+    this->_redir_page[tokens[2]] = tokens[4];
+    this->_redirectstate = true;
+    tokens.erase(tokens.begin(), tokens.begin() + 5);
 }
 
 void    Location::ValidateAutoIndex(std::vector<std::string> &tokens)
@@ -82,7 +101,6 @@ void Location::Validate_AllowMethods(std::vector<std::string>& tokens) {
             }
             break;
         }
-
         if (tokens[i] == "GET") {
             allow_methods.push_back("GET");
         }
@@ -136,9 +154,9 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
 		tokens.erase(tokens.begin(), tokens.begin() + 1); // erase ;
 		return;
 	}
-  	if (!((tokens[0] == "/index.html" && tokens[1] == ";") || (tokens[0] == "/" && tokens[1] == ";"))) {
-        throw Parser::InvalidLineConfException("The Index must be '/index.html' or '/' followed by ';'");
-	}
+  	// if (!((tokens[0] == "/index.html" && tokens[1] == ";") || (tokens[0] == "/" && tokens[1] == ";"))) {
+    //     throw Parser::InvalidLineConfException("The Index must be '/index.html' or '/' followed by ';'");
+	// }
 	if (tokens[0] == "/" && tokens[1] == ";")
 		this->index = "/index.html";
 	else
@@ -297,7 +315,7 @@ void    Location::Validate_CGI(std::vector<std::string> &tokens)
     tokens.erase(tokens.begin(), tokens.begin() + 2);
 }
 
-std::vector<std::string>	Location::GetURL(void) const {
+std::string	Location::GetURL(void) const {
     return (this->url);
 }
 
@@ -305,26 +323,37 @@ bool    Location::GetAutoIndex(void) const {
     return (this->auto_index);
 }
 
+std::unordered_map<std::string, std::string> Location::GetRedirectPage()
+{
+    return (this->_redir_page);
+}
+
+bool Location::GetRedirectState()
+{
+    return(this->_redirectstate);
+}
+
 std::vector<std::string> Location::Get_AllowMethods() const {
-    std::vector<std::string> methods_as_string;
-    for (const auto& method : allow_methods) {
-            if (method == "GET")
-            {
-                methods_as_string.push_back("GET");
-                break;
-            }
-            if (method == "POST")
-            {
-                methods_as_string.push_back("POST");
-                break;
-            }
-            if (method == "DELETE")
-            {
-                methods_as_string.push_back("DELETE");
-                break;
-            }
-    }
-    return methods_as_string;
+    // std::vector<std::string> methods_as_string;
+    // for (const auto& method : allow_methods) {
+    //         if (method == "GET")
+    //         {
+    //             methods_as_string.push_back("GET");
+    //             break;
+    //         }
+    //         if (method == "POST")
+    //         {
+    //             methods_as_string.push_back("POST");
+    //             break;
+    //         }
+    //         if (method == "DELETE")
+    //         {
+    //             methods_as_string.push_back("DELETE");
+    //             break;
+    //         }
+    // }
+    // return methods_as_string;
+    return (this->allow_methods);
 }
 
 std::string Location::GetIndex(void) const {

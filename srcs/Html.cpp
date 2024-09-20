@@ -1,10 +1,10 @@
 #include "../includes/Server.hpp"
 
-std::string Server::GetHardCPathCode(int code)
+std::string Server::GetHardCPathCode(int code, Client *client)
 {
 	logger("GETTING HARDCODED PATH TO ERRORFILE!");
-	this->_statuscode = code;
-	this->_isstatuscode = true;
+	client->SetStatusCode(code);
+	client->SetStatusCodeState(true);
 	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
 	while (it != this->_hcerr_page.end())
 	{
@@ -24,10 +24,10 @@ std::string Server::GetHardCPathCode(int code)
 	return (it->second);
 }
 
-int Server::GetHardCCode(std::string path)
+int Server::GetHardCCode(std::string path, Client *client)
 {
 	logger("GETTING HARDCODED CODE TO ERRORFILE!");
-	this->_isstatuscode = true;
+	client->SetStatusCodeState(true);
 	std::unordered_map<int, std::string>::iterator it = this->_hcerr_page.begin();
 	while (it != this->_hcerr_page.end())
 	{
@@ -77,14 +77,13 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 	if (begin == path.end())
 	{
 		logger("Invalid path to errorpage! Sending 404!\n");
-		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+		return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 	}
 	auto end = begin;
 	while (std::isdigit(*end))
 		end++;
 	std::string strcode(begin, end);
 	int code = std::stoi(strcode);
-	std::cout << "CODE = " << code << std::endl;
 
 	std::unordered_map<int, std::string>::iterator iterr = client->GetErrorpageBegin();
 	while (iterr != client->GetErrorpageEnd() && iterr->first != code)
@@ -92,7 +91,7 @@ std::string Server::GetSatusCodeFile(std::string path, Client *client)
 	if (iterr == client->GetErrorpageEnd())
 	{
 		logger("Error page not found! Sending 404!\n");
-		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+		return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 	}
 	
 	std::string statuscode = client->GetRoot() + iterr->second;
@@ -105,19 +104,19 @@ std::string Server::HtmlToString(std::string path, Client *client)
 	if (access(path.c_str(), F_OK) == -1)
 	{
 		std::cout << "Path: " << path << " doens't exist, sending 404!" << std::endl;
-		return (this->HtmlToString(this->GetHardCPathCode(404), client));
+		return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 	}
 	if (access(path.c_str(), R_OK) == -1)
 	{
 		std::cout << "Path: " << path << " has no reading rights, sending 403!" << std::endl;
-		return (this->HtmlToString(this->GetHardCPathCode(403), client));
+		return (this->HtmlToString(this->GetHardCPathCode(403, client), client));
 	}
 	
 	std::ifstream file(path, std::ios::binary);
 	if (!file.good())
 	{
 		std::cout << "Failed to read file! Sending 500!\n" << std::endl;
-		return (this->HtmlToString(this->GetHardCPathCode(500), client));
+		return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();

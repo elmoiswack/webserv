@@ -171,6 +171,8 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
         // Parse the instruction
         if (tokens[0] == "allow_methods")
             newLocation.Validate_AllowMethods(tokens);
+        else if (tokens[0] == "redirection")
+            newLocation.ValidateRedirection(tokens);
         else if (tokens[0] == "autoindex")
             newLocation.ValidateAutoIndex(tokens);
         else if (tokens[0] == "index")

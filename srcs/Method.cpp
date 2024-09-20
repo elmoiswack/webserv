@@ -7,26 +7,79 @@
 std::string Server::WhichMethod(Client *client, std::vector<char>::iterator itfirst)
 {
 	std::string method = client->GetCurrentMethod();
+	std::string path = this->GetPath(itfirst);
+
+	std::cout << "METHOD = " << method << std::endl;
+	std::cout << "PATH = " << path << std::endl;
+
+	auto it = this->GetLocationBlock(client, path);
+	if (it == client->GetLocationblockEnd())
+		return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
+	
+	std::cout << "LOCATION BLOCK NAME = " << it->GetURL() << std::endl;
+	this->SetClientVars(client, it);
+	
 	if (method == "GET")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		return (this->MethodGet(itfirst, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405, client), client));
+		return (this->MethodGet(path, client));
 	}
 	else if (method == "POST")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		return (this->MethodPost(itfirst, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405, client), client));
+		return (this->MethodPost(path, client));
 	}
 	else if (method == "DELETE")
 	{
 		if (this->IsMethodAllowed(method, client) == -1)
-			return (this->HtmlToString(this->GetHardCPathCode(405), client));
-		return (this->MethodDelete(itfirst, client));
+			return (this->HtmlToString(this->GetHardCPathCode(405, client), client));
+		return (this->MethodDelete(path, client));
 	}
-	logger("\nCURRENT METHOD DOENS'T EXIST!\n");
-	return (this->HtmlToString(this->GetHardCPathCode(501), client));
+	logger("Current method isn't implemented!");
+	return (this->HtmlToString(this->GetHardCPathCode(501, client), client));
+}
+
+std::string Server::GetPath(std::vector<char>::iterator itfirst)
+{
+	while (std::isspace(*itfirst))
+		itfirst++;
+	std::vector<char>::iterator itend = itfirst;
+	while (!std::isspace(*itend))
+		itend++;
+	std::string path;
+	path.assign(itfirst, itend);
+	return (path);
+}
+
+void Server::SetClientVars(Client *client, std::vector<Location>::iterator it)
+{
+	client->SetMethodVec(it->Get_AllowMethods());
+	client->SetRoot(it->GetLocRoot());
+	client->SetIndex(it->GetIndex());
+	if (it->GetRedirectState() == true)
+	{
+		client->SetRedirectPage(it->GetRedirectPage());
+		client->SetRedirectState(it->GetRedirectState());
+	}
+	else
+		client->SetRedirectState(false);
+}
+
+std::vector<Location>::iterator Server::GetLocationBlock(Client *client, std::string path)
+{
+	auto it = client->GetLocationblockEnd();
+	it--;
+	while (it != client->GetLocationblockBegin())
+	{
+		if (path.find(it->GetURL()) != path.npos)
+			break;
+		it--;
+	}
+	if (path.find(it->GetURL()) != path.npos)
+		return (it);
+	return (client->GetLocationblockEnd());
 }
 
 int Server::IsMethodAllowed(std::string method, Client *client)
@@ -99,15 +152,8 @@ std::string Server::listDirectoryContents(const std::string &directoryPath) {
 	return (message_body);
 }
 
-std::string Server::MethodDelete(std::vector<char>::iterator itreq, Client *client)
+std::string Server::MethodDelete(std::string path, Client *client)
 {
-	while (std::isspace(*itreq))
-		itreq++;
-	std::vector<char>::iterator itend = itreq;
-	while (!std::isspace(*itend))
-		itend++;
-	std::string path;
-	path.assign(itreq, itend);
 	path.insert(0, "./var/www");
 	logger("PATH: " + path);
 
@@ -117,24 +163,15 @@ std::string Server::MethodDelete(std::vector<char>::iterator itreq, Client *clie
 		return (this->HtmlToString("./var/www/file_deleted.html", client));
 	}
 	logger("ERROR DELETING FILE!");
-	return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 }
 
-std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
+std::string Server::MethodGet(std::string path, Client *client)
 {
-	while (std::isspace(*itreq))
-		itreq++;
-	std::vector<char>::iterator itend = itreq;
-	while (!std::isspace(*itend))
-		itend++;
-	std::string path;
-	path.assign(itreq, itend);
-	std::cout << "Path = " << path << std::endl;
-
 	if (isCgi(path))
 	{
 		if (!Location::GetCGIstatus())
-			return (this->HtmlToString(this->GetHardCPathCode(500), client));
+			return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_cgi = new Cgi(client->GetCurrentMethod(), path, tmp);
@@ -163,17 +200,42 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 				return (this->listDirectoryContents(path));
 			}
 			else
-				return(this->HtmlToString(this->GetHardCPathCode(403), client));
+				return(this->HtmlToString(this->GetHardCPathCode(403, client), client));
 		}
 		if (itloc->GetAutoIndex() == false)
-			return (this->HtmlToString(this->GetHardCPathCode(403), client));
+			return (this->HtmlToString(this->GetHardCPathCode(403, client), client));
 	}
-	else if (path == "/" || path == itloc->GetIndex())
-		return (this->HtmlToString(client->GetRoot() + itloc->GetIndex(), client));
+	auto pathend = path.back();
+	if (pathend == '/' || path == client->GetIndex())
+		return (this->HtmlToString(client->GetRoot() + client->GetIndex(), client));
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path, client));
+	else if (client->GetRedirectState() == true)
+	{
+		auto page = client->GetRedirectPage();
+		std::unordered_map<std::string, std::string>::iterator it = page.begin();
+		while (it != page.end())
+		{
+			if (it->first == path)
+			{
+				std::string html = this->HtmlToString(this->GetHardCPathCode(301, client), client);
+				auto index = html.find("<p>");
+				if (index == html.npos)
+					return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
+				index += 3;
+				std::string bla = "<a href=" + it->second + ">Go to redirection page</a>";
+				html.insert(index, bla);
+				return (html);
+			}
+			else if (it->second == path)
+			{
+				return (this->HtmlToString(client->GetRoot() + path, client));
+			}
+			it++;
+		}
+	}
 	logger("Path not found, sending 404!");
-	return (this->HtmlToString(this->GetHardCPathCode(404), client));
+	return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 }
 
 std::string Server::ExtractBoundary(const std::string &content) {
@@ -279,21 +341,12 @@ std::string Server::ParsePost(const std::string &content) {
     return post_data;
 }
 
-std::string Server::MethodPost(std::vector<char>::iterator itreq, Client *client)
+std::string Server::MethodPost(std::string path, Client *client)
 {
-	while (std::isspace(*itreq))
-		itreq++;
-	std::vector<char>::iterator itend = itreq;
-	while (!std::isspace(*itend))
-		itend++;
-	std::string path;
-	path.assign(itreq, itend);
-	logger(path);
-
 	if (isCgi(path))
 	{
 		if (!Location::GetCGIstatus())
-			return (this->HtmlToString(this->GetHardCPathCode(500), client));
+			return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_post_data = ParsePost(tmp);
