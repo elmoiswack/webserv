@@ -54,8 +54,9 @@ class Cgi
 		std::string					extractContentLength(const std::string &req);
 		// std::string					readCgiResponse(int fd);
 		// void 						writeToCgi(int fd);
-		std::string					runCgi(const std::string &cgi_path, Server *self);
-		// void						runCgi(const std::string &cgi_path, Server *self);
+		// std::string					runCgi(const std::string &cgi_path, Server *self);
+		bool						runCgi(const std::string &cgi_path, Server *self);
+		
 		std::vector<std::string>	initCgiEnvVars(const std::string &client_resp, const std::string &url);
 		std::vector<char *>  		initCgiEnvVarsCstyle();
 		void						setPostData(const std::string &post_data);

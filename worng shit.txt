@@ -4,7 +4,7 @@ curl -X PUT 127.0.0.1:8001 // check
 - rules for location are separate 
 - not responding to non implemented methods 
 - only 1 i/o per poll() // check
-- exit() is not the smoothest way to handle an error 
-- when cgi child exists with non zero value, seg fault 
+- exit() is not the smoothest way to handle an error !!
+- when cgi child exists with non zero value, seg fault !!
 - you dont respond to post without a boundary (curl localhost:8001 -X POST -H "Content-Type: plain/text" --data "BODY IS HERE write something shorter or longer than body limit") 
 - you should implement redirections :) 

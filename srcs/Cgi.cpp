@@ -223,39 +223,44 @@ bool Cgi::waitForChild() const
         if (result == 0)
 		{
             // Child is still running, continue loop (non-blocking)
-            usleep(100000); // Sleep for 100ms (non-blocking)
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
+		else if (result == -1)
+            return false;
 		if (result == this->_pid)
 		{
+			int exit_status = WEXITSTATUS(exit_code);
             // Child process finished
-            if (WIFEXITED(exit_code))
+            if (exit_status == 0)
 			{
-                std::cout << "CGI script exited with status: " << WEXITSTATUS(exit_code) << std::endl;
+                std::cout << "CGI script exited successfully" << std::endl;
 				return true;
 			}
-			else if (WIFSIGNALED(exit_code))
+			else
 			{
-                std::cout << "CGI script killed by signal: " << WTERMSIG(exit_code) << std::endl;
+                std::cout << "Child process exited with error code: " << exit_code << std::endl;
             	return false;
 			}
         }
-		else
+		else if (WIFSIGNALED(exit_code))
 		{
-            perror("waitpid");
-            return false;
-        }
+	        std::cout << "Child process was terminated by a signal: " << WTERMSIG(exit_code) << std::endl;
+			return (false);
+		}
+
 	}    
 }
 
-std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
+bool Cgi::runCgi(const std::string &cgi_path, Server *server)
 {
 	(void)server;
+	(void)cgi_path;
 	pid_t pid = fork();
 	if (pid == -1)
 	{
 		std::cout << "ERROR CREATING CHILD PROCESS\n";
-		exit(EXIT_FAILURE);
+		return (false);
 	}
 	else if (pid == 0) // Child process
 	{
@@ -263,10 +268,14 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 		dup2(_responsePipe[1], STDOUT_FILENO); // Redirect cgi stdout to write end of response pipe
 		close(_uploadPipe[1]);				   // Close write end of upload pipe
 		dup2(_uploadPipe[0], STDIN_FILENO);	   // Redirect cgi stdin to read end of upload pipe
+		// char *args[] = { NULL };
+		// char *env[] = { NULL };
+		// if (execve("/invalid/path", args, env) == -1)
 		const char *args[] = {cgi_path.c_str(), NULL};
 		if (execve(cgi_path.c_str(), const_cast<char **>(args), _cgiEnvVarsCstyle.data()) == -1)
 		{
-			std::cout << "ERROR EXECUTING CGI SCRIPT\n";
+			close(_uploadPipe[0]);
+			std::cout << "ERROR EXECUTING CGI SCRIPT\n" << std::flush;
 			std::exit(EXIT_FAILURE);
 		}
 	}
@@ -275,7 +284,7 @@ std::string Cgi::runCgi(const std::string &cgi_path, Server *server)
 		this->_pid = pid;
 		close(_responsePipe[1]);
 	}
-	return ("");
+	return (true);
 }
 
 void Cgi::_initPipes()

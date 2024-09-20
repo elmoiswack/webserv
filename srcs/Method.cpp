@@ -138,14 +138,28 @@ std::string Server::MethodGet(std::vector<char>::iterator itreq, Client *client)
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_cgi = new Cgi(client->GetCurrentMethod(), path, tmp);
-		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
 			client->ClearResponse();
 		std::string cgi_path = _cgi->constructCgiPath(path);
 		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
 		this->setStartTime(cgiStartTime);
-		client->SetResponse(_cgi->runCgi(cgi_path, this));
+		// client->SetResponse(_cgi->runCgi(cgi_path, this));
+		if (!_cgi->runCgi(cgi_path, this))
+		{
+			std::string html = this->HtmlToString(this->GetHardCPathCode(500), client);
+			this->_cgi_donereading = true;
+			std::string code = std::to_string(this->_statuscode);
+			std::string message = this->WhichMessageCode(std::stoi(code));
+			client->SetResponse( 
+			"HTTP/1.1 " + code + " " + message + "\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(html.length()) + "\r\n"
+			"\r\n"
+			+ html);
+			return (client->GetResponse());
+		}
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
 		this->_cgi_running = true;
 		return (client->GetResponse());
 	}
@@ -298,15 +312,28 @@ std::string Server::MethodPost(std::vector<char>::iterator itreq, Client *client
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_post_data = ParsePost(tmp);
 		this->_cgi = new Cgi(client->GetCurrentMethod(), this->_post_data, path, tmp);	
-		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
-		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
 			client->ClearResponse();
 		std::string cgi_path = _cgi->constructCgiPath(path);
 		std::chrono::time_point<std::chrono::steady_clock> cgiStartTime = std::chrono::steady_clock::now();
 		this->setStartTime(cgiStartTime);
-		_cgi->runCgi(cgi_path, this);
+		if (!_cgi->runCgi(cgi_path, this))
+		{
+			std::string html = this->HtmlToString(this->GetHardCPathCode(500), client);
+			this->_cgi_donereading = true;
+			std::string code = std::to_string(this->_statuscode);
+			std::string message = this->WhichMessageCode(std::stoi(code));
+			client->SetResponse( 
+			"HTTP/1.1 " + code + " " + message + "\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(html.length()) + "\r\n"
+			"\r\n"
+			+ html);
+			return (client->GetResponse());
+		}
+		this->AddSocket(_cgi->getReadEndResponsePipe(), std::string("CGI_READ"));
+		this->AddSocket(_cgi->getWriteEndUploadPipe(), std::string("CGI_WRITE"));
 		this->_cgi_running = true;
 		return (client->GetResponse());
 	}
