@@ -35,26 +35,6 @@ void    Location::ValidateLocationURL(std::vector<std::string> &tokens)
      tokens.erase(tokens.begin(), tokens.begin() + 1);
 }
 
-void Location::ValidateRedirection(std::vector<std::string>& tokens)
-{
-    if (tokens.size() < 5)
-    {
-        throw Parser::InvalidLineConfException("Riderection token is missing!");
-    }
-    if (tokens[1] != "from")
-    {
-        throw Parser::InvalidLineConfException("Token 'from' for redirection is missing!");
-    }
-    if (tokens[3] != "to")
-    {
-        throw Parser::InvalidLineConfException("Token 'to' for redirection is missing!");
-    }
-
-    this->_redir_page[tokens[2]] = tokens[4];
-    this->_redirectstate = true;
-    tokens.erase(tokens.begin(), tokens.begin() + 5);
-}
-
 void    Location::ValidateAutoIndex(std::vector<std::string> &tokens)
 {
 
@@ -170,22 +150,19 @@ void    Location::ValidateReturn(std::vector<std::string> &tokens) {
     if ( tokens.size() == 1) {
         throw Parser::InvalidLineConfException("The redirection html is Missing!'");
 	}
-
 	// erase return token
        tokens.erase(tokens.begin(), tokens.begin());
-
 	if (tokens[0] == ";") {
 		throw Parser::InvalidLineConfException("The redirection html is Missing!");
 	}
 
-	if (tokens[2] != ";") {
+	if (tokens[3] != ";") {
 		throw Parser::InvalidLineConfException("The ; is Missing!");
 	}
-
-	this->returnredirect = tokens[0];
-
+    this->returnredirectcode = tokens[1];
+	this->returnredirect = tokens[2];
     // erase return and ;
-    tokens.erase(tokens.begin(), tokens.begin() + 3);
+    tokens.erase(tokens.begin(), tokens.begin() + 4);
 }
 
 void    Location::ValidateAlias(std::vector<std::string> &tokens)
@@ -323,16 +300,6 @@ bool    Location::GetAutoIndex(void) const {
     return (this->auto_index);
 }
 
-std::unordered_map<std::string, std::string> Location::GetRedirectPage()
-{
-    return (this->_redir_page);
-}
-
-bool Location::GetRedirectState()
-{
-    return(this->_redirectstate);
-}
-
 std::vector<std::string> Location::Get_AllowMethods() const {
     // std::vector<std::string> methods_as_string;
     // for (const auto& method : allow_methods) {
@@ -364,8 +331,13 @@ std::string Location::GetAlias(void) const {
     return (this->alias);
 }
 
-std::string Location::GetReturnRedirect(void) const {
+std::string Location::GetReturnRedirect(void) {
     return (this->returnredirect);
+}
+
+std::string Location::GetReturnRedirectCode(void)
+{
+    return (this->returnredirectcode);
 }
 
 std::vector<std::string> Location::GetCGIparam(void) const {

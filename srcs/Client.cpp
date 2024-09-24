@@ -18,12 +18,13 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 	this->_contentlenght = 0;
 	this->_id = 0;
 	this->_method = "EMPTY";
-	
+
 	//get from location
 	this->_root = "";
 	this->_allow_methods.clear();
-	this->_redir_page.clear();
-	this->_redirectstate = false;
+	this->_returncode = "";
+	this->_returnstring = "";
+	this->_returnstate = false;
 	this->_index = "";
 	
 	std::cout << "CLIENT CREATED AND VARS SET!" << std::endl;
@@ -222,24 +223,44 @@ bool Client::GetStatusCodeState()
 	return (this->_isstatuscode);
 }
 
-void Client::SetRedirectPage(std::unordered_map<std::string, std::string> pages)
+void Client::SetAutoindex(bool state)
 {
-	this->_redir_page = pages;
+	this->_autoindex = state;
 }
 
-void Client::SetRedirectState(bool state)
+bool Client::GetAutoindex()
 {
-	this->_redirectstate = state;
+	return (this->_autoindex);
 }
 
-std::unordered_map<std::string, std::string> Client::GetRedirectPage()
+void Client::SetReturnState(bool state)
 {
-	return (this->_redir_page);
+	this->_returnstate = state;
 }
 
-bool Client::GetRedirectState()
+bool Client::GetReturnstate()
 {
-	return (this->_redirectstate);
+	return (this->_returnstate);
+}
+
+void Client::Setreturn(std::string path)
+{
+	this->_returnstring = path;
+}
+
+std::string Client::GetReturn()
+{
+	return (this->_returnstring);
+}
+
+void Client::SetReturnCode(std::string code)
+{
+	this->_returncode = code;
+}
+
+std::string Client::GetReturnCode()
+{
+	return (this->_returncode);
 }
 
 std::ostream& operator<<(std::ostream &out, Client *in)

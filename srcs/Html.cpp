@@ -49,6 +49,10 @@ std::string Server::WhichMessageCode(int code)
 	{
 		case 204:
 			return ("No Content");
+		case 301:
+			return ("Moved Permanently");
+		case 307:
+			return ("Temporary Redirect");
 		case 400:
 			return ("Bad Request");
 		case 403:

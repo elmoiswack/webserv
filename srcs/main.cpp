@@ -43,7 +43,7 @@ void runTests(const Parser& parser) {
    			}
     		std::cout << std::endl;
             std::cout << "Index: " << location.GetIndex() << std::endl;
-            std::cout << "Return Redirect: " << location.GetReturnRedirect() << std::endl;
+           // std::cout << "Return Redirect: " << location.GetReturnRedirect() << std::endl;
             std::cout << "Alias: " << location.GetAlias() << std::endl;
             std::cout << "CGI Pass: " << location.GetCGIpass() << std::endl;
             std::cout << "CGI Index: " << location.GetCGIindex() << std::endl;

@@ -15,12 +15,13 @@ void Server::WriteToClient(int fd, Client *client)
 		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
 		"\r\n"
 		+ errfile;
-		if (write(fd, response.c_str(), response.size()) == -1)
-			throw(Server::WriteErrorException());
+		client->ClearResponse();
+		client->SetResponse(response);
+		return ;
 	}
-	logger("response is sent to fd, closing fd!");
-	close(fd);
+	logger("response is sent to fd!");
 	client->ClearResponse();
+	client->SetResponse("EMPTY");
 	client->SetDonereading(false);
 	client->SetCurrentMethod("EMPTY");
 	client->SetStatusCode(0);
@@ -47,6 +48,21 @@ void Server::BuildResponse(Client *client)
 
 			client->ClearRequest();
 			client->SetResponse(response);
+		}
+		else if (client->GetReturnstate() == true)
+		{
+			std::string code = client->GetReturnCode();
+			std::string message = this->WhichMessageCode(std::stoi(code));
+			response = 
+			"HTTP/1.1 " + code + " " + message + "\r\n"
+			"Location: " + client->GetReturn() + "\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+			"\r\n"
+			+ htmlfile;		
+
+			client->ClearRequest();
+			client->SetResponse(response);	
 		}
 		else 
 		{

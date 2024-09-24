@@ -80,8 +80,17 @@ long Server::GetContentLenght(std::string buff)
 		return (-2);
 	
 	begin = buff.find("Priority:", 0);
-	while (buff[begin] && buff[begin] != '-')
-		begin++;
+	if ((std::size_t)begin == buff.npos)
+	{
+		begin = buff.find_last_of("\r\n");
+		if ((std::size_t)begin == buff.npos)
+			return (-1);
+	}
+	else
+	{
+		while (buff[begin] && buff[begin] != '-')
+			begin++;
+	}
 	numb = buff.substr(0, begin);
 	std::string strhead = std::to_string(numb.size());
 	long head = std::stol(strhead);
@@ -103,7 +112,6 @@ std::string Server::WhichMethod(std::string buff)
 void Server::IsDoneRead(Client *client)
 {
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
-	
 	if (client->GetCurrentMethod() == "EMPTY")
 	{
 		if (client->GetRequestSize() > 10)
@@ -135,7 +143,7 @@ void Server::IsDoneRead(Client *client)
 				this->_isbody = true;
 				client->SetContentLenght(this->GetContentLenght(tmp));
 			}
-			if (this->_isbody == true && client->GetRequestSize() == (ssize_t)client->GetContentLenght())
+			if (this->_isbody == true && client->GetRequestSize() >= (ssize_t)client->GetContentLenght())
 			{
 				client->SetDonereading(true);
 				client->PushToRequest('\0');

@@ -158,6 +158,11 @@ void Server::PollEvents()
 		if (this->_whatsockvec[index] == "CLIENT")
 		{
 			auto it = this->GetClient(index);
+			if (it == this->_clientvec.end())
+			{
+				std::cout << "ERROR GetClient" << std::endl;
+				throw(Server::ClientErrorException());
+			}
 			client = *it;
 		}
 		if (!(temp.revents & POLLIN) && this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CLIENT" && !this->checkCgiTimer(temp, index))
@@ -211,7 +216,6 @@ void Server::PollEvents()
 			else if (this->_whatsockvec[index] == "CGI_READ")
 			{
 				logger("\n--CGI POLLIN\n");
-				std::cout << client << std::endl;
 				if (this->_cgi_donereading == false)
 					client->SetResponse(this->readCgiResponse(temp.fd, index, client->Getrecvmax(), client));
 			}
@@ -223,16 +227,12 @@ void Server::PollEvents()
 				logger("--CGI POLLOUT\n");
 				this->writeToCgi(temp.fd, index);
 			}
-			// else if (client->GetStatusCodeState() == true)
-			// {
-			// 	this->WriteToClient(temp.fd, client);
-			// 	this->DeleteClient(index, temp.fd);
-			// }
 			else if (client->GetDonereading() == true && client->GetResponseSize() > 0)
 			{
 				this->WriteToClient(temp.fd, client);
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
-				this->DeleteClient(index, temp.fd);
+				if (client->GetResponse() == "EMPTY")
+					this->DeleteClient(index, temp.fd);
 			}
 		}
 		else if (temp.revents & POLLHUP)
@@ -437,6 +437,11 @@ const char *Server::WriteErrorException::what() const throw()
 	return ("function write failed for the second time! Shutting down server!");
 }
 
+const char *Server::ClientErrorException::what() const throw()
+{
+	return ("failed to get the clients. Shutting down server!");
+}
+
 void Server::writeToCgi(int fd, int index) 
 {
     close(this->_cgi->getReadEndUploadPipe());
@@ -550,7 +555,7 @@ bool Server::checkCgiTimer(pollfd temp, int index)
 	return true;
 }
 
-void Server::setStartTime (std::chrono::time_point<std::chrono::steady_clock> start)
+void Server::setStartTime(std::chrono::time_point<std::chrono::steady_clock> start)
 {
 	this->_start = start;
 }

@@ -12,8 +12,6 @@ private:
 	std::vector<Location> _locationblocks;
 	int		_recvmax;
 	std::unordered_map<int, std::string> _error_page;
-	std::unordered_map<std::string, std::string> _redir_page;
-	bool 										_redirectstate;
 	std::string		_root;
 	std::string 	_index;
 	std::vector<std::string> _allow_methods;
@@ -23,9 +21,14 @@ private:
 	std::vector<char> _request;
 	std::string _response;
 	std::string _method;
+	std::string _returnstring;
+	std::string _returncode;
+	bool		_autoindex;
 	bool 		_donereading;
 	bool		_isstatuscode;
+	bool		_returnstate;
 	int			_code;
+
 
 public:
 	Client();
@@ -33,9 +36,12 @@ public:
 	~Client();
 
 	int GetListensock();
+	
 	std::vector<Location>::iterator GetLocationblockBegin();
 	std::vector<Location>::iterator GetLocationblockEnd();
+	
 	int Getrecvmax();
+	
 	std::unordered_map<int, std::string>::iterator GetErrorpageBegin();
 	std::unordered_map<int, std::string>::iterator GetErrorpageEnd();
 	
@@ -48,10 +54,14 @@ public:
 	void SetMethodVec(std::vector<std::string> methods);
 	std::vector<std::string>::iterator GetMethodsBegin();
 	std::vector<std::string>::iterator GetMethodsEnd();
+	
 	void SetContentLenght(long contentlen);
 	long GetContentLenght();
+	
 	std::string GetServerName();
+	
 	std::string GetPort();
+	
 	int GetId();
 	void SetId(int id);
 
@@ -78,12 +88,16 @@ public:
 	
 	int GetStatusCode();
 	bool GetStatusCodeState();
-	
-	void SetRedirectPage(std::unordered_map<std::string, std::string> pages);
-	void SetRedirectState(bool redirect);
-	std::unordered_map<std::string, std::string> GetRedirectPage();
-	bool GetRedirectState();
 
+	void SetAutoindex(bool state);
+	bool GetAutoindex();
+
+	void SetReturnState(bool state);
+	bool GetReturnstate();
+	void SetReturnCode(std::string code);
+	std::string GetReturnCode();
+	void Setreturn(std::string path);
+	std::string GetReturn();
 
 };
 

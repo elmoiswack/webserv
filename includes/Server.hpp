@@ -85,133 +85,129 @@ private:
 
 	// std::unique_ptr<Cgi> _current_cgi;
 public:
+	//SERVER.CPP
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,
            const std::string& client_max, const std::string& root, const std::unordered_map<int, std::string>& error_page, const std::string& serverindex, int allow_methods);
     Server(Parser &in);
 	~Server();
 
+	//VALIDATE.CPP
+	void ValidateListen(std::vector<std::string>& tokens);
+	void ValidatePort(std::vector<std::string>& tokens);
+	void ValidateServerName(std::vector<std::string>& tokens);
+	void ValidateClientMaxBodySize(std::vector<std::string>& tokens);
+	void ValidateRoot(std::vector<std::string>& tokens);
+	void ValidateErrorPage(std::vector<std::string>& tokens);
+	void ValidateServerIndex(std::vector<std::string> &tokens);
+	void ValidateAllowMethods(std::vector<std::string>& tokens);
 	std::string GetMethod() const;
-	std::string GetPort() const;
-    std::string GetIp() const;
-    std::string GetServName() const;
-    std::string GetClientMax() const;
-    std::string GetRoot() const;
-	std::unordered_map<int, std::string> GetErrorPage() const;
+	std::string GetIp() const;
+	std::string GetPort() const;	
+	std::string GetServName() const;
+	std::string GetClientMax() const;
+	std::string GetRoot() const;
 	std::string GetServerIndex() const;
 	std::vector<std::string> GetServerNames() const;
-	std::vector<std::string> GetAllowMethods() const; 
+	std::vector<std::string> GetAllowMethods() const;
+	std::vector<Location> GetLocations() const;
+	std::unordered_map<int, std::string> GetErrorPage() const;
 
-	void   ValidateListen(std::vector<std::string>& tokens);
-	void   ValidatePort(std::vector<std::string>& tokens);
-	void   ValidateServerName(std::vector<std::string>& tokens);
-	void   ValidateClientMaxBodySize(std::vector<std::string>& tokens);
-	void   ValidateRoot(std::vector<std::string>& tokens);
-	void   ValidateErrorPage(std::vector<std::string>& tokens);
-	void   ValidateServerIndex(std::vector<std::string> &tokens);
-	void   ValidateAllowMethods(std::vector<std::string>& tokens);
-
+	//PARSER.CPP
 	void ParseLocationBlock(std::vector<std::string>& tokens);
 
-	std::vector<Location> GetLocations() const;
 
 	///SERVER.CPP
+	void InitHardcodedError();
 	void SetUpServer();
 	void InitSocket(std::vector<Server>::iterator it);
 	void BindSockets(std::vector<Server>::iterator it, int index);
 	void ListenSockets(int index);
-
 	void RunPoll();
 	void PollEvents();
-	
 	void AcceptClient(int index);
-	void DeleteClient(int index, int fd);
 	void AddSocket(int fd, bool is_client);
 	void AddSocket(int fd, const std::string& type);
+	void InitClient(int socket, std::vector<Server>::iterator serverblock);
+	void DeleteClient(int index, int fd);
 	void RmvSocket(int index);
 	void CloseAllFds();
-	std::string ExtractBoundary(const std::string &content);
-	std::string ParsePost(const std::string &content);
-	std::vector<char> ParsePostV(const std::string &content);
-	// void checkCgiTimer(pollfd temp, int index);
-	bool checkCgiTimer(pollfd temp, int index);
-	void setStartTime (std::chrono::time_point<std::chrono::steady_clock> start);
-	
-	
-	///REQUEST.CPP
-	void EventsPollin(int fd, Client *client);
-	int  RecieveMessage(int fd, Client *client);
-	std::string ParseRequest(Client *client);
-	std::string MethodGet(std::string path, Client *client);
-	std::string MethodPost(std::string path,Client *client);
-	std::string HtmlToString(std::string path, Client *client);
-	std::string GetSatusCodeFile(std::string code, Client *client);
-	long	GetContentLenght(std::string buff);
-	void InitRequest(int fd, Client *client);
-	void BuildResponse(Client *client);
-	void IsDoneRead(Client *client);
-	std::string WhichMethod(std::string);
-	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
-	std::string GetPath(std::vector<char>::iterator itfirst);
-	std::string MethodDelete(std::string path, Client *client);
-
-	std::vector<Location>::iterator GetLocationBlock(Client *client, std::string path);
-	void SetClientVars(Client *client, std::vector<Location>::iterator it);
-	///RESPONSE.CPP
-	void WriteToClient(int fd, Client *client);
-
-	std::string GetHost(std::string tmp);
-	void InitHardcodedError();
-	std::string GetHardCPathCode(int code, Client *client);
-	int  GetHardCCode(std::string path, Client *client);
-	std::string WhichMessageCode(int code);
-	void InitClient(int socket, std::vector<Server>::iterator serverblock);
-	int IsMethodAllowed(std::string method, Client *client);
 	void writeToCgi(int fd, int index);
-	std::string	readCgiResponse(int fd, int index, int recvmax, Client *client);
-
-	std::string listDirectoryContents(const std::string &directoryPath);
-
+	void setStartTime(std::chrono::time_point<std::chrono::steady_clock> start);
+	bool checkCgiTimer(pollfd temp, int index);
 	std::vector<Client*>::iterator GetClient(int index);
-
+	std::string readCgiResponse(int fd, int index, int recvmax, Client *client);
 	class BindErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class InitErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class ListenErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class PollErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class AcceptErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class FcntlErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class ServerblockErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
-
 	class WriteErrorException : public std::exception
 	{
 		const char *what() const throw();
 	};
+	class ClientErrorException : public std::exception
+	{
+		const char *what() const throw();
+	};
+
+	//REQUEST.CPP
+	void EventsPollin(int fd, Client *client);
+	void InitRequest(int fd, Client *client);
+	void IsDoneRead(Client *client);
+	int RecieveMessage(int fd, Client *client);
+	long GetContentLenght(std::string buff);
+	std::string WhichMethod(std::string buff);
+	std::string GetHost(std::string tmp);
+	std::string ParseRequest(Client *client);
+
+	//RESPONSE.CPP
+	void WriteToClient(int fd, Client *client);
+	void BuildResponse(Client *client);
+
+	//METHOD.CPP
+	void SetClientVars(Client *client, std::vector<Location>::iterator it);
+	int IsMethodAllowed(std::string method, Client *client);
+	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
+	std::string GetPath(std::vector<char>::iterator itfirst);
+	std::string listDirectoryContents(const std::string &directoryPath);
+	std::string MethodDelete(std::string path, Client *client);
+	std::string MethodGet(std::string path, Client *client);
+	std::string GetAutoindex(std::string path, Client *client);
+	std::string ExtractBoundary(const std::string &content);
+	std::string ParsePost(const std::string &content);
+	std::string MethodPost(std::string path, Client *client);
+	std::vector<char> ParsePostV(const std::string &content);
+	std::vector<Location>::iterator GetLocationBlock(Client *client, std::string path);
+
+	//HTML.CPP
+	int GetHardCCode(std::string path, Client *client);
+	std::string GetHardCPathCode(int code, Client *client);
+	std::string WhichMessageCode(int code);
+	std::string GetSatusCodeFile(std::string path, Client *client);
+	std::string HtmlToString(std::string path, Client *client);
 };
 
 void logger(std::string input);

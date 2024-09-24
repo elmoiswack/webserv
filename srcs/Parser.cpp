@@ -72,7 +72,7 @@ void Parser::ProcessConfigData(std::string &configString)
     configString = std::regex_replace(configString, std::regex(" +\\n|\\n +"), "\n");
 
     // delete all single-line comments, also inline (# and //)
-    configString = std::regex_replace(configString, std::regex(R"((//.*|#.*))"), "");
+    configString = std::regex_replace(configString, std::regex(R"((#.*))"), "");
 
     // delete all multi-line comments (/* ... */)
     configString = std::regex_replace(configString, std::regex(R"(/\*[\s\S]*?\*/)"), "");
@@ -169,10 +169,9 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
             throw std::runtime_error("Invalid Location block in config file");
 
         // Parse the instruction
+        std::cout << "CURRENT = " << tokens[0] << std::endl;
         if (tokens[0] == "allow_methods")
             newLocation.Validate_AllowMethods(tokens);
-        else if (tokens[0] == "redirection")
-            newLocation.ValidateRedirection(tokens);
         else if (tokens[0] == "autoindex")
             newLocation.ValidateAutoIndex(tokens);
         else if (tokens[0] == "index")
