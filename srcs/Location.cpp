@@ -147,6 +147,8 @@ void    Location::ValidateIndex(std::vector<std::string> &tokens)
 }
 
 void    Location::ValidateReturn(std::vector<std::string> &tokens) {
+    if (this->returnredirect.size() > 0)
+        throw Parser::InvalidLineConfException("HAHAHAHAHAHAHAHAHA");
     if ( tokens.size() == 1) {
         throw Parser::InvalidLineConfException("The redirection html is Missing!'");
 	}
