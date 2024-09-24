@@ -43,6 +43,16 @@ Client::~Client()
 	std::cout << "client is about to get deleted!" << std::endl;
 }
 
+void Client::SetLocationName(std::string name)
+{
+	this->_locationname = name;
+}
+
+std::string Client::GetLocationName()
+{
+	return (this->_locationname);
+}
+
 int Client::GetListensock()
 {
 	return (this->_listensocket);

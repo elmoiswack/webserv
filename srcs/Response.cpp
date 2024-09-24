@@ -59,7 +59,7 @@ void Server::BuildResponse(Client *client)
 			"Content-Type: text/html\r\n"
 			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
 			"\r\n"
-			+ htmlfile;		
+			+ htmlfile;
 
 			client->ClearRequest();
 			client->SetResponse(response);	

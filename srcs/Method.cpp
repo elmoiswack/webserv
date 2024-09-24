@@ -53,6 +53,7 @@ std::string Server::GetPath(std::vector<char>::iterator itfirst)
 
 void Server::SetClientVars(Client *client, std::vector<Location>::iterator it)
 {
+	client->SetLocationName(it->GetURL());
 	client->SetMethodVec(it->Get_AllowMethods());
 	client->SetAutoindex(it->GetAutoIndex());
 	client->SetRoot(it->GetLocRoot());
@@ -146,7 +147,10 @@ std::string Server::MethodGet(std::string path, Client *client)
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path, client));
 	else if (client->GetReturnstate() == true)
-		return ("");
+	{
+		if (path == client->GetLocationName())
+			return ("");
+	}
 	logger("Path not found, sending 404!");
 	return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 }

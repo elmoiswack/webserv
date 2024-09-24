@@ -21,6 +21,7 @@ private:
 	std::vector<char> _request;
 	std::string _response;
 	std::string _method;
+	std::string _locationname;
 	std::string _returnstring;
 	std::string _returncode;
 	bool		_autoindex;
@@ -35,6 +36,8 @@ public:
 	Client(int socket, std::vector<Server>::iterator serverblock);
 	~Client();
 
+	void	SetLocationName(std::string name);
+	std::string GetLocationName();
 	int GetListensock();
 	
 	std::vector<Location>::iterator GetLocationblockBegin();
