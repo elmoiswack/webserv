@@ -4,12 +4,10 @@
 #include <fstream> 
 #include <iostream> 
 
-std::string Server::WhichMethod(Client *client, std::vector<char>::iterator itfirst)
+std::string Server::WhichMethod(Client *client)
 {
 	std::string method = client->GetCurrentMethod();
-	std::string path = this->GetPath(itfirst);
-
-	std::cout << "METHOD = " << method << std::endl;
+	std::string path = this->GetPath(client);
 	std::cout << "PATH = " << path << std::endl;
 
 	auto it = this->GetLocationBlock(client, path);
@@ -35,19 +33,21 @@ std::string Server::WhichMethod(Client *client, std::vector<char>::iterator itfi
 			return (this->HtmlToString(this->GetHardCPathCode(405, client), client));
 		return (this->MethodDelete(path, client));
 	}
-	logger("Current method isn't implemented!");
-	return (this->HtmlToString(this->GetHardCPathCode(501, client), client));
+	return ("");
 }
 
-std::string Server::GetPath(std::vector<char>::iterator itfirst)
+std::string Server::GetPath(Client *client)
 {
-	while (std::isspace(*itfirst))
-		itfirst++;
-	std::vector<char>::iterator itend = itfirst;
+	auto it = client->GetBeginRequest();
+	while (!std::isspace(*it))
+		it++;
+	while (std::isspace(*it))
+		it++;
+	std::vector<char>::iterator itend = it;
 	while (!std::isspace(*itend))
 		itend++;
 	std::string path;
-	path.assign(itfirst, itend);
+	path.assign(it, itend);
 	return (path);
 }
 

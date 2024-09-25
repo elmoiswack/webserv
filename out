@@ -1,0 +1,5852 @@
+CURRENT = root
+CURRENT = autoindex
+CURRENT = index
+CURRENT = allow_methods
+CURRENT = allow_methods
+CURRENT = root
+CURRENT = autoindex
+CURRENT = index
+CURRENT = allow_methods
+CURRENT = allow_methods
+CURRENT = return
+CURRENT = root
+CURRENT = fastcgi_pass
+CURRENT = fastcgi_index
+CURRENT = fastcgi_param
+CURRENT = cgi
+CURRENT = allow_methods
+CURRENT = allow_methods
+SERVER DESTRUCTED
+
+Number of server blocks: 1
+Server IP: 127.0.0.1
+Server Port: 8001
+Server Name: test
+Client Max Body Size: 1024
+Root: 
+Server Index: 
+Allow Methods: 
+--------------------------------------
+Error Pages:
+Error Code: 501 -> URL: /status_codes/501.html
+Error Code: 500 -> URL: /status_codes/500.html
+Error Code: 413 -> URL: /status_codes/413.html
+Error Code: 412 -> URL: /status_codes/412.html
+Error Code: 411 -> URL: /status_codes/411.html
+Error Code: 410 -> URL: /status_codes/410.html
+Error Code: 409 -> URL: /status_codes/409.html
+Error Code: 204 -> URL: /status_codes/204.html
+Error Code: 300 -> URL: /status_codes/300.html
+Error Code: 404 -> URL: /status_codes/404.html
+Error Code: 301 -> URL: /status_codes/301.html
+Error Code: 405 -> URL: /status_codes/405.html
+Error Code: 505 -> URL: /status_codes/505.html
+Error Code: 302 -> URL: /status_codes/302.html
+Error Code: 303 -> URL: /status_codes/303.html
+Error Code: 307 -> URL: /status_codes/307.html
+Error Code: 400 -> URL: /status_codes/400.html
+Error Code: 401 -> URL: /status_codes/401.html
+Error Code: 402 -> URL: /status_codes/402.html
+Error Code: 403 -> URL: /status_codes/403.html
+Error Code: 408 -> URL: /status_codes/408.html
+--------------------------------------
+Locations:
+URL: /
+Auto Index: on
+Allow Methods: GET DELETE 
+Index: /index.html
+Alias: 
+CGI Pass: 
+CGI Index: 
+CGI Param: 
+Root: ./var/www
+--------------------------------------
+URL: /other
+Auto Index: off
+Allow Methods: GET 
+Index: /file_deleted.html
+Alias: 
+CGI Pass: 
+CGI Index: 
+CGI Param: 
+Root: ./var/www
+--------------------------------------
+URL: /redirection
+Auto Index: off
+Allow Methods: GET 
+Index: 
+Alias: 
+CGI Pass: 
+CGI Index: 
+CGI Param: 
+Root: 
+--------------------------------------
+URL: cgi-bin
+Auto Index: off
+Allow Methods: GET POST 
+Index: 
+Alias: 
+CGI Pass: unix:/var/run/fcgiwrap.socket
+CGI Index: index.pl
+CGI Param: SCRIPT_FILENAME /srv/www/example.com/public_html$fastcgi_script_name 
+Root: ./
+--------------------------------------
+SERVER DESTRUCTED
+
+Ammount serverblocks = 1
+port = 8001
+Server is initialized!
+Ammount of listening sockets ready: 1
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+HAHAHJSAHDKJSAHKJDA
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 163
+TOTAL READ = 163
+Done reading get!
+PATH = /
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+attempting connection...
+Connection is accepted!
+CLIENT CREATED AND VARS SET!
+New client allocated!
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+sending response to client...
+response is sent to fd!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 173
+TOTAL READ = 173
+Done reading get!
+PATH = /styles.css
+Path not found, sending 404!
+GETTING HARDCODED PATH TO ERRORFILE!
+response created!
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+
+
+Went through poll!
+
+POLLIN
+Ready to recieve...
+Bytes recv = 0
+RECV returned 0, connection closed!
+Client closed connection!
+client is about to get deleted!
+client is deleted!
+

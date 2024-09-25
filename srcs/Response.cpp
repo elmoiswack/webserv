@@ -62,7 +62,7 @@ void Server::BuildResponse(Client *client)
 			+ htmlfile;
 
 			client->ClearRequest();
-			client->SetResponse(response);	
+			client->SetResponse(response);
 		}
 		else 
 		{

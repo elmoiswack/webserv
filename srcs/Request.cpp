@@ -98,17 +98,6 @@ long Server::GetContentLenght(std::string buff)
 	return (head + body);
 }
 
-std::string Server::WhichMethod(std::string buff)
-{
-	if (buff.find("GET", 0) != buff.npos)
-		return ("GET");
-	else if (buff.find("POST", 0) != buff.npos)
-		return ("POST");
-	else if (buff.find("DELETE", 0) != buff.npos)
-		return ("DELETE");
-	return ("EMPTY");
-}
-
 void Server::IsDoneRead(Client *client)
 {
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
@@ -116,19 +105,6 @@ void Server::IsDoneRead(Client *client)
 	{
 		if (client->GetRequestSize() > 10)
 		{
-			std::string method;
-			for (int i = 0; i < 10; i++)
-			{
-				if (std::isspace(tmp[i]))
-					break ;
-				method.push_back(tmp[i]);
-			}
-			if (WhichMethod(method) == "EMPTY")
-			{
-				client->SetDonereading(true);
-				client->SetCurrentMethod(method);
-				return ;
-			}
 			client->SetCurrentMethod(this->WhichMethod(tmp));
 		}
 	}
@@ -159,8 +135,25 @@ void Server::IsDoneRead(Client *client)
 			else
 				logger("Done reading delete!");
 		}
+		else if (client->GetCurrentMethod() == "NOTIMPLEMENTED")
+		{
+			client->SetDonereading(true);
+			client->PushToRequest('\0');
+		}
 	}
 }
+
+std::string Server::WhichMethod(std::string buff)
+{
+	if (buff.find("GET", 0) != buff.npos)
+		return ("GET");
+	else if (buff.find("POST", 0) != buff.npos)
+		return ("POST");
+	else if (buff.find("DELETE", 0) != buff.npos)
+		return ("DELETE");
+	return ("NOTIMPLEMENTED");
+}
+
 
 std::string Server::GetHost(std::string tmp)
 {
@@ -182,19 +175,20 @@ std::string Server::GetHost(std::string tmp)
 
 std::string Server::ParseRequest(Client *client)
 {
-	std::vector<char>::iterator itfirst = client->GetBeginRequest();
-	while ((itfirst != client->GetEndRequest()) && (!std::isspace(*itfirst)))
+	if (client->GetCurrentMethod() == "NOTIMPLEMENTED")
 	{
-		itfirst++;
+		logger("Current method isn't implemented!");
+		return (this->HtmlToString(this->GetHardCPathCode(501, client), client));	
 	}
-	if (itfirst == client->GetEndRequest())
-		return (this->HtmlToString(this->GetHardCPathCode(400, client), client));
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 	std::string hostreq = this->GetHost(tmp);
 	if (hostreq == "EMPTY")
+	{
+		std::cout << "HAHAHJSAHDKJSAHKJDA" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(400, client), client));
+	}
 	std::string hostserv = client->GetServerName() + ":" + client->GetPort();
 	if (hostreq != hostserv && hostreq != ("localhost:" + client->GetPort()) && hostreq != ("127.0.0.1:" + client->GetPort()))
 		return (this->HtmlToString(this->GetHardCPathCode(400, client), client));
-	return (this->WhichMethod(client, itfirst));
+	return (this->WhichMethod(client));
 }

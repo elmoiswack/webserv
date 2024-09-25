@@ -154,6 +154,7 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
+		std::cout << this->_sockvec.size() << std::endl;
 		Client *client;
 		if (this->_whatsockvec[index] == "CLIENT")
 		{
@@ -205,12 +206,22 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
-				this->EventsPollin(temp.fd, client);
-				if (this->_recvzero == true)
+				if (client->GetStatusCodeState() == false)
 				{
-					logger("Client closed connection!");
-					this->DeleteClient(index, temp.fd);
-					this->_recvzero = false;
+					this->EventsPollin(temp.fd, client);
+					if (this->_recvzero == true)
+					{
+						logger("Client closed connection!");
+						this->DeleteClient(index, temp.fd);
+						this->_recvzero = false;
+					}
+				}
+				else if ((client->GetDonereading() == true && client->GetResponseSize() > 0)) //this is bit weird, only used with siege but idk
+				{
+					this->WriteToClient(temp.fd, client);
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					if (client->GetResponse() == "EMPTY")
+						this->DeleteClient(index, temp.fd);
 				}
 			}
 			else if (this->_whatsockvec[index] == "CGI_READ")
@@ -347,7 +358,7 @@ std::vector<Client*>::iterator Server::GetClient(int index)
 	if (it == this->_clientvec.end())
 	{
 		logger("FAILED GETTING CLIENT");
-		std::exit(EXIT_FAILURE);
+		return (this->_clientvec.end());
 	}
 	return (it);
 }
@@ -491,10 +502,9 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
 		"\r\n"
 		+ errfile;
 		this->_cgi_running = false;
-		client->SetResponse(response);
 		client->SetDonereading(true);
 		client->ClearRequest();
-		return("");
+		return(response);
     }
     ssize_t bytes_read = read(fd, buffer, recvmax);
 	if (bytes_read == 0)

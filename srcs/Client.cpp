@@ -18,6 +18,8 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 	this->_contentlenght = 0;
 	this->_id = 0;
 	this->_method = "EMPTY";
+	this->_isstatuscode = false;
+	this->_code = 0;
 
 	//get from location
 	this->_root = "";

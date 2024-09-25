@@ -190,8 +190,8 @@ public:
 	//METHOD.CPP
 	void SetClientVars(Client *client, std::vector<Location>::iterator it);
 	int IsMethodAllowed(std::string method, Client *client);
-	std::string WhichMethod(Client *client, std::vector<char>::iterator itfirst);
-	std::string GetPath(std::vector<char>::iterator itfirst);
+	std::string WhichMethod(Client *client);
+	std::string GetPath(Client *client);
 	std::string listDirectoryContents(const std::string &directoryPath);
 	std::string MethodDelete(std::string path, Client *client);
 	std::string MethodGet(std::string path, Client *client);
