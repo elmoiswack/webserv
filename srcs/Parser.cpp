@@ -120,6 +120,8 @@ void Parser::ParseServer(std::vector<std::string>& tokens, Parser& parser)
                     temp_server.ValidateServerName(tokens);
                 else if (tokens[0] == "client_max_body_size")
                     temp_server.ValidateClientMaxBodySize(tokens);
+                else if (tokens[0] == "recieve_size")
+                    temp_server.ValidateRecvSize(tokens);
 				else if (tokens[0] == "index")
                     temp_server.ValidateServerIndex(tokens);
                 else if (tokens[0] == "root")
@@ -169,7 +171,6 @@ void Server::ParseLocationBlock(std::vector<std::string>& tokens)
             throw std::runtime_error("Invalid Location block in config file");
 
         // Parse the instruction
-        std::cout << "CURRENT = " << tokens[0] << std::endl;
         if (tokens[0] == "allow_methods")
             newLocation.Validate_AllowMethods(tokens);
         else if (tokens[0] == "autoindex")

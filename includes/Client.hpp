@@ -10,6 +10,7 @@ private:
 	int		_id;
 	int		_listensocket;
 	std::vector<Location> _locationblocks;
+	int		_recvsize;
 	int		_recvmax;
 	std::unordered_map<int, std::string> _error_page;
 	std::string		_root;
@@ -43,8 +44,8 @@ public:
 	std::vector<Location>::iterator GetLocationblockBegin();
 	std::vector<Location>::iterator GetLocationblockEnd();
 	
-	int Getrecvmax();
-	
+	int GetRecvMax();
+	int GetRecvSize();
 	std::unordered_map<int, std::string>::iterator GetErrorpageBegin();
 	std::unordered_map<int, std::string>::iterator GetErrorpageEnd();
 	

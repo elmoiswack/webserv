@@ -67,6 +67,7 @@ void Server::InitHardcodedError()
 	this->_hcerr_page[404] = "./var/www/status_codes/404.html";
 	this->_hcerr_page[405] = "./var/www/status_codes/405.html";
 	this->_hcerr_page[411] = "./var/www/status_codes/411.html";
+	this->_hcerr_page[413] = "./var/www/status_codes/413.html";
 	this->_hcerr_page[500] = "./var/www/status_codes/500.html";
 	this->_hcerr_page[501] = "./var/www/status_codes/501.html";
 }
@@ -154,7 +155,6 @@ void Server::PollEvents()
 		temp.fd = this->_sockvec[index].fd;
 		temp.events = this->_sockvec[index].events;
 		temp.revents = this->_sockvec[index].revents;
-		std::cout << this->_sockvec.size() << std::endl;
 		Client *client;
 		if (this->_whatsockvec[index] == "CLIENT")
 		{
@@ -228,7 +228,7 @@ void Server::PollEvents()
 			{
 				logger("\n--CGI POLLIN\n");
 				if (this->_cgi_donereading == false)
-					client->SetResponse(this->readCgiResponse(temp.fd, index, client->Getrecvmax(), client));
+					client->SetResponse(this->readCgiResponse(temp.fd, index, client->GetRecvMax(), client));
 			}
 		}
 		else if (temp.revents & POLLOUT)

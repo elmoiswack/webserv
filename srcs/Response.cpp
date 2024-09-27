@@ -37,32 +37,11 @@ void Server::BuildResponse(Client *client)
 	{
 		if (client->GetStatusCodeState() == true)
 		{
-			std::string code = std::to_string(client->GetStatusCode());
-			std::string message = this->WhichMessageCode(std::stoi(code));
-			response = 
-			"HTTP/1.1 " + code + " " + message + "\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-			"\r\n"
-			+ htmlfile;
-
-			client->ClearRequest();
-			client->SetResponse(response);
+			this->BuildResponseCode(client, htmlfile);
 		}
 		else if (client->GetReturnstate() == true)
 		{
-			std::string code = client->GetReturnCode();
-			std::string message = this->WhichMessageCode(std::stoi(code));
-			response = 
-			"HTTP/1.1 " + code + " " + message + "\r\n"
-			"Location: " + client->GetReturn() + "\r\n"
-			"Content-Type: text/html\r\n"
-			"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
-			"\r\n"
-			+ htmlfile;
-
-			client->ClearRequest();
-			client->SetResponse(response);
+			this->BuildResponseRedirect(client, htmlfile);
 		}
 		else 
 		{
@@ -85,4 +64,35 @@ void Server::BuildResponse(Client *client)
 		client->SetResponse(response);
 	}
 	logger("response created!");	
+}
+
+void Server::BuildResponseCode(Client *client, std::string htmlfile)
+{
+	std::string code = std::to_string(client->GetStatusCode());
+	std::string message = this->WhichMessageCode(std::stoi(code));
+	std::string response = 
+	"HTTP/1.1 " + code + " " + message + "\r\n"
+	"Content-Type: text/html\r\n"
+	"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+	"\r\n"
+	+ htmlfile;
+	
+	client->ClearRequest();
+	client->SetResponse(response);	
+}
+
+void Server::BuildResponseRedirect(Client *client, std::string htmlfile)
+{
+	std::string code = client->GetReturnCode();
+	std::string message = this->WhichMessageCode(std::stoi(code));
+	std::string response = 
+	"HTTP/1.1 " + code + " " + message + "\r\n"
+	"Location: " + client->GetReturn() + "\r\n"
+	"Content-Type: text/html\r\n"
+	"Content-Length: " + std::to_string(htmlfile.length()) + "\r\n"
+	"\r\n"
+	+ htmlfile;
+
+	client->ClearRequest();
+	client->SetResponse(response);
 }

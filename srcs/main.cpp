@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
         Parser pars(argv[1], pars);
         runTests(pars);
 
-        //std::vector<Server> servers = pars.GetServerBlocks();
         Server serv(pars);
         serv.SetUpServer();
 
@@ -85,24 +84,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-// int main(int argc, char *argv[])
-// {
-// 	if (argc != 2)
-// 	{
-// 		std::cout << "The program needs only 1 configuration file!\n";
-// 		std::cout << "To run the program: ./webserv 'the configutation file'!" << std::endl;
-// 	}
-// 	try
-// 	{
-// 		Parser pars(argv[1]);
-// 		Server serv(pars);
-// 		runCgi("./var/www/cgi-bin");
-// 		serv.SetUpServer();
-
-// 	}
-// 	catch(const std::exception& e)
-// 	{
-// 		std::cerr << "ERROR: " << e.what() << std::endl;
-// 	}
-// }

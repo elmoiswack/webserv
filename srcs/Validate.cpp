@@ -113,10 +113,10 @@ void Server::ValidateClientMaxBodySize(std::vector<std::string>& tokens)
     switch (unit)
     {
     case 'M':
-        val *= (1 << 20);
+        val *= 1000000;
         break;
     case 'K':
-        val *= (1 << 10);
+        val *= 1000;
         break;
     case 'B':
     default:
@@ -124,6 +124,31 @@ void Server::ValidateClientMaxBodySize(std::vector<std::string>& tokens)
     }
 
     this->_client_max = std::to_string(val);
+
+    // erase the processed tokens
+    tokens.erase(tokens.begin(), tokens.begin() + 3);
+}
+
+void Server::ValidateRecvSize(std::vector<std::string>& tokens)
+{
+    // ensure there's a token after 'client_max_body_size'
+    if (tokens.size() < 3 || tokens[1] == ";")
+        throw Parser::InvalidLineConfException("Recieve Size token is missing!");
+
+    std::string value = tokens[1];
+    // ensure there's a semicolon after the size
+    if (tokens[2] != ";")
+        throw Parser::InvalidLineConfException("Invalid Recieve Size Token");
+
+    // check the validity of the Recieve size value
+    if (value.length() > 10)
+        throw Parser::InvalidLineConfException("Invalid Recieve Size Token");
+
+    if (value.find_first_not_of("1234567890") != std::string::npos) {
+        throw Parser::InvalidLineConfException("Invalid Recieve Size Token");
+    }
+
+    this->_recvsize = value;
 
     // erase the processed tokens
     tokens.erase(tokens.begin(), tokens.begin() + 3);
@@ -296,6 +321,11 @@ std::string Server::GetServName() const
 std::string Server::GetClientMax() const
 {
 	return (this->_client_max);
+}
+
+std::string Server::GetRecvSize() const
+{
+    return (this->_recvsize);
 }
 
 std::string Server::GetRoot() const

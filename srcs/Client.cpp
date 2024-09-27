@@ -13,6 +13,7 @@ Client::Client(int socket, std::vector<Server>::iterator serverblock)
 	this->_error_page = serverblock->GetErrorPage();
 	this->_port = serverblock->GetPort();
 	this->_recvmax = std::stoi(serverblock->GetClientMax());
+	this->_recvsize = std::stoi(serverblock->GetRecvSize());
 	this->_request.clear();
 	this->_response.clear();
 	this->_contentlenght = 0;
@@ -90,9 +91,14 @@ std::vector<Location>::iterator Client::GetLocationblockEnd()
 	return (this->_locationblocks.end());
 }
 
-int Client::Getrecvmax()
+int Client::GetRecvMax()
 {
 	return (this->_recvmax);
+}
+
+int Client::GetRecvSize()
+{
+	return (this->_recvsize);
 }
 
 std::unordered_map<int, std::string>::iterator Client::GetErrorpageBegin()
@@ -278,7 +284,7 @@ std::string Client::GetReturnCode()
 std::ostream& operator<<(std::ostream &out, Client *in)
 {
 	out << "Client listen sock = " << in->GetListensock() << std::endl;
-	out << "Client recvmax = " << in->Getrecvmax() << std::endl;
+	out << "Client recvmax = " << in->GetRecvMax() << std::endl;
 	out << "Client root = " << in->GetRoot() << std::endl;
 	for (auto it = in->GetErrorpageBegin(); it != in->GetErrorpageEnd(); it++)
 	{

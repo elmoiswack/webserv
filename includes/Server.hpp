@@ -64,6 +64,7 @@ private:
 	std::string _ip;
 	std::string _server_name;
 	std::string _client_max;
+	std::string _recvsize;
 	std::string _root;
 	std::string _serverindex;
 	std::unordered_map<int, std::string> _error_page;
@@ -96,6 +97,7 @@ public:
 	void ValidatePort(std::vector<std::string>& tokens);
 	void ValidateServerName(std::vector<std::string>& tokens);
 	void ValidateClientMaxBodySize(std::vector<std::string>& tokens);
+	void ValidateRecvSize(std::vector<std::string>& tokens);
 	void ValidateRoot(std::vector<std::string>& tokens);
 	void ValidateErrorPage(std::vector<std::string>& tokens);
 	void ValidateServerIndex(std::vector<std::string> &tokens);
@@ -105,6 +107,7 @@ public:
 	std::string GetPort() const;	
 	std::string GetServName() const;
 	std::string GetClientMax() const;
+	std::string GetRecvSize() const;
 	std::string GetRoot() const;
 	std::string GetServerIndex() const;
 	std::vector<std::string> GetServerNames() const;
@@ -186,6 +189,9 @@ public:
 	//RESPONSE.CPP
 	void WriteToClient(int fd, Client *client);
 	void BuildResponse(Client *client);
+	void BuildResponseCode(Client *client, std::string htmlfile);
+	void BuildResponseRedirect(Client *client, std::string htmlfile);
+
 
 	//METHOD.CPP
 	void SetClientVars(Client *client, std::vector<Location>::iterator it);

@@ -14,7 +14,7 @@ void Server::EventsPollin(int fd, Client *client)
 	{
 		this->InitRequest(fd, client);
 	}
-	if (client->GetDonereading() == true)
+	if (client->GetDonereading() == true && client->GetResponseSize() == 0)
 	{
 		this->BuildResponse(client);
 	}
@@ -35,8 +35,8 @@ void Server::InitRequest(int fd, Client *client)
 int Server::RecieveMessage(int fd, Client *client)
 {
 	logger("Ready to recieve...");
-	char* buff = new char[client->Getrecvmax()];
-	int rbytes = recv(fd, buff, client->Getrecvmax(), 0);
+	char* buff = new char[client->GetRecvSize()];
+	int rbytes = recv(fd, buff, client->GetRecvSize(), 0);
 	std::cout << "Bytes recv = " << rbytes << std::endl;
 	this->_totalread += rbytes;
 	if (rbytes == -1)
@@ -57,7 +57,7 @@ int Server::RecieveMessage(int fd, Client *client)
 		client->PushToRequest(buff[index]);
 		index++;
 	}
-	std::cout << "TOTAL READ = " << client->GetRequestSize() << std::endl;
+	std::cout << "Total recv = " << client->GetRequestSize() << std::endl;
 	this->IsDoneRead(client);
 	delete[] buff;
 	return (1);
@@ -100,6 +100,14 @@ long Server::GetContentLenght(std::string buff)
 
 void Server::IsDoneRead(Client *client)
 {
+	if (client->GetRecvMax() < client->GetRequestSize())
+	{
+		client->SetStatusCode(413);
+		std::string html = (this->HtmlToString(this->GetHardCPathCode(413, client), client));
+		this->BuildResponseCode(client, html);
+		client->SetDonereading(true);
+		return ;
+	}
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 	if (client->GetCurrentMethod() == "EMPTY")
 	{
@@ -183,10 +191,7 @@ std::string Server::ParseRequest(Client *client)
 	std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 	std::string hostreq = this->GetHost(tmp);
 	if (hostreq == "EMPTY")
-	{
-		std::cout << "HAHAHJSAHDKJSAHKJDA" << std::endl;
 		return (this->HtmlToString(this->GetHardCPathCode(400, client), client));
-	}
 	std::string hostserv = client->GetServerName() + ":" + client->GetPort();
 	if (hostreq != hostserv && hostreq != ("localhost:" + client->GetPort()) && hostreq != ("127.0.0.1:" + client->GetPort()))
 		return (this->HtmlToString(this->GetHardCPathCode(400, client), client));
