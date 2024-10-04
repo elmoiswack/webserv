@@ -171,16 +171,15 @@ std::string Server::MethodGet(std::string path, Client *client)
 	if (client->GetIndex() == "EMPTY")
 		return (this->GetAutoindex(path, client));
 	
-	auto pathend = path.back();
-	if (pathend == '/' || path == client->GetIndex())
-		return (this->HtmlToString(client->GetRoot() + client->GetIndex(), client));
+	if ((client->GetLocationName() == path) || (client->GetLocationName() + "/" == path) || (path == client->GetIndex()))
+	{
+		if (client->GetReturnstate() == true)
+			return ("");
+		else
+			return (this->HtmlToString(client->GetRoot() + client->GetIndex(), client));
+	}
 	else if (path.find("/status_codes/", 0) != path.npos)
 		return (this->GetSatusCodeFile(path, client));
-	else if (client->GetReturnstate() == true)
-	{
-		if (path == client->GetLocationName())
-			return ("");
-	}
 	logger("Path not found, sending 404!");
 	return (this->HtmlToString(this->GetHardCPathCode(404, client), client));
 }

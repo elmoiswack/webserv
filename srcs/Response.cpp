@@ -41,6 +41,7 @@ void Server::BuildResponse(Client *client)
 		}
 		else if (client->GetReturnstate() == true)
 		{
+			std::cout << "NANI DA FUQ" << std::endl;
 			this->BuildResponseRedirect(client, htmlfile);
 		}
 		else 
