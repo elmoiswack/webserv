@@ -134,7 +134,7 @@ void Server::RunPoll()
 	while (1)
 	{
 		int ret = poll(this->_sockvec.data(), this->_sockvec.size(), -1);
-		logger("\nWent through poll!\n");
+		// logger("\nWent through poll!\n");
 		if (ret < 0)
 		{
 			std::cout << "ERROR POLL" << std::endl;
@@ -168,6 +168,7 @@ void Server::PollEvents()
 		}
 		if (!(temp.revents & POLLIN) && this->_cgi_running && this->_whatsockvec[index] != "SERVER" && this->_whatsockvec[index] != "CLIENT" && !this->checkCgiTimer(temp, index))
 		{
+			logger("CGI TIMEOUT TRIGGERED");
 			std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 			std::string response = 
 			"HTTP/1.1 500 OK\r\n"
@@ -187,6 +188,7 @@ void Server::PollEvents()
 		}
 		else if (temp.revents & POLLIN)
 		{
+			this->_cgi_running = false;
 			if (this->_whatsockvec[index] == "SERVER")
 			{
 				this->AcceptClient(index);

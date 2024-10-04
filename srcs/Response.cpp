@@ -26,6 +26,7 @@ void Server::WriteToClient(int fd, Client *client)
 	client->SetCurrentMethod("EMPTY");
 	client->SetStatusCode(0);
 	client->SetStatusCodeState(false);
+	this->_cgi_running = false;
 	this->_totalread = 0;
 }
 
@@ -79,7 +80,7 @@ void Server::BuildResponseCode(Client *client, std::string htmlfile)
 	+ htmlfile;
 	
 	client->ClearRequest();
-	client->SetResponse(response);	
+	client->SetResponse(response);
 }
 
 void Server::BuildResponseRedirect(Client *client, std::string htmlfile)
