@@ -223,7 +223,7 @@ bool Cgi::waitForChild() const
         if (result == 0)
 		{
             // Child is still running, continue loop (non-blocking)
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
 		else if (result == -1)

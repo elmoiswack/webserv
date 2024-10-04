@@ -474,7 +474,7 @@ void Server::writeToCgi(int fd, int index)
 std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *client)
 {
 	char *buffer = new char[recvmax];
-    if (this->_cgi->waitForChild() == false)
+    if (!this->_cgi_running && this->_cgi->waitForChild() == false)
     {
         logger("\nERROR CGI PROCESS\n");
 		delete this->_cgi;
