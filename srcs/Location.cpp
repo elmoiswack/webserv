@@ -2,7 +2,7 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 
-bool Location::cgi_status = false;
+bool Location::cgi_status = true;
 
 Location::Location() :
     auto_index(false),
