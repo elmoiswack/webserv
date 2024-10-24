@@ -208,7 +208,7 @@ void Server::PollEvents()
 			}
 			else if (this->_whatsockvec[index] == "CLIENT")
 			{
-				if (client->GetStatusCodeState() == false)
+				if (client->GetDonereading() == false && client->GetResponseSize() == 0)
 				{
 					this->EventsPollin(temp.fd, client);
 					if (this->_recvzero == true)
