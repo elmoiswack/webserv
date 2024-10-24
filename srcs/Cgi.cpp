@@ -11,23 +11,18 @@ bool isCgi(const std::string &url)
 Cgi::Cgi()
 {
 	std::cout << "--CGI CONSTRUCTED\n";
-	_initPipes();
 }
 
 Cgi::Cgi(const std::string &method, const std::string &post_data, const std::string &path, const std::string &request) : _method(method),
 																														 _postData(post_data),
 																														 _cgiEnvVars(initCgiEnvVars(request, path)),
 																														 _cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
-{
-	_initPipes();
-}
+{}
 
 Cgi::Cgi(const std::string &method, const std::string &path, const std::string &request) : _method(method),
 																						   _cgiEnvVars(initCgiEnvVars(request, path)),
 																						   _cgiEnvVarsCstyle(initCgiEnvVarsCstyle())
-{
-	_initPipes();
-}
+{}
 
 Cgi::Cgi(const Cgi &obj) : _method(obj._method),
 						   _postData(obj._postData),
@@ -287,14 +282,16 @@ bool Cgi::runCgi(const std::string &cgi_path, Server *server)
 	return (true);
 }
 
-void Cgi::_initPipes()
+bool Cgi::_initPipes()
 {
 	if (pipe(_responsePipe) == -1 || pipe(_uploadPipe) == -1)
 	{
-		std::cout << "ERROR PIPE\n";
-		std::exit(EXIT_FAILURE);
+		std::cout << "ERROR CREATING PIPES\n";
+		return false;
 	}
+	return true;
 }
+
 
 int Cgi::getReadEndResponsePipe() const
 {

@@ -36,8 +36,8 @@ class Cgi
 		pid_t						_pid;
 		int 						_uploadPipe[2];
 		int 						_responsePipe[2];	
-		void						_initPipes();
 	public:
+		bool						_initPipes();
 		std::vector<char *> 		_cgiEnvVarsCstyle;
 		Cgi();
 		Cgi(const std::string &method, const std::string &post_data, const std::string &path, const std::string &request);

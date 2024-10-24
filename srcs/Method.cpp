@@ -141,6 +141,8 @@ std::string Server::MethodGet(std::string path, Client *client)
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_cgi = new Cgi(client->GetCurrentMethod(), path, tmp);
+		if (!this->_cgi->_initPipes())
+			return (this->HtmlToString(this->GetHardCPathCode(500, client), client));
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
 			client->ClearResponse();
@@ -436,7 +438,9 @@ std::string Server::MethodPost(std::string path, Client *client)
 		this->_cgi_donereading = false;
 		std::string tmp(client->GetBeginRequest(), client->GetEndRequest());
 		this->_post_data = ParsePost(tmp);
-		this->_cgi = new Cgi(client->GetCurrentMethod(), this->_post_data, path, tmp);	
+		this->_cgi = new Cgi(client->GetCurrentMethod(), this->_post_data, path, tmp);
+		if (!this->_cgi->_initPipes())
+			return (this->HtmlToString(this->GetHardCPathCode(500, client), client));	
 		this->_iscgi = true;
 		if (client->GetResponseSize() > 0)
 			client->ClearResponse();
