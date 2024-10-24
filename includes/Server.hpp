@@ -85,6 +85,8 @@ private:
 	
 
 	// std::unique_ptr<Cgi> _current_cgi;
+	std::string stopCgiProcess(int index, Client *client);
+	std::string CgiPipeFullyRead(int index, Client *client);
 public:
 	//SERVER.CPP
  	Server(const std::string& ip, const std::string& port, const std::string& server_name,

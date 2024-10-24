@@ -488,30 +488,9 @@ void Server::writeToCgi(int fd, int index)
     }
 }
 
-std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *client)
+std::string Server::stopCgiProcess(int index, Client *client)
 {
-	char *buffer = new char[recvmax];
-    if (!this->_cgi_running && this->_cgi->waitForChild() == false)
-    {
-        logger("\nERROR CGI PROCESS\n");
 		delete this->_cgi;
-		this->RmvSocket(index);
-		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
-		std::string response = 
-		"HTTP/1.1 500 Internal Server Error\r\n"
-		"Content-Type: text/html\r\n"
-		"Content-Length: " + std::to_string(errfile.length()) + "\r\n"
-		"\r\n"
-		+ errfile;
-		this->_cgi_running = false;
-		client->SetDonereading(true);
-		client->ClearRequest();
-		return(response);
-    }
-    ssize_t bytes_read = read(fd, buffer, recvmax);
-	if (bytes_read == 0)
-    {
-        logger("REACHED EOF");
 		this->RmvSocket(index);
 		std::string errfile = this->HtmlToString(this->GetHardCPathCode(500, client), client);
 		std::string response = 
@@ -524,20 +503,14 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
 		client->SetResponse(response);
 		client->SetDonereading(true);
 		client->ClearRequest();
-		return (client->GetResponse());
-    }
-    else if (bytes_read < 0)
-	{
-        logger("ERROR READING FROM CGI PIPE (read returned -1)");
-		std::exit(EXIT_FAILURE);
-	}
-	for (int i = 0; i < bytes_read; ++i)
-		this->_cgi_response.push_back(buffer[i]);
-	if (bytes_read < recvmax)
-    {
-        logger("CGI PIPE FULLY READ");
+		return(client->GetResponse());
+}
+
+std::string Server::CgiPipeFullyRead(int index, Client *client)
+{
 		std::string tmp(this->_cgi_response.begin(), this->_cgi_response.end());
 		client->SetResponse(tmp);
+		client->SetDonereading(true);
 		client->ClearRequest();
 		this->_cgi_response.clear();
 		this->_cgi_donereading = true;
@@ -546,6 +519,33 @@ std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *clie
 		logger("REMOVING SOCKET IN READ CGI RES");
 		this->RmvSocket(index);
 		return (client->GetResponse());
+}
+
+std::string Server::readCgiResponse(int fd, int index, int recvmax, Client *client)
+{
+	char *buffer = new char[recvmax];
+    if (!this->_cgi_running && this->_cgi->waitForChild() == false)
+    {
+        logger("\nERROR CGI PROCESS\n");
+		return(this->stopCgiProcess(index, client));
+    }
+    ssize_t bytes_read = read(fd, buffer, recvmax);
+	if (bytes_read == 0)
+    {
+        logger("REACHED EOF");
+		return (CgiPipeFullyRead(index, client));
+    }
+    else if (bytes_read < 0)
+	{
+        logger("ERROR READING FROM CGI PIPE (read returned < 0)");
+		return(this->stopCgiProcess(index, client));
+	}
+	for (int i = 0; i < bytes_read; ++i)
+		this->_cgi_response.push_back(buffer[i]);
+	if (bytes_read < recvmax)
+    {
+        logger("CGI PIPE FULLY READ");
+		return (CgiPipeFullyRead(index, client));
 	}
 	delete[] buffer;
     return "";
